@@ -1,0 +1,102 @@
+#form-journal{
+    width: 650px !important;
+    float:left;
+}
+
+#form-right{
+    float: left;
+    margin-left: 50px;
+}
+
+.title{
+    line-height: 41px;
+    font-family: 'lato-bold', sans-serif;
+    font-size: 30px;
+    text-transform: capitalize;
+}
+
+.detail-content{
+    width: 700px;
+}
+
+.desc{
+    float: left;
+    max-width: 400px;
+    text-align: justify;
+}
+
+.preview-image{
+    float: right;
+    max-width: 300px;
+}
+
+.content_add
+{
+    display:inline-block;
+}
+.modal-body {
+    position: relative;
+    flex: 1 1 auto;
+    padding: 48px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding-top: 10px;
+    padding-left:75px;
+    padding-right:75px;
+}
+.modal-header {
+    display: inherit;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border-bottom: 0 solid #e9ecef;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+.custom--input .modal--upload-picture .croppa-container, .page--create-detail .modal--upload-picture .croppa-container {
+    height: 460.8px;
+    background-color: #00000014;
+}
+.fieldarea
+{
+    margin:0 auto;
+    display:block;
+    text-align:center;
+
+}
+.field.fieldinfo {
+    color: #999999;
+    position: relative;
+    top: 47px;
+}
+.modal--upload-picture .modal-upload-foto-save {
+    background-color:#f780a7;
+    color: #fff;
+    border-color: #f09ab9;
+    padding: 6px 0;
+  
+    /* font-size: 12px; */
+    letter-spacing: .43px;
+    /* position: absolute; */
+    position: absolute;
+    top: 88%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin-top:2%;
+    width: 128px;
+    opacity: 0.8;
+}
+.modal--upload-picture .modal-upload-foto-save:hover
+{
+    color:#fff;
+}
+
+.label-post {
+    color: #222 !important;
+    font: 17px 'lato-regular', sans-serif !important;
+    font-weight: bold !important;
+    margin-bottom: 5px !important;
+}

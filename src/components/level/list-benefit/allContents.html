@@ -1,0 +1,84 @@
+<div>
+  <div class="sc-table-title">Benefit dari {{data.name}}</div>
+  <router-link :to="{ name: 'add-benefit-lebel'}" class="sc-btn sc-btn-lg sc-btn-primary sc-btn-rounded">
+    + ADD
+  </router-link>
+  <div class="sc-pagination">
+    <h1 class="sc-pagination-label">Pagination</h1>
+    <div class="sc-pagination-form">
+      <input
+        class="sc-btn sc-btn-secondary sc-pagination-btn"
+        v-if="pagination.currentPage > 1"
+        type="submit"
+        value="Prev"
+        v-on:click="gotoPage(pagination.currentPage - 1)"
+      />
+      <input
+        class="sc-pagination-input"
+        type="number"
+        min="1"
+        :max="pagination.totalPage"
+        name=""
+        v-model="pagination.currentPage"
+        @keyup.enter.prevent="gotoPage(pagination.currentPage)"
+      />
+      <input
+        class="sc-btn sc-btn-secondary sc-pagination-btn"
+        v-if="pagination.totalPage > pagination.currentPage"
+        type="submit"
+        value="Next"
+        v-on:click="gotoPage(pagination.currentPage+1)"
+      />
+    </div>
+  </div>
+  <div class="sc-filter">
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Search: </label>
+      <input class="sc-filter-input" type="input" v-model="filter.title" @keyup="searchQuery" />
+    </div>
+  </div>
+
+  <div class="loader" v-if="is_loading">
+    <ball-pulse-loader color="#000000" size="20px"></ball-pulse-loader>
+  </div>
+
+  <div class="sc-table-responsive">
+  <table class="sc-table">
+    <thead>
+      <tr>
+        <th style="width: 100px">ID</th>
+        <th>Title</th>
+        <th>Url</th>
+        <th>Description</th>
+        <th>Cover Image</th>
+        <th style="width: 100px">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="level in data.benefits">
+        <td v-if=' typeof level._id !== "undefined"'>{{ level._id.substring(18) }}</td>
+        <td v-else></td>
+        <td>{{ level.title }}</td>
+        <td><a :href="level.url" target="_blank">{{level.url}}</a></td>
+        <td>{{ level.description }}</td>
+        <td>
+          <img v-if="level.image" :src="level.image" style="height: 100px; margin-bottom: 5px" />
+        </td>
+        <td>
+          <div>
+            <a style="color: #225d42"
+              ><router-link :to="`benefits/${level._id}`" style="color: #225d42">Edit</router-link></a
+            >
+            <br />
+            <a style="color: #225d42" v-on:click="trash(level._id,level.title)">Delete</a>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="sc-pagination-page">
+    <div class="sc-pagination-text">Page: {{ pagination.currentPage }} out of {{ pagination.totalPage}}</div>
+    <div class="sc-pagination-text">Total Record: {{ pagination.currentTotalRecord }}</div>
+  </div>
+</div>

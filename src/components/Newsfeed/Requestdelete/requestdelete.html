@@ -1,0 +1,200 @@
+<div>
+  <div class="sc-pagination">
+    <h1 class="sc-pagination-label">Pagination</h1>
+    <div class="sc-pagination-form">
+      <input
+        class="sc-btn sc-btn-secondary sc-pagination-btn"
+        v-if="pagination.currentPage > 1"
+        type="submit"
+        value="Prev"
+        v-on:click="gotoPage(pagination.currentPage - 1)"
+      />
+      <input
+        class="sc-pagination-input"
+        type="number"
+        min="1"
+        :max="pagination.totalPage"
+        name=""
+        v-model="pagination.currentPage"
+        @keyup.enter.prevent="gotoPage(pagination.currentPage)"
+      />
+      <input
+        class="sc-btn sc-btn-secondary sc-pagination-btn"
+        v-if="pagination.totalPage > pagination.currentPage"
+        type="submit"
+        value="Next"
+        v-on:click="gotoPage(pagination.currentPage+1)"
+      />
+    </div>
+  </div>
+
+  <div class="sc-filter">
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">ID: </label>
+      <input class="sc-filter-input" type="text" placeholder="Search ID" v-model="filter.id" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">User: </label>
+      <input class="sc-filter-input" type="text" placeholder="Search Name" v-model="filter.name" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Title: </label>
+      <input class="sc-filter-input" type="text" placeholder="Search Title" v-model="filter.title" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Country: </label>
+      <select class="sc-filter-input" name="country" v-model="filter.country_source">
+        <option value="" selected>-- Select Country --</option>
+        <option :value="source_id">ID</option>
+        <option :value="source_vn">VN</option>
+      </select>
+    </div>
+    <div class="sc-filter-item sc-filter-button">
+      <input
+        type="submit"
+        value="Filter"
+        class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-mr-10"
+        @click="fetchData()"
+      />
+      <input type="submit" value="Reset" class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded" @click="reset" />
+
+      <div v-if="checkedIds.length" class="sc-filter-item sc-filter-button">
+        <div style="margin-right: 10px; margin-left: 10px">
+          <label class="sc-filter-label">Action: </label>
+        </div>
+        <input
+          type="submit"
+          value="Delete"
+          class="sc-btn sc-btn-warning sc-btn-md sc-btn-rounded sc-mr-10"
+          @click="bulkDelete"
+        />
+      </div>
+    </div>
+  </div>
+
+  <div class="sc-table-responsive">
+    <table class="sc-table">
+      <thead>
+        <tr style="height: 25px">
+          <th style="width: 90px; font-size: 10px">
+            {{checkedIds.length >= 5 ? 'Remove All' : 'Select All'}}
+            <input type="checkbox" :value="checkedIds.length >= 5 ?  true :false" @change="selectAll" />
+          </th>
+          <th style="width: 150px"># Id</th>
+          <th style="width: 200px">USER</th>
+          <th>NEWSFEED CONTENT</th>
+          <th style="width: 110px">
+            TYPE
+            <sortField v-show="!is_loading" field="object_type" :sort="sortParam" @sort="sort" />
+          </th>
+          <!-- <th>REASON</th> -->
+          <th style="width: 130px">
+            STATUS
+            <sortField v-show="!is_loading" field="is_deleted" :sort="sortParam" @sort="sort" />
+          </th>
+          <th style="width: 130px">
+            REPORTED AT
+            <sortField v-show="!is_loading" field="delete_request_at" :sort="sortParam" @sort="sort" />
+          </th>
+          <th style="width: 150px">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <div class="loader" v-if="is_loading" style="width: 100%; text-align: center">
+          <ball-pulse-loader color="#000000" size="20px"></ball-pulse-loader>
+        </div>
+        <TableEmpty :cols="7" v-if="!is_loading && !(data && data.length)" />
+        <tr v-for="report in data">
+          <td>
+            <input type="checkbox" :id="report._id" :value="report._id" v-model="checkedIds" />
+          </td>
+          <td v-if="report && report.object_type == 'vote' &&  report.vote">
+            <a target="_BLANK" :href="`${socoWebUrl}/polling/${report._id}`">{{report._id}}</a>
+          </td>
+          <td v-else-if="report && report.object_type == 'add-review' && report.review">
+            <a
+              target="_BLANK"
+              :href="`${reviewWebUrl}${(report && report.review && report.review.product)? report.review.product.url_review : ''} ` "
+              >{{report._id}}</a
+            >
+          </td>
+          <td v-else-if="report && report.object_type == 'add-review' && !report.review">-</td>
+          <td v-else-if="report && report.object_type == 'video' &&  report.video">
+            <a
+              target="_BLANK"
+              :href="`${journalWebUrl}${(report && report.video && report.video.url)? report.video.url : ''} ` "
+              >{{report._id}}</a
+            >
+          </td>
+          <td v-else-if="report && report.object_type == 'article' &&  report.article">
+            <a
+              target="_BLANK"
+              :href="`${journalWebUrl}${(report && report.article && report.article.url)? report.article.url : ''} ` "
+              >{{report._id}}</a
+            >
+          </td>
+          <td v-else-if="report && report.object_type == 'collection' &&  report.collection">
+            <a target="_BLANK" :href="`${socoWebUrl}/collection/${report._id}` ">{{report._id}}</a>
+          </td>
+          <td v-else-if="report && report.object_type == 'photo-tagging'">
+            <a target="_BLANK" :href="`${socoWebUrl}/photo/${report._id}` ">{{report._id}}</a>
+          </td>
+          <td v-else-if="report && report.object_type == 'event_checkin'">
+            <a target="_BLANK" :href="`${socoWebUrl}/events/${report._id}` ">{{report._id}}</a>
+          </td>
+
+          <td>
+            <template v-if="report.actor && report.actor.name">{{ report.actor.name }}</template>
+            <template v-else></template>
+          </td>
+
+          <td v-if="report && report.object_type == 'vote' &&  report.vote">{{ report.vote.question }}</td>
+          <td v-else-if="report && report.object_type == 'add-review' && report['review']">
+            Review Product:<br />
+            <p v-if="report.review.product && report.review.product.name">
+              <b>{{ report.review.product.name }}</b>
+            </p>
+            <p v-if="report.review.details">{{ report.review.details.substring(0, 200) }}</p>
+          </td>
+          <td v-else-if="report && report.object_type == 'video' &&  report.video">{{ report.video.post_title }}</td>
+          <td v-else-if="report && report.object_type == 'article' &&  report.article">
+            {{ report.article.post_title }}
+          </td>
+          <td v-else-if="report && report.object_type == 'collection' &&  report.collection">
+            {{ report.collection.title }}
+          </td>
+          <td v-else-if="report && report.object_type == 'photo-tagging' &&  report['photo-tagging']">
+            <div class="wrap-text">
+              {{ String(report['photo-tagging'].caption).substring(0, 200) }}
+              <span v-if="String(report['photo-tagging'].caption).length > 200">...</span>
+            </div>
+          </td>
+          <td v-else-if="report && report.object_type == 'event_checkin' &&  report.event">{{ report.event.title }}</td>
+          <td v-else></td>
+
+          <td>{{report.object_type}}</td>
+          <!-- <td>{{report.deleted_reason}}</td> -->
+
+          <td v-if="report && !report.is_deleted">Pending</td>
+          <!-- <td v-else-if="report && report.is_deleted == true">Approved</td> -->
+          <td v-else-if="report && report.is_deleted == true">Deleted</td>
+          <td v-else></td>
+
+          <td>{{ dateFormat_Ymd(report.delete_request_at) }} - {{ report.actor && report.actor.name }}</td>
+
+          <td>
+            <div>
+              <span title="Undo" aria-hidden="true" class="fa fa fa-undo btn_delete" @click="undo(report._id)"></span>
+              <span title="Trash" aria-hidden="true" class="fa fa-trash btn_delete" @click="trash(report._id)"></span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <br />
+  <div>
+    <p>Page: {{ pagination.currentPage }} out of {{ pagination.totalPage}}</p>
+    <p>Total Record: {{ pagination.currentTotalRecord }}</p>
+  </div>
+</div>

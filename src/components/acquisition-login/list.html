@@ -1,0 +1,37 @@
+<div>
+  <div class="sc-table-title">Login Acquisition Data</div>
+  <div class="sc-filter">
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">From: </label>
+      <input class="sc-filter-input" :formatter="formatDate" type="date" v-model="filter.date_start" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">To: </label>
+      <input class="sc-filter-input" :formatter="formatDate" type="date" v-model="filter.date_end" />
+    </div>
+    <div class="sc-filter-item sc-filter-button">
+      <input
+        type="submit"
+        value="Export"
+        class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-mr-10"
+        @click="exportData"
+      />
+    </div>
+  </div>
+
+  <div class="sc-table-responsive">
+    <table class="sc-table">
+      <thead>
+        <tr>
+          <th v-for="head in header">{{head}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <TableEmpty :cols="header.length" v-if="!is_loading && !(bodyRow && bodyRow.length)" />
+        <tr v-for="row in bodyRow">
+          <td v-for="body in row">{{body}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

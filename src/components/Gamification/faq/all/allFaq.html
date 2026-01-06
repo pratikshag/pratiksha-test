@@ -1,0 +1,54 @@
+<div>
+  <div class="sc-filter">
+    <!-- <a style="color:#225d42"><router-link :to="{ name: 'add-banners'}" style="color:#225d42" class="btn btn-success"> + ADD </router-link></a> -->
+    <router-link :to="{ name: 'add-faq'}" class="sc-btn sc-btn-rounded sc-btn-lg sc-btn-primary">
+      + ADD FAQ
+    </router-link>
+  </div>
+
+  <div class="loader" v-if="is_loading">
+    <ball-pulse-loader color="#000000" size="20px"></ball-pulse-loader>
+  </div>
+  <div class="sc-table-responsive">
+    <div class="sc-table sc-table-mb sc-table-scroll-new">
+      <table>
+        <thead>
+          <tr>
+            <th>Question</th>
+            <th>Answer</th>
+            <th>Display Order</th>
+            <th>Version</th>
+            <th>Last Updated</th>
+            <th style="width: 100px">ACTION</th>
+          </tr>
+        </thead>
+        <tbody>
+          <TableEmpty :cols="8" v-if="!is_loading && !(data && data.length)" />
+
+          <tr v-for="faq in data">
+            <td v-html="faq.title"></td>
+            <td v-html="faq.description"></td>
+            <td>{{ !faq.position ? 0 : faq.position }}</td>
+            <td>{{ faq.source }}</td>
+            <td>{{ dateFormat_dmY(faq.created_at) }}</td>
+            <td>
+              <!-- <div class="sc-table-btn column-btn"> 
+								<router-link class="sc-table-btn-item sc-btn sc-btn-primary sc-btn-rounded sc-btn-sm" :to="`/gamification/faq/edit/${faq._id}`">Edit</router-link>
+								<a class="sc-table-btn-item sc-btn sc-btn-primary sc-btn-rounded sc-btn-sm" v-on:click="trash(faq._id)">DELETE</a>
+							</div> -->
+
+              <div class="sc-table-btn">
+                <router-link class="sc-mr-10 btn-default text-pink" :to="`/gamification/faq/edit/${faq._id}`">
+                  <i class="fa fa-pencil"></i>
+                </router-link>
+                <span v-if="!data.is_deleted" @click.prevent="trash(faq._id)" class="btn-default text-pink">
+                  <i class="fa fa-trash-o"></i>
+                </span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

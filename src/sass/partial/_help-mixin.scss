@@ -1,0 +1,41 @@
+table.table-form {
+    
+    > thead {
+        > tr {
+            border-bottom: none;
+            
+            > th {
+                background-color: #f97ea7;
+                color: #fff;
+                font-size: 14px;
+                text-transform: initial;
+                white-space: nowrap;
+            }
+        }
+    }
+    > tbody {
+        /deep/ {
+            > tr {
+                > td {
+                    font-size: 14px;
+                }
+            }
+        }
+    }
+}
+
+@mixin actions {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: space-evenly;
+
+    > li {
+        > a {
+            > span {
+                font-size: 20px;
+            }
+        }
+    }
+}

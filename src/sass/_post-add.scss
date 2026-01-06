@@ -1,0 +1,68 @@
+#form_my_journal {
+	.upload-photo i.ion.ion-md-close.step-icon.icon-cross {
+		font-size: 16px;
+		color: white;
+	}
+	.block-slider-shot .upload-photo .wrap .remove {
+		background: #ff1e1e;
+	}
+	.custom-modal.modal-mask.modal--upload-picture {
+		// background: white;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		.modal-dismiss {
+			// position: fixed;
+			// left: calc(100% - 280px);
+			// top: 50px;
+			background: pink;
+			border-radius: 50%;
+			width: 30px;
+			height: 30px;
+			color: black;
+			font-size: 35px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+	}
+	.block-form-my-journal .field {
+		width: 100%;
+		margin-bottom: 20px;
+		.group-button {
+			font: normal 15px/15px 'lato-regular', sans-serif;
+		}
+		input {
+			color: black;
+			height: 30px;
+			line-height: 30px;
+			padding: 0;
+			&#title {
+				text-indent: 12px;
+			}
+		}
+	}
+	.custom-modal.modal-mask.modal--upload-picture {
+		#undertone-modal {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+		.modal-body {
+			overflow: scroll;
+			max-width: 1000px;
+			flex-basis: 1000px;
+			max-height: calc(100vh - 50px);
+			position: relative;
+			top: auto;
+			left: auto;
+			margin: 0;
+			transform: none;
+		}
+	}
+	.ql-snow .ql-picker.ql-header .ql-picker-item:before,
+	.ql-snow .ql-picker.ql-header .ql-picker-label:before {
+		margin-left: 20px;
+		white-space: nowrap;
+	}
+}

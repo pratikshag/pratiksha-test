@@ -1,0 +1,60 @@
+<div class="col-wrap">
+  <div class="container-fluid container-fixed-lg">
+    <div class="loader"></div>
+    <h2>Edit Action</h2>
+    <hr />
+    <div class="form-field form-required term-name-wrap">
+      <label for="tag-name">User Action </label>
+      <div class="col-sm-4">
+        <label class="form-control" style="margin-left: 100px; width: 100%" id="name" name="name" v-model="useraction"
+          >{{useraction}}</label
+        >
+      </div>
+    </div>
+    <hr />
+    <div class="form-field form-required term-name-wrap">
+      <label for="tag-name">Point Type </label>
+      <div class="col-sm-4">
+        <select
+          class="form-control"
+          style="margin-left: 100px; width: 100%"
+          id="name"
+          type="text"
+          v-model="pointtype"
+          name="name"
+        >
+          <option value="increment">increment</option>
+          <option value="decrement">decrement</option>
+        </select>
+      </div>
+    </div>
+    <hr />
+    <div class="form-field form-required term-name-wrap">
+      <label for="tag-name">Point </label>
+      <div class="col-sm-4">
+        <input
+          type="number"
+          class="form-control"
+          style="margin-left: 100px; width: 100%"
+          id="name"
+          name="name"
+          v-model="pointexp"
+        />
+      </div>
+    </div>
+    <hr />
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <input
+          type="Submit"
+          style="background: #0085ba; color: white; width: 20%; height: 40px; border-radius: 0px; font-size: larger"
+          v-on:click="editactionlist(cat)"
+          value="Submit"
+          id="form_submit_btn"
+          class="btn btn-success"
+        />
+      </div>
+    </div>
+    <hr />
+  </div>
+</div>

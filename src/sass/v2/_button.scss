@@ -1,0 +1,81 @@
+.sc-btn {
+    display: inline-block;
+    font-size: 12px;
+    border: none;
+    background-color: #E5E5E5;
+    color: #292929;
+    letter-spacing: .5px;
+    padding: 6px 10px;
+    font-family: $fonttype_d;
+    cursor: pointer;
+    transition: all .5s ease-in-out;
+    &:hover {
+        opacity: .8;
+    }
+    &.sc-btn-block {
+        width: 100%;
+        display: block;
+    }
+    &.sc-btn-rounded {
+        border-radius: 4px;
+    }
+    &.sc-btn-sm {
+        padding: 5px 10px;
+    }
+    &.sc-btn-md {
+        font-size: 14px;
+        padding: 6px 20px;
+    }
+    &.sc-btn-lg {
+        font-size: 15px;
+        padding: 10px 30px;
+    }
+    &.sc-btn-primary {
+        color: #FFFFFF;
+        background-color: #DA709E;
+    }
+    &.sc-btn-secondary {
+        color: #FFFFFF;
+        background-color: #000000;
+    }
+    &.sc-btn-danger {
+        color: #FFFFFF;
+        background-color: #e34a4a;
+    }
+    &.sc-btn-success {
+        color: #FFFFFF;
+        background-color: #225d42;
+    }
+    &.sc-btn-white {
+        background-color: #FFFFFF;
+        border: 1px solid #292929;
+    }
+    &.sc-btn-red {
+        color: #fff;
+        background-color: #da2a52;
+    }
+    &.sc-btn-on {
+        color: #FFFFFF;
+        background-color: #7ED321;
+    }
+    &.sc-btn-off {
+        color: #FFFFFF;
+        background-color: #D0021B;
+    }
+    &.sc-btn-floating {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        border-radius: 50%;
+        width: 45px;
+        height: 45px;
+        z-index: 2;
+        font-size: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    &:disabled {
+        opacity: .6;
+    }
+}

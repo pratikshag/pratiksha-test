@@ -1,0 +1,54 @@
+<div>
+  <div>
+    <div class="sc-form">
+      <div class="sc-form-title" v-if="quotes_id && quotes_id != ''">Edit quotes</div>
+      <div class="sc-form-title" v-else>Add quotes</div>
+
+      <form id="form_category" @submit.prevent="savequotes('form-category')" class="sc-form-container">
+        <div class="sc-form-group">
+          <label class="sc-form-label" for="tag-name">Title </label>
+          <input
+            class="sc-form-input"
+            name="tag-name"
+            id="tag-name"
+            type="text"
+            v-model="data.title"
+            size="40"
+            aria-required="true"
+          />
+        </div>
+        <div class="sc-form-group">
+          <label class="sc-form-label" for="tag-name">Quotes</label>
+          <textarea
+            class="sc-form-input"
+            name="tag-name"
+            id="tag-name"
+            type="text"
+            v-model="data.quotes"
+            size="40"
+            aria-required="true"
+          ></textarea>
+        </div>
+        <div class="sc-form-group">
+          <label class="sc-form-label" for="parent">Enable</label>
+          <select class="sc-form-input" v-model="data.is_active">
+            <option value="true" selected>Yes</option>
+            <option value="false" selected>No</option>
+          </select>
+        </div>
+        <div class="sc-form-group">
+          <div>
+            <input
+              type="submit"
+              v-on:click="clicked=true"
+              name="submit"
+              id="submit"
+              value="Save quotes"
+              class="sc-btn sc-btn-rounded sc-btn-md sc-uppercase sc-btn-primary"
+            />
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

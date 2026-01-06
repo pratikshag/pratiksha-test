@@ -1,0 +1,468 @@
+<div>
+  <div class="sc-tab-section">
+    <div
+      class="sc-tab-item sc-tab-item-4"
+      :class="{'sc-selected': currentContent == 'all', '': currentContent != 'all'}"
+      @click.prevent="filterStatus('all')"
+    >
+      <div class="sc-tab-title">All Products</div>
+      <div class="sc-tab-total">{{ totalCount.all }}</div>
+    </div>
+    <div
+      class="sc-tab-item sc-tab-item-4"
+      :class="{'sc-selected': currentContent === 'active', '': currentContent != 'active'}"
+      @click.prevent="filterStatus('active')"
+    >
+      <div class="sc-tab-title">Active Products</div>
+      <div class="sc-tab-total">{{ totalCount.active }}</div>
+    </div>
+    <div
+      class="sc-tab-item sc-tab-item-4"
+      :class="{'sc-selected': currentContent === 'inactive', '': currentContent != 'inactive'}"
+      @click.prevent="filterStatus('inactive')"
+    >
+      <div class="sc-tab-title">Inactive Products</div>
+      <div class="sc-tab-total">{{ totalCount.inactive }}</div>
+    </div>
+    <div
+      class="sc-tab-item sc-tab-item-4"
+      :class="{'sc-selected': currentContent === 'waiting_approval', '': currentContent != 'waiting_approval'}"
+      @click.prevent="filterStatus('waiting_approval')"
+    >
+      <div class="sc-tab-title">Waiting Products</div>
+      <div class="sc-tab-total">{{ totalCount.waiting_approval }}</div>
+    </div>
+  </div>
+  <div class="sc-filter">
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Product data searching: </label>
+      <select class="sc-filter-input" name="cat" v-model="filter.type">
+        <option value="" selected>-- Select type --</option>
+        <option value="duplicate">Duplicate By Name</option>
+        <option value="nobrand">No Brands Names</option>
+        <option value="userContribution">User Contribution</option>
+      </select>
+    </div>
+    <div class="sc-filter-item sc-filter-button" v-if="checkedIds.length">
+      <button class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-mr-10" @click="bulkUpdate(false)">
+        Inactive Selected Product
+      </button>
+      <button class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded" @click="bulkUpdate(true)">
+        Active Selected Product
+      </button>
+    </div>
+  </div>
+  <div class="sc-filter">
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">SOCO ID: </label>
+      <input
+        class="sc-filter-input"
+        type="text"
+        v-model="filter.id"
+        @input="filter.id = $event.target.value.replace(/[^0-9]/g, '')"
+      />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Product Name: </label>
+      <input class="sc-filter-input" type="text" v-model="filter.name" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Active in: </label>
+      <select class="sc-filter-input" v-model="filter.active_in">
+        <option value="">All</option>
+        <option value="is_active_in_sociolla">Active In Sociolla</option>
+        <option value="is_active_in_lulla">Active In Lulla</option>
+        <option value="is_active_in_sociolla_vn">Active In Sociolla Vn</option>
+        <option value="is_active_in_offline_store">Active In Offline Store</option>
+        <option value="is_active_in_review">Active In Review</option>
+        <option value="is_active_in_review_vn">Active In Review Vn</option>
+        <option value="is_active_in_lulla_vn">Active In Lulla Vn</option>
+        <option value="is_active_in_offline_store_vn">Active In Offline Store Vn</option>
+      </select>
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Brand: </label>
+      <input class="sc-filter-input" type="text" v-model="filter.brand" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Category: </label>
+      <input class="sc-filter-input" type="text" v-model="filter.category" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Author: </label>
+      <input class="sc-filter-input" type="text" v-model="filter.author" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">From: </label>
+      <input class="sc-filter-input" type="date" v-model="filter.date.from" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">To: </label>
+      <input class="sc-filter-input" type="date" v-model="filter.date.to" />
+    </div>
+    <div class="sc-filter-item sc-filter-button">
+      <input
+        type="submit"
+        value="Filter"
+        class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-mr-10"
+        @click="filterAction"
+      />
+      <input type="submit" value="Reset" class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded" @click="reset" />
+    </div>
+  </div>
+
+  <div class="sc-table-responsive">
+    <table class="sc-table">
+      <thead>
+        <tr>
+          <th>
+            {{checkedIds.length >= 5 ? 'Remove All' : 'Select All'}}
+            <input type="checkbox" :value="checkedIds.length >= 5 ?  true :false" @change="selectAll" />
+          </th>
+          <th style="width: 6%">
+            Sociolla ID
+            <sortField v-show="!is_loading" field="my_sociolla_sql_id" :sort="sortField" @sort="sort" />
+          </th>
+          <th style="width: 5%">
+            SOCO ID
+            <sortField v-show="!is_loading" field="id" :sort="sortField" @sort="sort" />
+          </th>
+          <th style="width: 10%">Image</th>
+          <th style="width: 15%">Name</th>
+          <th style="width: 15%">Relocation Log</th>
+          <th style="width: 8%">Brand</th>
+          <th style="width: 10%">Categories</th>
+          <th style="width: 6%">
+            Overall<br />Rating
+            <sortField v-show="!is_loading" field="review_stats.average_rating" :sort="sortField" @sort="sort" />
+          </th>
+          <th style="width: 7%">
+            Total<br />Review
+            <sortField v-show="!is_loading" field="review_stats.total_reviews" :sort="sortField" @sort="sort" />
+          </th>
+          <!-- <th style="width: 10%">Status</th> -->
+          <th style="width: 10%">Date Created</th>
+          <th style="width: 10%">Author</th>
+          <th style="width: 15%">Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <div v-if="is_loading" class="loader" style="text-align: center">
+          <ball-pulse-loader color="#000000" size="20px"></ball-pulse-loader>
+        </div>
+
+        <TableEmpty :cols="13" v-if="!is_loading && !(data && data.length)" />
+
+        <tr v-for="row in data" :key="row.id">
+          <td>
+            <input type="checkbox" :id="row._id" :value="row._id" v-model="checkedIds" />
+          </td>
+          <td>{{ row.my_sociolla_sql_id }}</td>
+          <td>{{ row.id }}</td>
+          <td>
+            <img
+              v-if="row.images && row.images.find(el => el.is_cover == true)"
+              :src="row.images.find(el => el.is_cover == true).url"
+              onerror="this.src = '/assets/img/dummy_product.svg'"
+            />
+            <img v-else src="/assets/img/dummy_product.svg" />
+          </td>
+          <td>{{ row.name }}</td>
+          <td>
+            Source: {{ formatCombinations(row).sourceName }}<br />
+            Combinations: {{ formatCombinations(row).combinations }}<br />
+            Target: {{ formatCombinations(row).targetName }}<br />
+            Relocated reviews: {{ formatCombinations(row).count }}
+          </td>
+          <td>{{ (row.brand && row.brand.name) ? row.brand.name : '' }}</td>
+          <td>
+            <!-- <span v-for="cat in row.categories" v-if = "!cat.is_promotion"><u>{{ (cat) ? cat.name : '' }}</u>, </span> -->
+            <span> {{ productCategories(row.categories) }} </span>
+          </td>
+          <td>
+            {{ (row.review_stats && row.review_stats.average_rating) ?
+            Number(row.review_stats.average_rating).toPrecision(2) : 0 }}
+          </td>
+          <td>{{ (row.review_stats && row.review_stats.total_reviews) ? row.review_stats.total_reviews : 0 }}</td>
+          <!-- <td>{{ row.status }}</td> -->
+          <td>{{dateFormat_Ymd(row.created_at)}}</td>
+          <td>
+            <a
+              v-if="(row.hasOwnProperty('user_contribution') && row.user_contribution.is_user_contribution)"
+              :href="row.user_contribution.url"
+              target="_blank"
+              >{{ (row.hasOwnProperty('user_contribution') && row.user_contribution.is_user_contribution) ?
+              row.user_contribution.user_name : 'Admin' }}
+            </a>
+            <p v-else>
+              {{ (row.hasOwnProperty('user_contribution') && row.user_contribution.is_user_contribution) ?
+              row.user_contribution.user_name : 'Admin' }}
+            </p>
+          </td>
+          <td>
+            <button v-if="row.status == 'approved'">
+              <span
+                title="Preview"
+                aria-hidden="true"
+                class="fa fa-eye btn-action"
+                @click.prevent="showModalAddCollection(row)"
+              ></span>
+            </button>
+            <!-- <button
+            v-else
+            @click="$router.push({ name: 'product-form', params: { id: row._id, status: (currentContent ? currentContent : '') } })"
+          >
+            <span
+              title="Edit"
+              aria-hidden="true"
+              class="fa fa-edit btn-action"
+              @click.prevent="showModalAddCollection()"
+            ></span>
+          </button> -->
+
+            <button @click.prevent="toggleModalRelocate(row)">
+              <span title="Relocate" aria-hidden="true" class="fa fa-random btn-action"></span>
+            </button>
+            <button v-if="row.status !== 'waiting-approval'">
+              <span
+                v-if="row.is_active_in_review"
+                title="Active"
+                aria-hidden="true"
+                class="fa fa-toggle-on btn-action on"
+                @click.prevent="toggleStatus(row)"
+              ></span>
+              <span
+                v-else
+                title="Inactive"
+                aria-hidden="true"
+                class="fa fa-toggle-off btn-action off"
+                @click.prevent="toggleStatus(row)"
+              ></span>
+            </button>
+
+            <button>
+              <span
+                title="Delete"
+                aria-hidden="true"
+                class="fa fa-trash btn-action"
+                @click.prevent="deleteProduct(row)"
+              ></span>
+            </button>
+            <button>
+              <span
+                title="Recalculate Review Stats"
+                aria-hidden="true"
+                class="fa fa-refresh btn-action"
+                @click.prevent="recalculateReviewStats(row.id)"
+              ></span>
+            </button>
+            <button @click.prevent="goToReviewList(row.id)">
+              <span title="See Review" aria-hidden="true" class="fa fa-list btn-action"></span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sc-pagination-row between">
+    <div class="sc-pagination-page">
+      <div class="sc-pagination-content">
+        <div class="sc-pagination-text-container">
+          <div class="sc-pagination-text">Page: {{ pagination.currentPage }} out of {{ pagination.totalPage}}</div>
+          <div class="sc-pagination-text">Total Record: {{ pagination.currentTotalRecord }}</div>
+        </div>
+        <div class="table-pagination">
+          <DisplayPerPage :all="all" @display="display"></DisplayPerPage>
+          <Pagination :limit="pagination.limit" :skip="pagination.skip" :total="pagination.totalPage" @page="setSkip" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div name="preview-product" class="custom-modal modal-mask" id="manage_collection_modal" v-if="manageCollection">
+    <div class="overlay"></div>
+    <div class="content-wrapper modal-container">
+      <div class="content">
+        <div class="modal-header">
+          <a href="" class="modal-dismiss" @click.prevent="showModalAddCollection()">x</a>
+          <h1>Product Informations</h1>
+        </div>
+        <div class="modal-content">
+          <div class="product-img">
+            <div class="product-thumb">
+              <img
+                v-if="shownImage || (postPreview.images && postPreview.images[0])"
+                class="img-responsive img-block product-img"
+                :src="shownImage || postPreview.images[0].url"
+                onerror="this.src='/assets/img/dummy_product.svg'"
+              />
+              <img class="img-responsive img-block product-img" src="/assets/img/dummy_product.svg" v-else />
+            </div>
+            <div class="clearfix">&nbsp;</div>
+            <div class="list-product-thumb">
+              <carousel
+                class="mt-16"
+                :perPageCustom="[[991, 4],[992, 5]]"
+                :navigationEnabled="true"
+                :perPage="7"
+                navigationNextLabel
+                navigationPrevLabel
+                :paginationEnabled="false"
+                :navigationClickTargetSize="0"
+              >
+                <template v-for="previewImg in postPreview.images">
+                  <slide :class="{'thumb-active': shownImage === previewImg.url}">
+                    <img :src="previewImg.url" class="product-small-img" @click="shownImage = previewImg.url" />
+                  </slide>
+                </template>
+              </carousel>
+            </div>
+          </div>
+          <div class="product-card-details">
+            <h2 class="pro-title">{{postPreview.brand.name}}</h2>
+            <h5 class="pro-sub-title">{{postPreview.name}}</h5>
+            <p class="product-type">
+              <span :key="idx" v-for="(categoriesName, idx) in postPreview.categories"> {{categoriesName.name}}, </span>
+            </p>
+            <div class="average-rating--uniform">
+              <div class="rating--uniform timeline-review">
+                <div :class="`rate-star--uniform rate-star--uniform-${averageRating.toFixed(1) * 10} bigest-star`">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+                <span class="count">{{ averageRating.toFixed(1) }}</span>
+              </div>
+              <div class="review-count">({{ postPreview.review_stats.total_reviews }})</div>
+              <button class="btn-active" type="button">Active</button>
+            </div>
+            <hr />
+            <div v-if="postPreview.description || postPreview.how_to_use || postPreview.ingredients" class="container">
+              <h2 class="collection-btn"><b>Descriptions</b></h2>
+              <div v-if="postPreview.description">
+                <p v-html="postPreview.description"></p>
+              </div>
+              <div v-if="postPreview.how_to_use">
+                <hr />
+                <h3 class="collection-btn"><b>How to use</b></h3>
+                <br />
+                <p v-html="postPreview.how_to_use"></p>
+              </div>
+              <div v-if="postPreview.ingredients">
+                <hr />
+                <h3 class="collection-btn"><b>Ingredient</b></h3>
+                <br />
+                <p v-html="postPreview.ingredients"></p>
+              </div>
+              <hr />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="button-red" type="button" @click.prevent="showModalAddCollection()">ok</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div name="relocate-product" class="custom-modal modal-mask" id="relocate-product" v-if="showModalRelocate">
+    <div class="overlay"></div>
+    <div class="content-wrapper modal-container">
+      <div class="content">
+        <div class="modal-header">
+          <a v-if="!is_loading_relocate" href="" class="modal-dismiss" @click.prevent="toggleModalRelocate()"
+            ><i class="fa fa-close"></i
+          ></a>
+          <h1>Product Relocate</h1>
+        </div>
+        <div class="modal-content">
+          <br />
+          <div class="d-flex grouped-input">
+            <div class="col-md-12 pr-3">
+              <div class="d-flex field">
+                <label for="brand-name">From</label>
+                <multiselect
+                  id="ajax"
+                  v-model="relocateProduct.source"
+                  placeholder=""
+                  open-direction="bottom"
+                  :options="options.products.data"
+                  :searchable="true"
+                  :loading="options.products.is_loading"
+                  :internal-search="false"
+                  :disabled="options.products.disabled"
+                  :clear-on-select="true"
+                  :close-on-select="true"
+                  :options-limit="300"
+                  :max-height="600"
+                  :show-no-results="true"
+                  :hide-selected="true"
+                  @search-change="findProducts"
+                  :show-labels="false"
+                  track-by="_id"
+                  :custom-label="sourcename"
+                >
+                  <template slot="clear" slot-scope="props">
+                    <div
+                      class="multiselect__clear"
+                      v-if="options.products.data.length === 0"
+                      @mousedown.prevent.stop="clearAll"
+                    ></div> </template
+                  ><span slot="noResult">Oops! No brands found. Consider changing your query.</span>
+                </multiselect>
+              </div>
+
+              <div class="d-flex field">
+                <label for="brand-name">To</label>
+
+                <multiselect
+                  id="ajax"
+                  v-model="relocateProduct.target"
+                  placeholder=""
+                  open-direction="bottom"
+                  :options="options.products.data"
+                  :searchable="true"
+                  :loading="options.products.is_loading"
+                  :internal-search="false"
+                  :disabled="options.products.disabled"
+                  :clear-on-select="true"
+                  :close-on-select="true"
+                  :options-limit="300"
+                  :max-height="600"
+                  :show-no-results="true"
+                  :hide-selected="true"
+                  @search-change="findProducts"
+                  :show-labels="false"
+                  track-by="_id"
+                  :custom-label="sourcename"
+                >
+                  <template slot="clear" slot-scope="props">
+                    <div
+                      class="multiselect__clear"
+                      v-if="options.products.data.length === 0"
+                      @mousedown.prevent.stop="clearAll"
+                    ></div> </template
+                  ><span slot="noResult">Oops! No brands found. Consider changing your query.</span>
+                </multiselect>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <template v-if="is_loading_relocate">
+            <div class="loader" style="text-align: center">
+              <ball-pulse-loader color="#000000" size="20px"> </ball-pulse-loader>
+            </div>
+          </template>
+          <template v-else-if="relocateProduct.source._id && relocateProduct.target._id">
+            <button class="button-red" type="button" @click.prevent="processRelocateProduct()">ok</button>
+          </template>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="13px" height="12px" viewBox="0 0 13 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.2 (67145) - http://www.bohemiancoding.com/sketch -->
+    <title>Star 5</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <polygon id="path-1" points="6.5 9.95015528 2.48277907 12 3.25 7.65835921 7.23900107e-14 4.58359214 4.49138954 3.95015528 6.5 0 8.50861046 3.95015528 13 4.58359214 9.75 7.65835921 10.5172209 12"></polygon>
+    </defs>
+    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Elements-/-Misc-/-Rating-/-4" transform="translate(-60.000000, 0.000000)">
+            <g id="Star-5" transform="translate(60.000000, 0.000000)">
+                <mask id="mask-2" fill="white">
+                    <use xlink:href="#path-1"></use>
+                </mask>
+                <use id="Star" fill="#F5B0B3" xlink:href="#path-1"></use>
+                <g id="Colors/Grey" mask="url(#mask-2)" fill="#E5E5E5">
+                    <polygon id="#E5E5E5" points="0 0 13 0 13 12 0 12"></polygon>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

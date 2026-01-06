@@ -1,0 +1,77 @@
+<div class="sc-form">
+  <div class="sc-form-title">EDIT</div>
+  <div class="sc-form-container">
+    <div class="loader"></div>
+    <div class="sc-form-group">
+      <label for="brand_name" class="sc-form-label">Name</label>
+      <div class="sc-form-child-group">
+        <input class="sc-form-input" id="name" name="name" type="text" v-model="name" />
+      </div>
+    </div>
+
+    <div v-if="reward_name.name == 'level'" class="sc-form-group" id="userlevels">
+      <label for="brand_name" class="sc-form-label">Previous Level</label>
+      <div class="sc-form-child-group">
+        <label class="get_preview_image">{{prev_level_name}}</label>
+      </div>
+    </div>
+    <div v-if="reward_name.name == 'level'" class="sc-form-group" id="userlevels">
+      <label for="brand_name" class="sc-form-label">Next Level</label>
+      <div class="sc-form-child-group">
+        <label class="get_preview_image">{{next_level_name}}</label>
+      </div>
+    </div>
+
+    <div class="sc-form-group">
+      <label for="" class="sc-form-label">Rule</label>
+      <div class="sc-form-group sc-form-group-full sc-row">
+        <div class="sc-row-item">
+          <label for="is_active" class="sc-form-label">Action</label>
+        </div>
+        <div class="sc-row-item">
+          <label class="sc-form-label">Count/Point</label>
+        </div>
+      </div>
+      <div id="action-rule" class="sc-form-group sc-form-group-full sc-row" v-for="rule in rules">
+        <div class="sc-row-item">
+          <select class="sc-form-input action" name="action" v-model="rule.action_id">
+            <option value="">Select Action</option>
+            <option v-for="action in actions" v-bind:value="action.val">{{ action.name }}</option>
+          </select>
+        </div>
+        <div class="sc-row-item">
+          <input v-model="rule.gt_count" class="sc-form-input action" name="point" type="text" />
+          <input v-if="rule.gt_point" v-model="rule.gt_point" class="sc-form-input action" name="point" type="text" />
+        </div>
+      </div>
+      <div>
+        <button
+          v-on:click="addmore()"
+          type="button"
+          class="sc-btn sc-btn-rounded sc-btn-md sc-btn-primary sc-uppercase"
+          id="add-action"
+        >
+          Add
+        </button>
+      </div>
+    </div>
+    <div class="sc-form-group" id="prize-image">
+      <label for="image" class="sc-form-label">IMAGE</label>
+      <div class="sc-form-child-group">
+        <input class="get_preview_image sc-form-input" id="image" name="image" type="file" @change="imageUpload" />
+      </div>
+      <img id="file-image" v-if="image" :src="image" style="width: 100px; height: 100px" />
+    </div>
+    <div class="sc-form-group">
+      <div>
+        <input
+          type="Submit"
+          v-on:click="editreward()"
+          value="Submit"
+          id="form_submit_btn"
+          class="sc-btn sc-btn-rounded sc-btn-md sc-btn-primary sc-uppercase"
+        />
+      </div>
+    </div>
+  </div>
+</div>

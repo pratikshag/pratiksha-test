@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="15px" height="14px" viewBox="0 0 15 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.2 (67145) - http://www.bohemiancoding.com/sketch -->
+    <title>Star 1</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <polygon id="path-1" points="7.28518057 11.3069946 2.78269136 13.6363636 3.64259029 8.70268092 8.11345076e-14 5.20862743 5.03393597 4.48881282 7.28518057 0 9.53642518 4.48881282 14.5703611 5.20862743 10.9277709 8.70268092 11.7876698 13.6363636"></polygon>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Star-1">
+            <mask id="mask-2" fill="white">
+                <use xlink:href="#path-1"></use>
+            </mask>
+            <use id="Star" fill="#F5B0B3" xlink:href="#path-1"></use>
+            <g mask="url(#mask-2)" fill="#F384A7" id="#F384A7">
+                <polygon points="0 0 14.5703611 0 14.5703611 13.6363636 0 13.6363636"></polygon>
+            </g>
+        </g>
+    </g>
+</svg>

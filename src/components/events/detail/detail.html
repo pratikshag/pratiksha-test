@@ -1,0 +1,954 @@
+<div>
+  <div class="sc-form">
+    <div class="loader">
+      <ball-pulse-loader v-if="is_loading" color="#000" size="20px"></ball-pulse-loader>
+    </div>
+    <div class="sc-form-title">Event</div>
+    <div class="flex sc-mb-15">
+      <router-link
+        v-if="event_id"
+        class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-uppercase sc-mr-10"
+        :to="event_id + '/users'"
+      >
+        All Participant
+      </router-link>
+      <router-link
+        v-if="event_id"
+        class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-uppercase"
+        :to="event_id + '/users?filled_survey=true'"
+      >
+        View Survey
+      </router-link>
+    </div>
+    <form :key="fomKeyRender" id="formEvent" data-vv-scope="formEvent" class="sc-form-container">
+      <div class="sc-form-group sc-form-group-half" :class="{'has-error': errors.has('formEvent.title') }">
+        <label class="sc-form-label" for="brand_name">Title<sup>*</sup></label>
+        <div class="sc-form-child-group">
+          <input
+            class="sc-form-input"
+            style="width: 100%"
+            id="title"
+            name="title"
+            type="text"
+            v-model="event.title"
+            v-validate="'required'"
+          />
+          <p v-show="errors.has('formEvent.title')" class="alert">{{ errors.first('formEvent.title') }}</p>
+        </div>
+      </div>
+
+      <div class="sc-form-group sc-form-group-half" :class="{'has-error': errors.has('formEvent.location') }">
+        <label class="sc-form-label" for="brand_name">Type<sup>*</sup></label>
+        <div class="sc-form-child-group">
+          <select
+            class="sc-form-input"
+            style="width: 100%"
+            id="type"
+            v-model="event.type"
+            required
+            name="type"
+            v-validate="'required'"
+          >
+            <option v-for="type in event_type" :value="type">{{type}}</option>
+          </select>
+          <p v-show="errors.has('formEvent.location')" class="alert">{{ errors.first('formEvent.type') }}</p>
+        </div>
+      </div>
+
+      <div class="sc-form-group sc-form-group-half">
+        <label class="sc-form-label" for="urutan">Platform Type<sup>*</sup></label>
+        <div class="sc-form-child-group">
+          <select
+            class="sc-form-input"
+            style="width: 100%"
+            id="order"
+            name="status"
+            v-model="event.livestream.media_platform"
+            v-validate="'required'"
+          >
+            <option value="">Choose Platform</option>
+            <option v-for="platform in event_media_platform" :value="platform">{{platform}}</option>
+          </select>
+           <p v-show="errors.has('formEvent.platform')" class="alert">{{ errors.first('formEvent.platform') }}</p>
+        </div>
+      </div>
+
+      <div class="sc-form-group sc-form-group-half" :class="{'has-error': errors.has('formEvent.livestream.url') }">
+        <label class="sc-form-label" for="brand_name"> Live Stream URL </label>
+        <div class="sc-form-child-group">
+          <input
+            class="sc-form-input"
+            style="width: 100%"
+            id="url"
+            name="url"
+            type="text"
+            v-model="event.livestream.url"
+          />
+          <p v-show="errors.has('formEvent.livestream.url')" class="alert">
+            {{ errors.first('formEvent.livestream.url') }}
+          </p>
+        </div>
+      </div>
+
+      <div class="sc-form-group sc-form-group-half" :class="{'has-error': errors.has('formEvent.category') }">
+        <label class="sc-form-label" for="brand_name">Category<sup>*</sup></label>
+        <div class="sc-form-child-group">
+          <select
+            class="sc-form-input"
+            style="width: 100%"
+            id="category"
+            v-model="event.category"
+            required
+            name="category"
+          >
+            <option v-for="category in event_category" :value="category">{{category}}</option>
+          </select>
+          <p v-show="errors.has('formEvent.category')" class="alert">{{ errors.first('formEvent.category') }}</p>
+        </div>
+      </div>
+
+      <div class="sc-form-group sc-form-group-half">
+        <label class="sc-form-label" for="urutan">Start Date<sup>*</sup></label>
+        <Datetime
+          name="start_date"
+          type="datetime"
+          input-style="display: block; width: 100%;"
+          v-model="event.start_date"
+          input-class="sc-form-input"
+        ></Datetime>
+      </div>
+      <div class="sc-form-group sc-form-group-half">
+        <label class="sc-form-label" for="urutan">End Date<sup>*</sup></label>
+        <Datetime
+          name="end_date"
+          type="datetime"
+          input-style="display: block; width: 100%;"
+          v-model="event.end_date"
+          input-class="sc-form-input"
+        ></Datetime>
+      </div>
+
+      <div class="sc-form-group sc-form-group-half">
+        <label class="sc-form-label" for="urutan">Status<sup>*</sup></label>
+        <div class="sc-form-child-group">
+          <select class="sc-form-input" style="width: 100%" id="order" name="status" v-model="event.status">
+            <option value="">Choose Status</option>
+            <option v-for="status in event_status" :value="status">{{status}}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="sc-form-group sc-form-group-half" :class="{'has-error': errors.has('formEvent.event.total_quota') }">
+        <label class="sc-form-label" for="brand_name">Total Quota<sup>*</sup></label>
+        <div class="sc-form-child-group">
+          <input
+            class="sc-form-input"
+            style="width: 100%"
+            id="url"
+            name="url"
+            type="text"
+            v-model="event.total_quota"
+          />
+          <p v-show="errors.has('formEvent.event.total_quota')" class="alert">
+            {{ errors.first('formEvent.event.total_quota') }}
+          </p>
+        </div>
+      </div>
+      <div
+        class="sc-form-group sc-form-group-half"
+        :class="{'has-error': errors.has('formEvent.event.total_quota_available') }"
+      >
+        <label class="sc-form-label" for="brand_name">Available Quota </label>
+        <div class="sc-form-child-group">
+          <input
+            class="sc-form-input"
+            style="width: 100%"
+            id="url"
+            name="url"
+            type="text"
+            v-model="event.total_quota_available"
+          />
+          <p v-show="errors.has('formEvent.event.total_quota_available')" class="alert">
+            {{ errors.first('formEvent.event.total_quota_available') }}
+          </p>
+        </div>
+      </div>
+
+      <div
+        class="sc-form-group sc-form-group-half"
+        :class="{'has-error': errors.has('formEvent.event.total_participants') }"
+      >
+        <label class="sc-form-label" for="brand_name">Total Participants <sup>*</sup></label>
+        <div class="sc-form-child-group">
+          <input
+            class="sc-form-input"
+            style="width: 100%"
+            id="url"
+            name="url"
+            type="text"
+            v-model="event.total_participants"
+          />
+          <p v-show="errors.has('formEvent.event.total_participants')" class="alert">
+            {{ errors.first('formEvent.event.total_participants') }}
+          </p>
+        </div>
+      </div>
+      <div
+        class="sc-form-group sc-form-group-half"
+        :class="{'has-error': errors.has('formEvent.event.starting_participants') }"
+      >
+        <label class="sc-form-label" for="brand_name"> Starting Participants</label>
+        <div class="sc-form-child-group">
+          <input
+            class="sc-form-input"
+            style="width: 100%"
+            id="url"
+            name="url"
+            type="text"
+            v-model="event.starting_participants"
+          />
+          <p v-show="errors.has('formEvent.event.total_participants')" class="alert">
+            {{ errors.first('formEvent.event.starting_participants') }}
+          </p>
+        </div>
+      </div>
+      <div class="sc-form-group sc-form-group-half" :class="{'has-error': errors.has('formEvent.event.info.hashtag') }">
+        <label class="sc-form-label" for="brand_name"> Hash Tags</label>
+        <div class="sc-form-child-group">
+          <input
+            class="sc-form-input"
+            style="width: 100%"
+            id="url"
+            name="url"
+            type="text"
+            v-model="event.info.hashtag"
+          />
+          <p v-show="errors.has('formEvent.event.total_participants')" class="alert">
+            {{ errors.first('formEvent.event.info.hashtag') }}
+          </p>
+        </div>
+      </div>
+
+      <div class="sc-form-group sc-form-group-half">
+        <label class="sc-form-label" for="urutan">Media Type <sup>*</sup></label>
+        <div class="">
+          <select class="sc-form-input" style="width: 100%" id="order" name="status" v-model="event.cover.media_type">
+            <option value="">Choose Media Type</option>
+            <option v-for="type in event_media_type" :value="type">{{type}}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- .......................cover............... -->
+      <div class="block-upload-cover-image mb-2" v-if="event.cover.media_type === 'image'">
+        <p class="title">
+          <span class="wrapper">
+            <span class="label">UPLOAD AN IMAGE</span>
+          </span>
+        </p>
+        <div class="layer" v-show="event.cover.url">
+          <img class="result-cover" :src="event.cover.url" />
+        </div>
+        <p v-if="event.cover" v-show="event.cover.url">
+          <a style="color: blue" @click.prevent="triggerUpload">Click here to change cover image</a>
+        </p>
+        <div class="layer border-cover" @click.prevent="triggerUpload" v-show="!event.cover.url">
+          <ball-pulse-loader v-if="state.isProcess" color="#000" size="20px"> </ball-pulse-loader>
+          <div class="inner">
+            <img :src="require(`@/img/icon-upload-cover-image.png`)" />
+            <p>Upload ad image <span class="required">*</span> Recommended size 1280 x 768 px (max. 5MB)</p>
+            <input
+              type="hidden"
+              name="image"
+              class="hidden input-desktop"
+              v-model="event.cover.url"
+              v-validate="'required'"
+            />
+            <br />
+            <p v-show="errors.has('formEvent.event.cover.url')" class="alert">
+              {{ errors.first('formEvent.event.cover') }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ..................Description.......... -->
+
+      <div class="form-field term-parent-wrap add col-12 mb-5" id="editorVue">
+        <label class="sc-form-label" for="tag-name">Description </label>
+        <vue-editor
+          id="editor"
+          useCustomImageHandler
+          v-model="event.info.description"
+          :editorToolbar="customToolbar"
+          :customModules="customModulesForEditor"
+          :editorOptions="editorSettings"
+        >
+        </vue-editor>
+        <input type="hidden" v-model="event.info.description" name="articleText" v-validate="'required'" />
+      </div>
+
+      <!-- ..................Terms & Condition.......... -->
+
+      <div class="form-field term-parent-wrap add col-12 mb-5" id="editorVue">
+        <label class="sc-form-label" for="tag-name">Terms & Condition </label>
+        <vue-editor
+          id="editor"
+          useCustomImageHandler
+          v-model="event.info.terms_condition"
+          :editorToolbar="customToolbar"
+          :customModules="customModulesForEditor"
+          :editorOptions="editorSettings"
+        >
+        </vue-editor>
+        <input type="hidden" v-model="event.info.terms_condition" name="articleText" v-validate="'required'" />
+      </div>
+
+      <!-- ..................Privacy Policy.......... -->
+      <div class="form-field term-parent-wrap add col-12" id="editorVue">
+        <label class="sc-form-label" for="tag-name">Privacy Policy </label>
+        <vue-editor
+          id="editor"
+          useCustomImageHandler
+          v-model="event.info.cancellation_policy"
+          :editorToolbar="customToolbar"
+          :customModules="customModulesForEditor"
+          :editorOptions="editorSettings"
+        >
+        </vue-editor>
+        <input type="hidden" v-model="event.info.cancellation_policy" name="articleText" v-validate="'required'" />
+      </div>
+
+      <!-- ..................Description featuring.......... -->
+      <div class="grouped-input col-12">
+        <div class="sc-form-title sc-mt-15">Organizers</div>
+        <div class="sc-form-group sc-form-group-half" :class="{'has-error': errors.has('formEvent.o') }">
+          <label class="sc-form-label" for="brand_name">Organizer<sup>*</sup></label>
+          <input-auto-complete
+            :data="organizers"
+            :isLoading="isLoadingOrganizer"
+            @keyup.native="onTypingOrganizer()"
+            @select="onSelectOrganizer"
+            class="sc-form-input"
+            field="name"
+            open-on-focus
+            placeholder="Choose Organizer"
+            required
+            v-model="organizerName"
+          >
+            <div class="item-list-ac" slot-scope="{ option }">
+              <img :src="option.image" />
+              <span>{{ option.name }}</span>
+            </div>
+            <a @click="doFind(organizers.length)" slot="footer" style="text-align: center" v-if="hasLoadMoreOrganizer"
+              >Load More</a
+            >
+          </input-auto-complete>
+          <!-- <div class="col-7">
+						<span v-for="(organizer,key) in event.organizers" :key="key" v-if="event.organizers.name !== ''"
+							class=" btn-dark p-2 rounded mr-1">{{organizer.name}} <a href
+								class="delete-btn  ml-3"
+								@click.prevent="removeOrganizer(key)">&#x274C;</a></span>
+					</div> -->
+        </div>
+
+        <div v-for="(item,key) in event.organizers" :key="key" v-if="event.organizers.name !== ''">
+          <div class="sc-form-group sc-form-group-half">
+            <label class="sc-form-label" for="tag-name">Name Organizer</label>
+            <input
+              name="tag-name"
+              id="tag-name"
+              type="text"
+              placeholder="Name..."
+              v-model="item.name"
+              size="40"
+              aria-required="true"
+              disabled
+              class="sc-form-input"
+            />
+          </div>
+          <div class="sc-form-group sc-form-group-half">
+            <label class="sc-form-label" for="tag-name">Description Organizer</label>
+            <textarea
+              name="tag-name"
+              id="tag-name"
+              type="text"
+              v-model="item.description"
+              size="40"
+              aria-required="true"
+              class="sc-form-input"
+            ></textarea>
+            <input type="hidden" v-model="item.description" name="articleText" v-validate="'required'" />
+          </div>
+          <div class="sc-form-group sc-form-group-half">
+            <label class="sc-form-label" for="tag-name" style="width: 165px">Url Organizer</label>
+            <div style="width: 100%; display: flex; align-items: center">
+              <select
+                class="sc-form-input"
+                id="order"
+                name="status"
+                v-model="item.url.protocol"
+                style="margin-right: 10px"
+              >
+                <option value="http://">http://</option>
+                <option value="https://">https://</option>
+              </select>
+              <input
+                name="tag-name"
+                id="tag-name"
+                type="text"
+                placeholder="Paste your link here..."
+                v-model="item.url.value"
+                class="sc-form-input"
+                aria-required="true"
+              />
+            </div>
+          </div>
+          <div class="sc-form-group sc-form-group-half">
+            <label class="sc-form-label" for="urutan">Url Type</label>
+            <select class="sc-form-input" style="width: 100%" id="order" name="status" v-model="item.url.type">
+              <option v-for="types in url_type" :value="types">{{types}}</option>
+            </select>
+          </div>
+          <button class="sc-btn sc-btn-secondary sc-btn-rounded sc-uppercase" @click.prevent="deleteOrganizer(key)">
+            Delete Organizer
+          </button>
+        </div>
+        <!-- <button class="sc-btn sc-btn-secondary sc-btn-rounded sc-uppercase" @click.prevent="addDescriptionOrganizer()">Add Description</button> -->
+      </div>
+
+      <!-- .........................venue............ -->
+      <div class="grouped-input col-12">
+        <div class="sc-form-title sc-mt-15">Venue</div>
+        <div class="mb-3" v-if="event.info && event.info.venue && event.info.venue.address">
+          <p class="mb-1"><strong>Address: </strong>{{event.info.venue.address}}</p>
+          <p class="mb-1"><strong>District: </strong>{{event.info.venue.district.name}}</p>
+          <p class="mb-1"><strong>Province: </strong>{{event.info.venue.province.name}}</p>
+          <p class="mb-1"><strong>City: </strong>{{event.info.venue.city.name}}</p>
+          <p><strong>Pincode: </strong>{{event.info.venue.postal_code}}</p>
+        </div>
+        <button class="sc-btn sc-btn-secondary sc-btn-rounded sc-uppercase" @click.prevent="openAddressModal">
+          {{event.info && event.info.venue && event.info.venue.address ? 'Change Address' : "Add Address"}}
+        </button>
+      </div>
+
+      <GoogleMaps
+        v-if="mapData"
+        :latLong="locationMarker || {}"
+        searchBoxId="findLocation"
+        @getMap="getMap"
+        @placesChanged="placeChanged"
+        :scriptGoogleMap="mapData"
+        @setScriptGoogleMap="setMapData"
+      />
+
+      <!-- ........................Ticket section ......... -->
+      <div class="grouped-input col-12">
+        <div class="sc-form-title sc-mt-15">Ticket</div>
+        <div class="sc-form-group sc-form-group-half">
+          <label class="sc-form-label" for="tag-name">Cari Produk</label>
+          <div :class="{'has-error': errors.has('product') }" id="product">
+            <template v-if="!state.isSingleData">
+              <multiselect
+                name="product"
+                placeholder="Cari produk..."
+                label="name"
+                track-by="name"
+                :options="options.product"
+                :option-height="104"
+                :show-labels="false"
+                @search-change="searchProduct"
+                @select="addTicketProduct"
+                :searchable="true"
+                :loading="searchIsLoading"
+                :close-on-select="true"
+                :internal-search="false"
+                class="sc-form-input"
+              >
+                <template slot="singleLabel" slot-scope="props">
+                  <div class="product-list">
+                    <div class="product-list__info">
+                      <span
+                        class="product-list__title"
+                        v-if="props.option.manufacture != undefined && props.option.manufacture.name != undefined"
+                        >{{ props.option.manufacture.name }}</span
+                      >
+                      <span class="product-list__small" v-if="props.option.name != undefined"
+                        >{{ props.option.name }}</span
+                      >
+                    </div>
+                  </div>
+                </template>
+                <template slot="option" slot-scope="props">
+                  <div class="product-list">
+                    <div class="product-list__info">
+                      <span
+                        style="margin-right: 10px"
+                        class="product-list__title"
+                        v-if="props.option.manufacture != undefined && props.option.manufacture.name != undefined"
+                        >{{ props.option.manufacture.name }}</span
+                      >
+                      <span class="product-list__small" v-if="props.option.name != undefined"
+                        >{{ props.option.name }}</span
+                      >
+                    </div>
+                  </div>
+                </template>
+                <span slot="noResult">Oops! Hasil pencarian ini tidak ditemukan. Coba cari dengan keywords lain.</span>
+                <span
+                  v-if="searchIsLoading && options.isLoadMore"
+                  class="nbtn vue-multiselect-load-more"
+                  slot="afterList"
+                  >Loading...</span
+                >
+                <span
+                  v-if="options.isLoadMore && !searchIsLoading"
+                  class="nbtn vue-multiselect-load-more"
+                  @click="loadMoreProduct()"
+                  slot="afterList"
+                  >load more product</span
+                >
+              </multiselect>
+            </template>
+            <template v-else>
+              <div v-if="state.isProcessDetail">
+                <loaderspin text="Load product.."></loaderspin>
+              </div>
+            </template>
+            <p v-show="errors.has('product')" class="alert topright">{{ errors.first('product') }}</p>
+          </div>
+        </div>
+
+        <div
+          class="products-row d-flex"
+          style="flex-wrap: wrap; align-items: flex-start; justify-content: flex-start; position: relative; z-index: 0"
+        >
+          <div class="product-wrapper" v-if="event.ticket && event.ticket.product_id">
+            <a href class="delete-btn" @click.prevent="deleteTicket()">&#x274C;</a>
+            <ProductCard :buttonReview="false" :product="event.ticket"></ProductCard>
+          </div>
+        </div>
+      </div>
+
+      <!-- ........................goodies/free gift section ......... -->
+      <div class="grouped-input col-12">
+        <div class="sc-form-title sc-mt-15">Free Gifts</div>
+        <div
+          class="sc-form-group sc-form-group-half"
+          :class="{'has-error': errors.has('formEvent.event_free_gifts.type') }"
+        >
+          <label class="sc-form-label" for="brand_name"> Gift Type</label>
+          <div class="sc-form-child-group">
+            <input
+              class="sc-form-input"
+              style="width: 100%"
+              id="url"
+              name="url"
+              type="text"
+              v-model="event_free_gifts.type"
+            />
+
+            <br />
+            <p v-show="errors.has('formEvent.event_free_gifts.type')" class="alert">
+              {{ errors.first('formEvent.event_free_gifts.type') }}
+            </p>
+          </div>
+        </div>
+        <div class="sc-form-group sc-form-group-half">
+          <label class="sc-form-label" for="tag-name">Cari Produk</label>
+          <div :class="{'has-error': errors.has('product') }" id="product">
+            <template v-if="!state.isSingleData">
+              <multiselect
+                name="product"
+                placeholder="Cari produk..."
+                label="name"
+                track-by="name"
+                :options="options.product"
+                :option-height="104"
+                :show-labels="false"
+                @search-change="searchProduct"
+                @select="addProduct"
+                :searchable="true"
+                :loading="searchIsLoading"
+                :close-on-select="true"
+                :internal-search="false"
+              >
+                <template slot="singleLabel" slot-scope="props">
+                  <div class="product-list">
+                    <div class="product-list__info">
+                      <span
+                        class="product-list__title"
+                        v-if="props.option.manufacture != undefined && props.option.manufacture.name != undefined"
+                        >{{ props.option.manufacture.name }}</span
+                      >
+                      <span class="product-list__small" v-if="props.option.name != undefined"
+                        >{{ props.option.name }}</span
+                      >
+                    </div>
+                  </div>
+                </template>
+                <template slot="option" slot-scope="props">
+                  <div class="product-list">
+                    <div class="product-list__info">
+                      <span
+                        style="margin-right: 10px"
+                        class="product-list__title"
+                        v-if="props.option.manufacture != undefined && props.option.manufacture.name != undefined"
+                        >{{ props.option.manufacture.name }}</span
+                      >
+                      <span class="product-list__small" v-if="props.option.name != undefined"
+                        >{{ props.option.name }}</span
+                      >
+                    </div>
+                  </div>
+                </template>
+                <span slot="noResult">Oops! Hasil pencarian ini tidak ditemukan. Coba cari dengan keywords lain.</span>
+                <span
+                  v-if="searchIsLoading && options.isLoadMore"
+                  class="nbtn vue-multiselect-load-more"
+                  slot="afterList"
+                  >Loading...</span
+                >
+                <span
+                  v-if="options.isLoadMore && !searchIsLoading"
+                  class="nbtn vue-multiselect-load-more"
+                  @click="loadMoreProduct()"
+                  slot="afterList"
+                  >load more product</span
+                >
+              </multiselect>
+            </template>
+            <template v-else>
+              <div v-if="state.isProcessDetail">
+                <loaderspin text="Load product.."></loaderspin>
+              </div>
+            </template>
+            <p v-show="errors.has('product')" class="alert topright">{{ errors.first('product') }}</p>
+          </div>
+        </div>
+
+        <div
+          class="products-row d-flex"
+          style="flex-wrap: wrap; align-items: flex-start; justify-content: flex-start; position: relative; z-index: 0"
+        >
+          <div class="product-wrapper" v-for="(product,k) in event_free_gifts.products" :key="k">
+            <a href class="delete-btn" @click.prevent="deleteSelectedProduct(k)">&#x274C;</a>
+            <ProductCard :buttonReview="false" :product="product"></ProductCard>
+          </div>
+        </div>
+
+        <a
+          href
+          class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-uppercase sc-mb-15"
+          @click.prevent="addGift()"
+          >Add Gift</a
+        >
+
+        <!-- ....................Gift added section....... -->
+        <h2 class="title" v-if="event.free_gifts.length">Added Gifts</h2>
+        <div v-for="(gift,k) in event.free_gifts">
+          <div class="d-flex justify-content-between">
+            <p for="brand_name" class="sc-form-label mb-2 float-l">Gift Type : {{gift.type}}</p>
+            <a href class="delete-btn" @click.prevent="deleteAddedGift(k)"
+              ><i class="fa fa-times-circle-o display-4"></i
+            ></a>
+          </div>
+          <div
+            class="products-row d-flex"
+            style="
+              flex-wrap: wrap;
+              align-items: flex-start;
+              justify-content: flex-start;
+              position: relative;
+              z-index: 0;
+            "
+          >
+            <div class="product-wrapper" v-for="(product,k) in gift.products" :key="k">
+              <ProductCard :buttonReview="false" :product="product"> </ProductCard>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- .........................Related Content................... -->
+      <div class="grouped-input col-12">
+        <div class="sc-form-title sc-mt-15">Related Content</div>
+        <div class="sc-form-group sc-form-group-half">
+          <label class="sc-form-label" for="tag-name">Article Link</label>
+          <input
+            name="tag-name"
+            id="tag-name"
+            type="text"
+            placeholder="Paste your link here..."
+            v-model="addrltdLink.article"
+            size="40"
+            aria-required="true"
+            class="sc-form-input"
+          />
+        </div>
+        <a
+          href
+          class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-uppercase sc-mb-15"
+          @click.prevent="addArticleLink(addrltdLink.article)"
+          >Add link</a
+        >
+        <div class="article-list" v-if="event.articles && event.articles.length > 0">
+          <div class="link-preview" v-for="(artc,key) in event.articles" :key="key">
+            <a href class="delete-btn" @click.prevent="removeArtc(key)">&#x274C;</a>
+            <!-- <img :src="artc.attachments[0].url" :alt="artc.title" /> -->
+            <h4>{{artc.title}}</h4>
+          </div>
+        </div>
+        <div class="sc-form-group sc-form-group-half">
+          <label class="sc-form-label" for="tag-name">Video Link</label>
+          <input
+            name="tag-name"
+            id="tag-name"
+            type="text"
+            placeholder="Paste your link here..."
+            v-model="addrltdLink.video"
+            size="40"
+            aria-required="true"
+            class="sc-form-input"
+          />
+        </div>
+        <a
+          href
+          class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-uppercase sc-mb-15"
+          @click.prevent="addVideoLink(addrltdLink.video)"
+          >Add link</a
+        >
+        <div class="article-list" v-if="event.videos">
+          <div class="link-preview" v-for="(artc,key) in event.videos" :key="key">
+            <a href class="delete-btn" @click.prevent="removeVideo(key)">&#x274C;</a>
+            <!-- <img :src="artc.attachments[0].url" :alt="artc.title" /> -->
+            <h4>{{artc.title}}</h4>
+          </div>
+        </div>
+        <div class="sc-form-group sc-form-group-half">
+          <label class="sc-form-label" for="tag-name">Collection Id</label>
+          <input
+            name="tag-name"
+            id="tag-name"
+            type="text"
+            placeholder="Paste your Id here..."
+            v-model="addrltdLink.collection"
+            size="40"
+            aria-required="true"
+            class="sc-form-input"
+          />
+        </div>
+        <a
+          href
+          class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-uppercase sc-mb-15"
+          @click.prevent="addCollectionLink(addrltdLink.collection)"
+          >Add Id</a
+        >
+        <div class="article-list" v-if="event.collections && event.collections.length > 0">
+          <div class="link-preview" v-for="(artc,key) in event.collections" :key="key">
+            <a href class="delete-btn" @click.prevent="removeCollection(key)">&#x274C;</a>
+            <!-- <img :src="artc.attachments[0].url" :alt="artc.title" /> -->
+            <h4>{{artc.title}}</h4>
+          </div>
+        </div>
+      </div>
+      <div class="sc-form-group sc-form-group-half">
+        <label class="sc-form-label" for="parent">Display Option <sup>*</sup></label>
+        <select v-model="event.visibility_to" class="sc-form-input">
+          <option :key="key" v-for="(opt,key) in visibility_to" :value="opt" :selected="opt === event.visibility_to">
+            {{ opt }}
+          </option>
+        </select>
+      </div>
+      <div class="sc-form-group sc-form-group-half">
+        <label class="sc-form-label" for="parent">Classification <sup>*</sup></label>
+        <select v-model="event.classification" class="sc-form-input">
+          <option
+            :key="key"
+            v-for="(opt,key) in event_classification"
+            :value="opt"
+            :selected="opt === event.classifcation"
+          >
+            {{ opt }}
+          </option>
+        </select>
+      </div>
+      <div class="sc-form-group sc-form-group-half">
+        <label class="sc-form-label" for="parent">Deleted</label>
+        <select v-model="event.is_deleted" class="sc-form-input">
+          <option
+            :key="key"
+            v-for="(opt,key) in event_deleted_status"
+            :value="opt"
+            :selected="opt === event.is_deleted"
+          >
+            {{ opt }}
+          </option>
+        </select>
+      </div>
+      <div class="sc-form-group sc-form-group-half">
+        <label class="sc-form-label" for="parent">Live Chat </label>
+        <select v-model="event.is_live_chat_enabled" class="sc-form-input">
+          <option :value="true" selected="true">Enabled</option>
+          <option :value="false" selected="false">Disabled</option>
+        </select>
+      </div>
+      <!-- .......................Event Images............. -->
+      <div class="sc-form-group sc-form-group-half">
+        <label class="sc-form-label" for="image">Event Images</label>
+        <div class="">
+          <input class="sc-form-input" id="image" name="image" type="file" @change="imageUpload" multiple />
+        </div>
+      </div>
+      <div class="sc-form-group sc-form-group-half" v-if="event.images && event.images.length">
+        <div class="position-relative px-2" v-for="(image,key) in event.images" :key="key">
+          <a href class="delete-btn position-absolute top-0 left-0" @click.prevent="removeImage(key)">&#x274C;</a>
+          <img style="height: 200px" class="rounded mt-2" :src="image.url" />
+        </div>
+      </div>
+      <!-- .......................Gallery Images............. -->
+      <div class="sc-form-group sc-form-group-half">
+        <label class="sc-form-label" for="image">Gallery</label>
+        <div class="">
+          <input
+            class="sc-form-input"
+            id="image"
+            name="image"
+            type="file"
+            @change="imageUpload($event,'gallery')"
+            multiple
+          />
+        </div>
+      </div>
+      <div class="sc-form-group sc-form-group-half" v-if="event.gallery && event.gallery.length">
+        <div class="position-relative px-2" v-for="(image,key) in event.gallery" :key="key">
+          <a href class="delete-btn position-absolute top-0 left-0" @click.prevent="removeGallery(key)">&#x274C;</a>
+          <img style="height: 200px" class="rounded mt-2" :src="image.url" />
+        </div>
+      </div>
+      <div class="sc-form-group sc-form-group-half col-12">
+        <label class="sc-form-label" for="image">Participant CSV</label>
+        <div class="">
+          <input
+            class="sc-form-input"
+            id="image"
+            name="csv"
+            type="file"
+            @change="csvUpload($event,'normal')"
+            accept=".csv"
+          />
+        </div>
+      </div>
+      <div class="sc-form-group sc-form-group-half">
+        <div>
+          <input
+            type="Submit"
+            value="Submit"
+            id="form_submit_btn"
+            class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded"
+            @click.prevent="save('formEvent')"
+          />
+        </div>
+      </div>
+    </form>
+
+    <!-- ...............modal.......... -->
+    <div id="undertone-modal" class="custom-modal modal-mask modal--upload-picture" v-if="showModal">
+      <div slot="body">
+        <div class="modal-body">
+          <div class="modal-header">
+            <h4 class="modal__heading">PILIH COVER IMAGE KAMU</h4>
+            <span class="link modal-dismiss" @click="showModal = false, isFileChoose = false, fileSizeExceed = false"
+              >&times;</span
+            >
+          </div>
+          <div class="croppa-wrapper">
+            <croppa
+              v-model="croppa"
+              :height="460.8"
+              :width="768"
+              :prevent-white-space="false"
+              initial-size="contain"
+              :file-size-limit="5242880"
+              :accept="'image/jpg,image/jpeg,image/png,image/gif'"
+              :placeholder="'Click here to upload an image'"
+              @file-size-exceed="onFileSizeExceed"
+              @file-choose="onFileChoose"
+              @image-remove="isFileChoose = false, fileSizeExceed = false"
+            >
+            </croppa>
+          </div>
+          <div class="field" v-if="fileSizeExceed">
+            <div class="fieldarea">
+              <p class="alert">Ukuran maksimum 5MB</p>
+            </div>
+          </div>
+          <a
+            href="#"
+            class="close button button-trans modal-upload-foto-save"
+            @click.prevent="saveCrop"
+            v-show="isFileChoose"
+            v-if="!isSaveCrop"
+            >SAVE</a
+          >
+          <!-- <loaderspin v-else /> -->
+
+          <div class="field fieldinfo" v-show="isFileChoose">
+            <div class="fieldarea">
+              <p><i class="icon_lightbulb"></i> Atur foto kamu dengan scroll</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ................combination selection modal....... -->
+  <Modal
+    ref="select_combinations"
+    :medium="true"
+    :force="true"
+    :okText="'Yes'"
+    :okClass="'btn btn-danger btn-sm'"
+    :cancelText="'No'"
+    :cancelClass="'btn btn-dark btn-sm'"
+    @ok="selectVariant()"
+  >
+    <div slot="title">Please Select Combinations</div>
+    <!-- {{tempVariantProd}} -->
+    <template v-if="tempProduct && tempProduct.combinations && tempProduct.variants">
+      <!-- <pre>{{tempProduct.variants}}</pre> -->
+      <!-- <div class="awad" v-for="(v,k) in tempProduct.variants" :key="k">{{v.ean}}</div> -->
+
+      <div class="vuestic-radio-button form-check radio">
+        <div class="abc-radio" v-for="(vari,k) in tempProduct.variants" :key="k">
+          <input
+            v-model="tempVariantProd"
+            class="form-check-input"
+            type="radio"
+            :name="vari.ean"
+            :id="vari.ean"
+            :value="vari"
+          />
+          <!-- @change="onChangeVari(vari)" -->
+          <label class="form-check-label" :for="vari.ean"> {{ vari.combination_name }} </label>
+        </div>
+      </div>
+    </template>
+  </Modal>
+
+  <modal
+    ref="modal_address"
+    :medium="true"
+    :force="true"
+    okText="Yes"
+    class="modal-confirm-approve-reject modal-default-user-list"
+    okClass="none"
+    :cancelClass="'btn-danger py-2 px-4 rounded'"
+    @ok=""
+  >
+    <form-address :addressProps="event.info.venue" @save="onAddressSaved">
+      <!-- <a @click="() => (modalAddressActive = false)" class="button button_inset" slot="action">Close</a> -->
+    </form-address>
+  </modal>
+</div>

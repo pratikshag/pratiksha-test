@@ -1,0 +1,347 @@
+<div>
+  <div class="sc-tab-section" v-if="isDashboard">
+    <div
+      class="sc-tab-item sc-tab-item-3"
+      :class="{'sc-selected': status === 'all'}"
+      @click.prevent="filterStatus('all')"
+    >
+      <div class="sc-tab-title">All Verified User</div>
+      <div class="sc-tab-total">{{totalCount.all || '0'}}</div>
+    </div>
+    <div
+      class="sc-tab-item sc-tab-item-3"
+      :class="{'sc-selected': status === 'old'}"
+      @click.prevent="filterStatus('old')"
+    >
+      <div class="sc-tab-title">Old Verified User</div>
+      <div class="sc-tab-total">{{totalCount.old || '0'}}</div>
+    </div>
+    <div
+      class="sc-tab-item sc-tab-item-3"
+      :class="{'sc-selected': status === 'new'}"
+      @click.prevent="filterStatus('new')"
+    >
+      <div class="sc-tab-title">Old Verified User</div>
+      <div class="sc-tab-total">{{totalCount.new || '0'}}</div>
+    </div>
+  </div>
+
+  <button class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded float-right" @click.prevent="showDashboard()">
+    Dashboard
+  </button>
+
+  <form @submit.prevent="filterData" class="sc-filter">
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Search By Email: </label>
+      <input class="sc-filter-input" type="text" v-model="email" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Search By Id User: </label>
+      <input class="sc-filter-input" type="text" v-model="id" name="Id User" v-validate="'object_id'" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Username: </label>
+      <input class="sc-filter-input" type="text" v-model="user_name" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Phone Number: </label>
+      <input class="sc-filter-input" type="text" v-model="phone_no_e164" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Name: </label>
+      <input class="sc-filter-input" type="text" v-model="name" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Source: </label>
+      <input class="sc-filter-input" type="text" v-model="source" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Country: </label>
+      <select name="country" class="sc-form-input" v-model="country">
+        <option value="" selected>-- Country --</option>
+        <option v-for="country in countries" :value="country.name">{{ country.name }}</option>
+      </select>
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label"> Expertise Users </label>
+      <select name="expertise" class="sc-form-input" v-model="is_expert_reviewer">
+        <option value="" selected>-</option>
+        <option v-for="expertises in filter_expertise" :value="expertises.value">{{ expertises.name }}</option>
+      </select>
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Ip Address: </label>
+      <input class="sc-filter-input" type="text" v-model="ip_address" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Registered Date From: </label>
+      <input class="sc-filter-input" :formatter="formatDate" type="date" v-model="filter.date.from" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Registered Date To: </label>
+      <input class="sc-filter-input" :formatter="formatDate" type="date" v-model="filter.date.to" />
+    </div>
+    <div class="sc-filter-item sc-filter-button">
+      <input type="submit" value="Filter" class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-mr-10" />
+    </div>
+  </form>
+
+  <div class="sc-table-responsive">
+    <div v-if="is_loading" class="loading-spinner">Loading...</div>
+    <table v-else class="sc-table">
+      <thead>
+        <tr>
+          <th>
+            Name
+            <sortField v-show="!is_loading" field="name" :sort="sortParam" @sort="sort" />
+          </th>
+          <th>
+            Username
+            <sortField v-show="!is_loading" field="user_name" :sort="sortParam" @sort="sort" />
+          </th>
+          <th>
+            Email
+            <sortField v-show="!is_loading" field="email" :sort="sortParam" @sort="sort" />
+          </th>
+          <th>
+            Register Date
+            <sortField v-show="!is_loading" field="created_at" :sort="sortParam" @sort="sort" />
+          </th>
+          <th>
+            Phone Number
+            <sortField v-show="!is_loading" field="phone_no_e164" :sort="sortParam" @sort="sort" />
+          </th>
+          <th>
+            Country
+            <sortField v-show="!is_loading" field="country" :sort="sortParam" @sort="sort" />
+          </th>
+          <th>
+            Source
+            <sortField v-show="!is_loading" field="source" :sort="sortParam" @sort="sort" />
+          </th>
+          <th>
+            Registered From
+            <sortField v-show="!is_loading" field="registered_from" :sort="sortParam" @sort="sort" />
+          </th>
+          <th>
+            Last Activity
+            <sortField v-show="!is_loading" field="last_activity" :sort="sortParam" @sort="sort" />
+          </th>
+          <th>
+            Total Order Delivered
+            <sortField v-show="!is_loading" field="total_order_delivered" :sort="sortParam" @sort="sort" />
+          </th>
+          <th>
+            Total Order Created
+            <sortField v-show="!is_loading" field="total_order_created" :sort="sortParam" @sort="sort" />
+          </th>
+          <th>IP Address</th>
+
+          <!-- <th v-if="!isSbnOrCs">Admin</th> -->
+          <th v-if="!isSbnOrCs">Expertise</th>
+          <th>Detail</th>
+        </tr>
+      </thead>
+      <tbody>
+        <TableEmpty :cols="isSbnOrCs ? 10 : 12" v-if="!is_loading && !(users && users.length)" />
+
+        <tr v-for="user in users">
+          <td>
+            <i
+              v-if="!isDashboard"
+              class="fa fa-check-circle-o font-weight-bold"
+              :class="{'text-success':user.is_verified_phone}"
+            ></i>
+            {{user.name}}
+          </td>
+          <td>{{user.user_name}}</td>
+          <td>
+            <div style="display: flex; align-items: center">
+              <img v-if="user.is_google" src="@/img/google.svg" height="16" width="16" style="margin-right: 8px" />
+              <span style="vertical-align: middle">{{ maskEmail(user.email_alias || user.email_lower || user.email) }}</span>
+            </div>
+          </td>
+          <td>
+            <span v-if="user.created_at">
+              {{ new Date(user.created_at).toLocaleString('en-CA', { timeZone: 'Asia/Jakarta', year: 'numeric', month:
+              '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(',', '') }}
+            </span>
+          </td>
+          <td>
+            <span v-if="user.phone_no_e164 || user.phone_no"
+            >
+              {{ (user.phone_code || '+62') + maskPhoneSimple(user.phone_no) }}
+            </span>
+          </td>
+          <td>
+            <span v-if="user.country">{{user.country.name}} </span>
+            <span v-else-if="user.address && user.address.length && user.address[0] && user.address[0].country"
+              >{{user.address[0].country.name}}
+            </span>
+          </td>
+          <td>
+            <span v-if="user.acquisition_source">{{user.acquisition_source}} </span>
+          </td>
+          <td>
+            <span v-if="user.registered_from">{{user.registered_from}} </span>
+          </td>
+          <td>
+            <span
+              v-if="user.lastActivity && user.lastActivity.length && user.lastActivityDate"
+              @click="showUserActivity(user.lastActivity)"
+              style="cursor: pointer"
+              >{{convertDate(user.lastActivityDate)}}
+              <i class="fa fa-eye icon-left input-icon search-icon"></i>
+            </span>
+          </td>
+          <td>
+            <span v-if="isLoadingOrders">
+              <i class="fa fa-spinner fa-spin"></i>
+            </span>
+            <span v-else> {{ orderCounts[user._id] || 0 }} </span>
+          </td>
+          <td>
+            <span v-if="isLoadingOrders">
+              <i class="fa fa-spinner fa-spin"></i>
+            </span>
+            <span v-else> {{ totalOrderCounts[user._id] || 0 }} </span>
+          </td>
+          <td>
+            <span>{{user.ip_address}} </span>
+          </td>
+          <!-- <td v-if="makeAndRemoveAdminAccess">
+            <a @click="removeAdmin(user)" v-if="user.is_admin_soco==true" style="color: #225d42">Remove Admin</a>
+            <a @click="handleSaveAdmin(user)" v-else="user.is_admin_soco==false" style="color: #225d42">Make Admin</a>
+          </td> -->
+          <td v-if="!isSbnOrCs">
+            <a @click="saveExpertise(user)" v-if="!user.is_expert_reviewer" style="color: #225d42">Set as Expert</a>
+            <select
+              class="sc-form-input expert-role"
+              ref="expert_role"
+              id="expert_role"
+              v-model="user.expert_role"
+              name="expert_role"
+              v-if="user.is_expert_reviewer === true"
+              @change="onexpertRole(user)"
+            >
+              <option disabled value="">Expert Role:</option>
+              <option value="aesthetic_doctor">Aesthetic Doctor</option>
+              <option value="content_creator">Content Creator</option>
+              <option value="medical_doctor">Medical Doctor</option>
+              <option value="makeup_artist">Makeup Artist</option>
+              <option value="beauty_editors">Beauty Editors</option>
+              <option value="hair_stylist">Hair Stylist</option>
+              <option value="dermatologist">Dermatologist</option>
+            </select>
+            <a
+              @click="saveFeatured(user)"
+              v-if="user.is_expert_reviewer && !user.is_featured_expert_user"
+              style="color: #225d42"
+              >Set as Featured</a
+            >
+            <a
+              @click="saveFeatured(user)"
+              v-else-if="user.is_expert_reviewer && user.is_featured_expert_user === true"
+              style="color: #225d42"
+              >Remove as Featured</a
+            >
+            <a
+              @click="removeExpertise(user)"
+              v-if="user.is_expert_reviewer === true "
+              style="color: #225d42; display: block"
+              >Remove Expertise</a
+            >
+          </td>
+          <td>
+            <a>
+              <router-link :to="`/users/detail/${user._id}`" style="color: #225d42"> View Detail </router-link>
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div
+    v-if="showUserActivityModal"
+    class="modal"
+    style="top: 25%; width: 500px; height: 500px; left: 40%; border-radius: 5px; display: block"
+  >
+    <!-- Modal content -->
+    <div class="modal-content">
+      <span v-on:click="showUserActivityModal=false" class="close" style="position: absolute; right: 10px"
+        >&times;</span
+      >
+      <div style="font-size: 20px; font-weight: bolder; padding: 20px; text-align: center">Activity History</div>
+      <div style="padding: 20px">
+        <div style="display: flex; justify-content: flex-start">
+          <div style="width: 150px; font-size: 18px; font-weight: bolder">Date</div>
+          <div style="display: flex; flex-grow: 1; font-size: 18px; font-weight: bolder">Activity</div>
+        </div>
+        <div style="max-height: 300px; overflow: scroll">
+          <div
+            v-for="activity in currentUserActivity"
+            style="display: flex; justify-content: flex-start; line-height: 24px"
+          >
+            <div style="width: 150px">{{activity.date}}</div>
+            <div style="display: flex; flex-grow: 1">{{activity.name}}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    v-if="modalSaveAdmin"
+    class="modal"
+    style="top: 25%; width: 550px; height: 550px; left: 40%; border-radius: 5px; display: block"
+  >
+    <!-- Modal content -->
+    <div class="modal-content">
+      <span v-on:click="modalSaveAdmin=false" class="close" style="position: absolute; right: 10px">&times;</span>
+      <div style="font-size: 20px; font-weight: 700; padding: 20px; text-align: center">
+        Are You Sure You Want To Make This Users As Admin?
+      </div>
+      <div style="padding: 20px">
+        <div style="display: flex; justify-content: flex-start">
+          <div style="width: 150px; font-size: 18px; font-weight: bolder">User Email</div>
+          <div style="display: flex; flex-grow: 1; font-size: 18px; font-weight: bolder">{{ selectedUser.email }}</div>
+        </div>
+        <div style="display: flex; justify-content: flex-start; margin-top: 30px">
+          <div style="width: 150px; font-size: 18px; font-weight: bolder">User Name</div>
+          <div style="display: flex; flex-grow: 1; font-size: 18px; font-weight: bolder">{{ selectedUser.name }}</div>
+        </div>
+        <div style="display: flex; justify-content: flex-start; margin-top: 30px">
+          <div style="width: 150px; font-size: 18px; font-weight: bolder">Phone Number</div>
+          <div style="display: flex; flex-grow: 1; font-size: 18px; font-weight: bolder">
+            {{ selectedUser.phone_no_e164 }}
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; justify-content: center; gap: 50px; padding: 20px">
+        <button class="sc-btn sc-btn-secondary cancel sc-btn-md sc-btn-rounded" @click="modalSaveAdmin=false">
+          Cancel
+        </button>
+        <button
+          class="sc-btn sc-btn-secondary proceed sc-btn-md sc-btn-rounded"
+          @click.prevent="saveAdmin(selectedUser)"
+        >
+          Proceed
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sc-pagination-page">
+    <div class="sc-pagination-content">
+      <div class="sc-pagination-text-container">
+        <div class="sc-pagination-text">Page: {{ currentPage }} out of {{ getTotalData }}</div>
+        <div class="sc-pagination-text">Total Record: {{ currentTotalRecord }}</div>
+      </div>
+      <div class="table-pagination">
+        <DisplayPerPage :all="all" @display="display"></DisplayPerPage>
+        <Pagination :limit="limit" :skip="skip" :total="currentTotalRecord" @page="setSkip" />
+      </div>
+    </div>
+  </div>
+</div>

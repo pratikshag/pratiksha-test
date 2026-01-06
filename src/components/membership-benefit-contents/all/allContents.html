@@ -1,0 +1,90 @@
+<div>
+  <div>
+    <a style="color: #225d42"
+      ><router-link :to="{ name: 'add-benefit-content'}" style="color: #225d42" class="btn btn-success">
+        + ADD
+      </router-link></a
+    >
+  </div>
+  <hr />
+
+  <h1><b>Pagination</b></h1>
+  <br />
+  <div class="row" style="padding-left: 20px">
+    <input
+      v-if="pagination.currentPage > 1"
+      type="submit"
+      value="Prev"
+      class="button"
+      v-on:click="gotoPage(pagination.currentPage - 1)"
+    />
+    <input
+      type="number"
+      min="1"
+      :max="pagination.totalPage"
+      name=""
+      v-model="pagination.currentPage"
+      @keyup.enter.prevent="gotoPage(pagination.currentPage)"
+      style="text-align: center"
+    />
+    <input
+      v-if="pagination.showNextPage"
+      style="padding-left: 20px"
+      type="submit"
+      value="Next"
+      class="button"
+      v-on:click="gotoPage(pagination.currentPage+1)"
+    />
+  </div>
+  <hr />
+  <div class="row" style="padding-left: 20px">
+    <p style="padding: 5px 10px">Search:</p>
+    <input type="text" placeholder="Search Name" v-model="filter.title" @keyup="searchQuery" />
+  </div>
+  <br />
+
+  <div class="loader" v-if="is_loading">
+    <ball-pulse-loader color="#000000" size="20px"></ball-pulse-loader>
+  </div>
+
+  <table class="table-post">
+    <thead>
+      <tr>
+        <th style="width: 100px">ID</th>
+        <th>TITLE</th>
+        <th>IMAGE</th>
+        <th>DESCRIPTION</th>
+        <th>URL</th>
+        <th>STATUS</th>
+        <th style="width: 100px">ACTION</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="benefit in data">
+        <td>{{ benefit._id.substring(18) }}</td>
+        <td>{{ benefit.title }}</td>
+        <td>
+          <img v-if="benefit.image" :src="benefit.image" style="height: 100px; margin-bottom: 5px" />
+        </td>
+        <td>{{ benefit.description }}</td>
+        <td>{{ benefit.url }}</td>
+        <td>{{ benefit.is_active }}</td>
+        <td>
+          <div>
+            <a style="color: #225d42"
+              ><router-link :to="`/membership/benefit/edit/${benefit._id}`" style="color: #225d42">Edit</router-link></a
+            >
+            <br />
+            <a style="color: #225d42" v-on:click="trash(benefit._id)">DELETE</a>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <br />
+  <div>
+    <p>Page: {{ pagination.currentPage }} out of {{ pagination.totalPage}}</p>
+    <p>Total Record: {{ pagination.currentTotalRecord }}</p>
+  </div>
+</div>

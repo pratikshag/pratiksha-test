@@ -1,0 +1,194 @@
+<div>
+  <div>
+    <div class="sc-form">
+      <div class="sc-form-title" v-if="partner_id && partner_id != ''">Edit Partner</div>
+      <div class="sc-form-title" v-else>Add Partner</div>
+
+      <form id="form_category" @submit.prevent="savepartner('form-category')" class="sc-form-container">
+        <div class="sc-form-group">
+          <label class="sc-form-label" for="tag-name">Partner Name </label>
+          <input
+            class="sc-form-input"
+            name="tag-name"
+            id="tag-name"
+            type="text"
+            v-model="data.name"
+            size="40"
+            aria-required="true"
+          />
+        </div>
+
+        <div class="sc-form-group">
+          <label class="sc-form-label" for="tag-name">Custom Values</label>
+          <div style="display: flex">
+            <input
+              type="button"
+              value="+Add"
+              class="sc-btn sc-btn-secondary sc-btn-rounded sc-btn-md sc-uppercase sc-mr-10"
+              @click.prevent="addCustomValue"
+            />
+            <input
+              type="button"
+              value="-Remove"
+              class="sc-btn sc-btn-secondary sc-btn-rounded sc-btn-md sc-uppercase"
+              @click.prevent="removeCustomValue"
+            />
+          </div>
+          <div v-for="(arr, index) in data.redeem_values" :key="index" class="sc-mt-10">
+            <div class="sc-form-group sc-form-group-full sc-row" style="margin-bottom: 0px">
+              <div class="sc-row-item">
+                <div class="sc-form-group sc-form-group-full" style="margin-bottom: 0px">
+                  <label class="sc-form-label" for="">SP Redeem</label>
+                  <input
+                    class="sc-form-input"
+                    name="tag-name"
+                    type="text"
+                    v-model="arr.point"
+                    size="4"
+                    aria-required="true"
+                  />
+                </div>
+              </div>
+              <div class="sc-row-item">
+                <div class="sc-form-group sc-form-group-full" style="margin-bottom: 0px">
+                  <label class="sc-form-label" for="">Amount</label>
+                  <input
+                    class="sc-form-input"
+                    name="tag-name"
+                    type="text"
+                    v-model="arr.value"
+                    size="4"
+                    aria-required="true"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sc-form-group sc-form-group-full" id="editorVue">
+          <label class="sc-form-label" for="tag-name">Terms & Condition </label>
+          <vue-editor
+            id="editor"
+            useCustomImageHandler
+            v-model="data.terms_condition"
+            :editorToolbar="customToolbar"
+            :customModules="customModulesForEditor"
+            :editorOptions="editorSettings"
+          >
+          </vue-editor>
+          <input type="hidden" v-model="data.terms_condition" name="articleText" v-validate="'required'" />
+        </div>
+        <div class="sc-form-group">
+          <label class="sc-form-label" for="parent">Used For</label>
+          <select class="sc-form-input" v-model="data.is_type">
+            <option value="voucher" selected>Voucher</option>
+            <option value="manual" selected>Manual Exchange</option>
+            <option value="api" selected>API Exchange</option>
+          </select>
+          <p style="color: #666">
+            <i>Manual Exchange is if partner is used for direct redeem</i>
+          </p>
+        </div>
+        <div class="sc-form-group sc-form-group-full" id="editorVue">
+          <label class="sc-form-label" for="tag-name">Add Phone No Message</label>
+          <vue-editor
+            id="editor"
+            useCustomImageHandler
+            v-model="data.add_phone_message"
+            :editorToolbar="customToolbar"
+            :customModules="customModulesForEditor"
+            :editorOptions="editorSettings"
+          >
+          </vue-editor>
+          <input type="hidden" v-model="data.add_phone_message" name="articleText" v-validate="'required'" />
+        </div>
+        <div class="sc-form-group sc-form-group-full" id="editorVue">
+          <label class="sc-form-label" for="tag-name">Successfull redeem message </label>
+          <vue-editor
+            id="editor"
+            useCustomImageHandler
+            v-model="data.redeem_success_message"
+            :editorToolbar="customToolbar"
+            :customModules="customModulesForEditor"
+            :editorOptions="editorSettings"
+          >
+          </vue-editor>
+          <input type="hidden" v-model="data.redeem_success_message" name="articleText" v-validate="'required'" />
+        </div>
+        {{data.logo}}
+        <div class="sc-form-group" id="prize-image">
+          <label class="sc-form-label" for="image">IMAGE</label>
+          <div class="sc-form-child-group">
+            <input class="get_preview_image sc-form-input" id="image" name="image" type="file" @change="imageUpload" />
+          </div>
+          <img id="file-image" v-if="data.logo" :src="data.logo" style="width: 100px; height: 100px" />
+        </div>
+
+        <div class="sc-form-group">
+          <div>
+            <input
+              type="submit"
+              v-on:click="clicked=true"
+              name="submit"
+              id="submit"
+              value="Save Partner"
+              class="sc-btn sc-btn-rounded sc-btn-md sc-btn-primary sc-uppercase"
+            />
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div id="undertone-modal" class="custom-modal modal-mask modal--upload-picture" v-if="showModal">
+      <div slot="body">
+        <div class="modal-body">
+          <div class="modal-header">
+            <h4 class="modal__heading">PILIH COVER IMAGE KAMU</h4>
+            <span class="link modal-dismiss" @click="showModal = false, isFileChoose = false, fileSizeExceed = false"
+              >&times;</span
+            >
+          </div>
+
+          <div class="croppa-wrapper">
+            <croppa
+              v-model="croppa"
+              :height="460.8"
+              :width="768"
+              :prevent-white-space="false"
+              initial-size="contain"
+              :file-size-limit="5242880"
+              :accept="'image/jpg,image/jpeg,image/png'"
+              :placeholder="'Click here to upload an image'"
+              @file-size-exceed="onFileSizeExceed"
+              @file-choose="onFileChoose"
+              @image-remove="isFileChoose = false, fileSizeExceed = false"
+            >
+            </croppa>
+          </div>
+
+          <div class="field" v-if="fileSizeExceed">
+            <div class="fieldarea">
+              <p class="alert">Ukuran maksimum 5MB</p>
+            </div>
+          </div>
+          <a
+            href="#"
+            class="close button button-trans modal-upload-foto-save"
+            @click.prevent="saveCrop"
+            v-show="isFileChoose"
+            v-if="!isSaveCrop"
+            >SAVE</a
+          >
+          <br />
+
+          <div class="field fieldinfo" v-show="isFileChoose">
+            <div class="fieldarea">
+              <p><i class="icon_lightbulb"></i> Atur foto kamu dengan scroll</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,598 @@
+<div class="sc-form">
+  <div class="sc-form-breadcrumb">PRODUCT / {{ temp.name }}</div>
+  <div class="sc-form-title">Product Informations</div>
+  <div class="sc-form-container">
+    <div class="sc-form-group sc-form-group-full sc-row" v-if="!is_loading">
+      <div class="sc-row-item">
+        <div class="sc-form-group sc-form-group-full">
+          <label class="sc-form-label" for="brand-name">Brand Name</label>
+
+          <multiselect
+            id="ajax"
+            v-model="temp.brand"
+            placeholder=""
+            open-direction="bottom"
+            :options="options.brands.data"
+            :searchable="true"
+            :loading="options.brands.is_loading"
+            :internal-search="false"
+            :clear-on-select="true"
+            :close-on-select="true"
+            :options-limit="300"
+            :max-height="600"
+            :show-no-results="true"
+            :hide-selected="true"
+            @search-change="findBrands"
+            :show-labels="false"
+            track-by="id"
+            label="name"
+            class="sc-form-input"
+          >
+            <template slot="clear" slot-scope="props">
+              <div
+                class="multiselect__clear"
+                v-if="options.brands.data.length === 0"
+                @mousedown.prevent.stop="clearAll"
+              ></div> </template
+            ><span slot="noResult">Oops! No brands found. Consider changing your query.</span>
+          </multiselect>
+        </div>
+
+        <div class="sc-form-group sc-form-group-full">
+          <label class="sc-form-label" for="name">Name</label>
+          <input
+            name="name"
+            id="name"
+            type="text"
+            aria-required="true"
+            v-model="temp.name"
+            class="sc-form-input"
+            @click.enter="showMsg = false"
+          />
+        </div>
+
+        <div class="sc-form-group sc-form-group-full">
+          <label class="sc-form-label" for="category">Category</label>
+          <multiselect
+            id="ajax"
+            v-model="temp.category_0"
+            placeholder=""
+            open-direction="bottom"
+            :options="options.category_0.data"
+            :searchable="true"
+            :loading="options.category_0.is_loading"
+            :internal-search="true"
+            :clear-on-select="true"
+            :close-on-select="true"
+            :options-limit="300"
+            :max-height="600"
+            :show-no-results="true"
+            :hide-selected="true"
+            :show-labels="false"
+            track-by="id"
+            label="name"
+            class="sc-form-input"
+          >
+            <template slot="clear" slot-scope="props">
+              <div
+                class="multiselect__clear"
+                v-if="options.brands.data.length === 0"
+                @mousedown.prevent.stop="clearAll"
+              ></div> </template
+            ><span slot="noResult">Oops! No category found. Consider changing your query.</span>
+          </multiselect>
+        </div>
+
+        <div class="sc-form-group sc-form-group-full">
+          <label class="sc-form-label" for="sub-category-1">Sub-category 1</label>
+          <multiselect
+            id="ajax"
+            v-model="temp.category_1"
+            placeholder=""
+            open-direction="bottom"
+            :options="options.category_1.data"
+            :searchable="true"
+            :loading="options.category_1.is_loading"
+            :internal-search="true"
+            :clear-on-select="true"
+            :close-on-select="true"
+            :options-limit="300"
+            :max-height="600"
+            :show-no-results="true"
+            :hide-selected="true"
+            :show-labels="false"
+            track-by="id"
+            label="name"
+            class="sc-form-input"
+          >
+            <template slot="clear" slot-scope="props">
+              <div
+                class="multiselect__clear"
+                v-if="options.brands.data.length === 0"
+                @mousedown.prevent.stop="clearAll"
+              ></div> </template
+            ><span slot="noResult">Oops! No category found. Consider changing your query.</span>
+          </multiselect>
+        </div>
+
+        <div class="sc-form-group sc-form-group-full">
+          <label class="sc-form-label" for="sub-category-2">Sub-category 2</label>
+          <multiselect
+            id="ajax"
+            v-model="temp.category_2"
+            placeholder=""
+            open-direction="bottom"
+            :options="options.category_2.data"
+            :searchable="true"
+            :loading="options.category_2.is_loading"
+            :internal-search="true"
+            :clear-on-select="true"
+            :close-on-select="true"
+            :options-limit="300"
+            :max-height="600"
+            :show-no-results="true"
+            :hide-selected="true"
+            :show-labels="false"
+            track-by="id"
+            label="name"
+            class="sc-form-input"
+          >
+            <template slot="clear" slot-scope="props">
+              <div
+                class="multiselect__clear"
+                v-if="options.brands.data.length === 0"
+                @mousedown.prevent.stop="clearAll"
+              ></div> </template
+            ><span slot="noResult">Oops! No category found. Consider changing your query.</span>
+          </multiselect>
+        </div>
+
+        <div class="sc-form-group sc-form-group-full">
+          <label class="sc-form-label" for="default-category">Default Category</label>
+          <input
+            name="name"
+            id="name"
+            type="text"
+            aria-required="true"
+            v-model="temp.default_category.name"
+            @click.enter="showMsg = false"
+            class="sc-form-input"
+            readonly
+          />
+        </div>
+
+        <div class="sc-form-group sc-form-group-full">
+          <label class="sc-form-label" for="status">Status</label>
+          <select
+            class="sc-form-input"
+            name="status"
+            id="status"
+            type="text"
+            aria-required="true"
+            v-model="temp.status"
+            @click.enter="showMsg = false"
+          >
+            <option value="approved">Approved</option>
+            <option value="waiting-approval">Waiting Approval</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+
+        <div class="sc-form-group sc-form-group-full">
+          <label class="sc-form-label" for="description">Description</label>
+          <div style="width: 100%">
+            <vue-editor
+              id="description"
+              v-model="temp.description"
+              :editorToolbar="customToolbar"
+              @click.enter="showMsg = false"
+            >
+            </vue-editor>
+          </div>
+        </div>
+
+        <div class="sc-form-group sc-form-group-full">
+          <label class="sc-form-label" for="product-image" style="width: 230px">Product Image</label>
+          <div id="product-image">
+            <template>
+              <img v-if="product_image" :src="product_image" alt="soco" />
+              <img v-else src="/assets/img/dummy_product.svg" alt="soco" />
+            </template>
+
+            <input
+              type="file"
+              name="productImage"
+              id="productImage"
+              class="sc-form-input sc-mt-15"
+              accept="image/jpg,image/jpeg,image/png,image/gif"
+              @change="($event) => uploadImage($event, 'product-image')"
+            />
+            <label
+              v-if="!product_image && !state.isProcess"
+              class="change-product-image"
+              style="text-align: left"
+              for="productImage"
+              >Choose a file</label
+            >
+            <label
+              v-else-if="product_image && !state.isProcess"
+              class="change-product-image"
+              style="text-align: left"
+              for="productImage"
+              >Change Image</label
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="sc-row-item">
+        <div class="sc-form-group sc-form-group-full">
+          <label class="sc-form-label" for="how-to-use howhowtouse">How to use</label>
+          <div style="width: 100%">
+            <vue-editor
+              id="how-to-use"
+              v-model="temp.how_to_use"
+              :editorToolbar="customToolbar"
+              @click.enter="showMsg = false"
+            >
+            </vue-editor>
+          </div>
+        </div>
+        <div class="sc-form-group sc-form-group-full">
+          <label class="sc-form-label" for="ingredients">Ingredients</label>
+          <div style="width: 100%">
+            <vue-editor
+              id="ingredients"
+              v-model="temp.ingredients"
+              :editorToolbar="customToolbar"
+              @click.enter="showMsg = false"
+            >
+            </vue-editor>
+          </div>
+        </div>
+        <div class="sc-form-group sc-form-group-full">
+          <label class="sc-form-label" for="content">Content</label>
+          <div style="width: 100%">
+            <vue-editor
+              id="content"
+              v-model="temp.content"
+              :editorToolbar="customToolbar"
+              @click.enter="showMsg = false"
+            >
+            </vue-editor>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sc-form-title">Product Combination</div>
+    <div class="sc-form-group sc-form-group-full">
+      <div class="sc-mb-15">
+        <button
+          class="sc-btn sc-btn-rounded sc-btn-md sc-btn-red sc-uppercase"
+          @click.prevent="showModalAddCollection('add')"
+        >
+          + Add Combination
+        </button>
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <!-- <th>Combination</th>
+                        <th>Reference</th> -->
+            <th>EAN</th>
+            <th>Attribute</th>
+            <!-- <th>Price</th> -->
+            <th style="width: 150px">image</th>
+            <th style="width: 179px">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template v-if="temp.combinations" v-for="(combination, keyComb) in temp.combinations">
+            <tr>
+              <td v-if="combination._id">...{{ combination._id.substr(combination._id.length - 5) }}</td>
+              <td v-else>-</td>
+              <!-- <td>{{ combination.name }}</td>
+                                <td>{{ combination.reference }}</td> -->
+              <td>{{ combination.ean_no }}</td>
+              <td class="comb-attribute">
+                <template v-if="combination && combination.attribute && Object.keys(combination.attribute).length">
+                  <span
+                    v-for="(attribute, keyAttr) in combination.attribute"
+                    v-if="keyAttr != 'non_specify' && attribute.name"
+                    >{{ `${keyAttr}: ${attribute.name}` }}</span
+                  >
+                </template>
+                <template v-else>
+                  <span>Non Specify:Default</span>
+                </template>
+              </td>
+              <!-- <td>{{ combination.price }}</td> -->
+              <td>
+                <template v-if="combination.images" v-for="(combImage, keyImage) in combination.images">
+                  <img class="img-fluid" :src="combImage.url" alt />
+
+                  <button
+                    v-if="combImage.url == product_cover_url"
+                    class="btn-sm nbtn"
+                    title="undo featured"
+                    @click.prevent="populateImagesFromCombinations('')"
+                  >
+                    featured
+                  </button>
+                  <button
+                    v-else
+                    @click.prevent="populateImagesFromCombinations(combImage.url)"
+                    title="set featured"
+                    class="btn-sm nbtn btn-white"
+                  >
+                    set feature
+                  </button>
+
+                  <button
+                    @click.prevent="deleteImageCombination(keyComb, keyImage)"
+                    title="Trash"
+                    aria-hidden="true"
+                    class="fa fa-trash btn_delete"
+                  ></button>
+                  <hr />
+                </template>
+              </td>
+              <td>
+                <button
+                  @click.prevent="showModalAddCollection('edit', combination, keyComb)"
+                  title="Edit"
+                  aria-hidden="true"
+                  class="fa fa-pencil btn_edit"
+                ></button>
+                <button
+                  @click.prevent="deleteCombination(keyComb)"
+                  title="Trash"
+                  aria-hidden="true"
+                  class="fa fa-trash btn_delete"
+                ></button>
+              </td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+    <div class="sc-form-title">Meta Field</div>
+    <div class="sc-form-group sc-form-group-full sc-row">
+      <div class="sc-row-item">
+        <div class="sc-form-group sc-form-group-full">
+          <label class="sc-form-label" for="meta-brand-name">Brand Name</label>
+          <input
+            name="meta-brand-name"
+            id="meta-brand-name"
+            type="text"
+            aria-required="true"
+            v-model="temp.meta_title"
+            class="sc-form-input"
+            @click.enter="showMsg = false"
+          />
+        </div>
+
+        <div class="sc-form-group sc-form-group-full">
+          <label class="sc-form-label" for="meta-description">Description</label>
+          <textarea
+            name="meta-description"
+            id="meta-description"
+            type="text"
+            aria-required="true"
+            v-model="temp.meta_description"
+            class="sc-form-input"
+            @click.enter="showMsg = false"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="sc-row-item">
+        <div class="sc-form-group sc-form-group-full">
+          <label class="sc-form-label" for="meta-keyword">Keyword</label>
+          <input
+            name="meta-keyword"
+            id="meta-keyword"
+            type="text"
+            aria-required="true"
+            v-model="temp.meta_keyword"
+            class="sc-form-input"
+            @click.enter="showMsg = false"
+          />
+        </div>
+      </div>
+    </div>
+
+    <hr />
+    <div class="d-flex grouped-input justify-content-end">
+      <div v-if="is_loading" class="loader" style="text-align: center">
+        <ball-pulse-loader color="#000000" size="20px"></ball-pulse-loader>
+      </div>
+      <div v-else class="btn-wrap" style="max-width: 300px">
+        <button
+          class="sc-btn sc-btn-rounded sc-btn-md sc-uppercase sc-btn-white"
+          @click.prevent="$router.push({name: 'product-list'})"
+        >
+          Cancel
+        </button>
+        <button class="sc-btn sc-btn-rounded sc-btn-md sc-uppercase sc-btn-secondary" @click.prevent="save">
+          Save
+        </button>
+        <button class="sc-btn sc-btn-rounded sc-btn-md sc-uppercase sc-btn-red" @click.prevent="approve">
+          approve
+        </button>
+      </div>
+    </div>
+
+    <div name="preview-product" class="custom-modal modal-mask" id="add_product_modal" v-if="addProductImages">
+      <div class="overlay"></div>
+      <div class="content-wrapper modal-container">
+        <div class="content">
+          <div class="modal-header">
+            <a href="" class="modal-dismiss" @click.prevent="showModalAddCollection()">x</a>
+            <h1>Add Products</h1>
+          </div>
+          <div class="modal-content">
+            <form class="form--input-uniform form-add-product" action>
+              <div class="change-pro-images">
+                <figure>
+                  <img v-if="previewImage" :src="previewImage" alt="soco" />
+                  <img v-else src="/assets/img/dummy_product.svg" alt="soco" />
+                </figure>
+
+                <input
+                  type="file"
+                  name="thisFile"
+                  id="thisFile"
+                  style="width: 0.1px; height: 0.1px; opacity: 0; overflow: hidden; position: absolute; z-index: -1"
+                  accept="image/jpg,image/jpeg,image/png,image/gif"
+                  @change="uploadImage"
+                />
+                <p @click.prevent="" v-if="state.isProcess" class="change-title">Uploading...</p>
+                <label v-else-if="!previewImage && !state.isProcess" class="change-title" for="thisFile"
+                  >Choose a file</label
+                >
+                <label v-else-if="previewImage && !state.isProcess" class="change-title" for="thisFile"
+                  >Change Image</label
+                >
+
+                <!-- <p class="change-title"><a href="" @click.prevent="changeImageProduct">Change Image</a></p> -->
+              </div>
+              <div class="product-varient">
+                <div class="sc-form-group sc-form-group-full">
+                  <label class="sc-form-label" for="default-category">Shade</label>
+                  <Multiselect
+                    tagPlaceholder=""
+                    selectLabel=""
+                    deselectLabel=""
+                    deselectGroupLabel=""
+                    :allowEmpty="false"
+                    v-model="form.attribute.shade"
+                    :options="options.shade"
+                    :custom-label="labelName"
+                    placeholder="Select or type to search"
+                    label="name"
+                    track-by="name"
+                    data-vvcategory-name="size"
+                    name="shade"
+                    @search-change="searchShade"
+                    id="search-attr-shade"
+                  >
+                    <!-- <template slot="clear" slot-scope="props">
+                                            <div class="multiselect__clear" v-if="options.brands.data.length === 0" @mousedown.prevent.stop="clearAll"></div>
+                                        </template> -->
+                    <span slot="noResult">Oops! No shade found. Consider changing your query.</span>
+                  </Multiselect>
+                </div>
+                <div class="sc-form-group sc-form-group-full">
+                  <label class="sc-form-label" for="default-category">Size</label>
+                  <Multiselect
+                    tagPlaceholder=""
+                    selectLabel=""
+                    deselectLabel=""
+                    deselectGroupLabel=""
+                    :allowEmpty="false"
+                    v-model="form.attribute.size"
+                    :options="options.size"
+                    :custom-label="labelName"
+                    placeholder="Select or type to search"
+                    label="name"
+                    track-by="name"
+                    data-vvcategory-name="size"
+                    name="size"
+                    @search-change="searchSize"
+                    id="search-attr-size"
+                  >
+                    <span slot="noResult">Oops! No size found. Consider changing your query.</span>
+                  </Multiselect>
+                </div>
+                <div class="sc-form-group sc-form-group-full">
+                  <label class="sc-form-label" for="default-category">Varient</label>
+                  <Multiselect
+                    tagPlaceholder=""
+                    selectLabel=""
+                    deselectLabel=""
+                    deselectGroupLabel=""
+                    :allowEmpty="false"
+                    v-model="form.attribute.variant"
+                    :options="options.variant"
+                    :custom-label="labelName"
+                    placeholder="Select or type to search"
+                    label="name"
+                    track-by="name"
+                    data-vvcategory-name="size"
+                    name="variant"
+                    @search-change="searchVariant"
+                    id="search-attr-variant"
+                  >
+                    <span slot="noResult">Oops! No varient found. Consider changing your query.</span>
+                  </Multiselect>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button class="button-cancel" type="button" @click.prevent="showModalAddCollection()">CANCEL</button>
+            <button
+              v-if="!state.isProcess"
+              class="button-red"
+              type="button"
+              @click.prevent="showModalAddCollection(true)"
+            >
+              SUBMIT
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="undertone-modal" class="custom-modal modal-mask modal--upload-picture change-product" v-if="showModal">
+      <div slot="body">
+        <div class="modal-body">
+          <div class="modal-header">
+            <h4 class="modal__heading">PILIH COVER IMAGE KAMU</h4>
+            <span class="link modal-dismiss" @click="showModal = false, isFileChoose = false, fileSizeExceed = false"
+              >&times;</span
+            >
+          </div>
+          <div class="croppa-wrapper">
+            <!-- <croppa v-model="croppa"
+                            :height="460.8"
+                            :width="768"
+                            :prevent-white-space="true"
+                            initial-size="natural"
+                            initial-position="center"
+                            :file-size-limit="5242880"
+                            :accept="'image/jpg,image/jpeg,image/png,image/gif'"
+                            :placeholder="'Click here to upload an image'"
+                            @file-size-exceed="onFileSizeExceed"
+                            @file-choose="onFileChoose"
+                            @image-remove="isFileChoose = false, fileSizeExceed = false">
+                        </croppa> -->
+          </div>
+          <div class="field" v-if="fileSizeExceed">
+            <div class="fieldarea">
+              <p class="alert">Ukuran maksimum 5MB</p>
+            </div>
+          </div>
+          <a
+            href="#"
+            class="close button button-trans modal-upload-foto-save"
+            @click.prevent="saveCrop"
+            v-show="isFileChoose"
+            v-if="!isSaveCrop"
+            >SAVE</a
+          >
+          <!-- <loaderspin v-else /> -->
+
+          <div class="field fieldinfo" v-show="isFileChoose">
+            <div class="fieldarea">
+              <p><i class="icon_lightbulb"></i> Atur foto kamu dengan scroll</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

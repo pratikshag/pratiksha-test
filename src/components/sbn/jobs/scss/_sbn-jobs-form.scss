@@ -1,0 +1,101 @@
+@import '~@/sass/partial/help-reset';
+
+.sbn-jobs-form {
+
+    h3 {
+        display: inline-block;
+        font-size: 30px;
+        margin-top: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    h5 {
+        &[class^="col-"] {
+            border-bottom: 1px solid $grey;
+            margin-bottom: 1rem;
+            padding: 15px 0;
+        }
+    }
+
+    hr {
+        border-color: $pinkalt2;
+        border-width: 2px
+    }
+
+    .job-type-list {
+        width: 100%;
+        margin-top:15px;
+        ul {
+            width:100%;
+            display:flex;
+            flex-wrap:wrap;
+            padding:0;
+            margin:0;
+            li {
+                display:flex;
+                align-items:center;
+                margin-right:15px;
+                padding:4px 15px;
+                background-color:#f09ab9;
+                color:#fff;
+                border-radius:5px;
+                span {
+                    margin-left:5px;
+                    cursor:pointer;
+                }
+            }
+        }
+    }
+}
+
+::v-deep {
+
+    .form-editor {
+        > .list-inline {
+            > .list-inline-item {
+                & + .list-inline-item:before {
+                    content: '|';
+                    padding-right: .5rem
+                }
+                &.active {
+                    > a {
+                        color: initial;
+                    }
+                }
+                > a {
+                    color: $grey;
+                    transition: initial;
+                }
+            }
+        }
+    }
+
+    .quillWrapper {
+        background-color: $white;
+    }
+
+    .croppa-container {
+        align-self: flex-start;
+        background-color: #fff;
+        display: inline-flex;
+        position: relative;
+        border: 1px solid $grey;
+        
+        &.croppa--has-target {
+            cursor: move;
+        }
+        &.croppa--disabled {
+            cursor: not-allowed;
+        }
+    
+        > .icon-remove {
+            cursor: pointer;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            background-color: #fff;
+            position: absolute;
+            top: -10px !important;
+            right: -10px !important;
+        }
+    }
+}

@@ -1,0 +1,83 @@
+<div>
+    <div>
+      <!-- <a style="color:#225d42"><router-link :to="{ name: 'add-banners'}" style="color:#225d42" class="btn btn-success"> + ADD </router-link></a> -->
+      <router-link :to="{ name: 'add-rewards'}" class="sc-btn sc-btn-rounded sc-btn-lg sc-btn-primary">
+        + ADD
+      </router-link>
+    </div>
+  
+    <div class="sc-filter">
+      <div class="sc-filter-item">
+        <label class="sc-filter-label">Search: </label>
+        <input class="sc-filter-input" type="text" placeholder="Search Name" v-model="filter.name" />
+      </div>
+      <div class="sc-filter-item sc-filter-button">
+        <input
+          type="submit"
+          value="Filter"
+          class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded"
+          @click="fetchData()"
+        />
+      </div>
+    </div>
+  
+    <div class="loader" v-if="is_loading">
+      <ball-pulse-loader color="#000000" size="20px"></ball-pulse-loader>
+    </div>
+
+    <div class="sc-table-responsive">
+    <table class="sc-table">
+      <thead>
+        <tr>
+          <th style="width: 100px">ID</th>
+          <th>Reward Name</th>
+          <th>Reward For</th>
+          <th>Type</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Status</th>
+          <th style="width: 100px">ACTION</th>
+        </tr>
+      </thead>
+      <tbody>
+        <TableEmpty :cols="8" v-if="!is_loading && !(data && data.length)" />
+  
+        <tr v-for="reward in data">
+          <td>{{ reward._id.substring(18) }}</td>
+          <td>{{ reward.name }}</td>
+          <td>{{ reward.apply_discount_for }}</td>
+          <td>{{ reward.type }}</td>
+          <td>{{ dateFormat_dmY(reward.from_date) }}</td>
+          <td>{{ dateFormat_dmY(reward.to_date) }}</td>
+          <td>{{ reward.is_active === true ? 'Active' : 'Not Active' }}</td>
+          <td>
+            <div class="sc-table-btn column-btn">
+              <router-link
+                class="sc-table-btn-item sc-btn sc-btn-primary sc-btn-rounded sc-btn-sm"
+                :to="`/get-member/rewards/edit/${reward._id}`"
+                >Edit</router-link
+              >
+              <a class="sc-table-btn-item sc-btn sc-btn-primary sc-btn-rounded sc-btn-sm" v-on:click="trash(reward._id)"
+                >DELETE</a
+              >
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  
+    <div class="sc-pagination-page">
+      <div class="sc-pagination-content">
+        <div class="sc-pagination-text-container">
+          <div class="sc-pagination-text">Page: {{ pagination.currentPage }} out of {{ pagination.totalPage}}</div>
+          <div class="sc-pagination-text">Total Record: {{ pagination.currentTotalRecord }}</div>
+        </div>
+        <div class="table-pagination">
+          <DisplayPerPage :all="all" @display="display"></DisplayPerPage>
+          <Pagination :limit="pagination.limit" :skip="pagination.skip" :total="pagination.totalPage" @page="setSkip" />
+        </div>
+      </div>
+    </div>
+  </div>
+  

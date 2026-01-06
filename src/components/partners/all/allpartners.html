@@ -1,0 +1,86 @@
+<div>
+  <div class="sc-pagination">
+    <h1 class="sc-pagination-label">Pagination</h1>
+    <div class="sc-pagination-form">
+      <input
+        class="sc-btn sc-btn-secondary sc-pagination-btn"
+        v-if="currentPage > 1"
+        type="submit"
+        value="Prev"
+        v-on:click="pagination(currentPage - 1)"
+      />
+      <input
+        class="sc-pagination-input"
+        type="number"
+        min="1"
+        :max="totalPage"
+        name=""
+        v-model="currentPage"
+        @keyup.enter.prevent="pagination(currentPage)"
+      />
+      <input
+        class="sc-btn sc-btn-secondary sc-pagination-btn"
+        v-if="totalPage > currentPage"
+        type="submit"
+        value="Next"
+        v-on:click="pagination(currentPage+1)"
+      />
+    </div>
+  </div>
+
+  <div class="sc-table-responsive">
+    <table class="sc-table">
+      <thead>
+        <tr>
+          <th width="300px">Name</th>
+          <th>Logo</th>
+          <th width="140px">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <TableEmpty :cols="3" v-if="!is_loading && !(allpartner && allpartner.length)" />
+
+        <tr v-for="partner in allpartner">
+          <td>{{partner.name}}</td>
+          <td>
+            <img v-if="partner.logo" :src="partner.logo" style="width: 100px; height: 100px" />
+          </td>
+          <td>
+            <div>
+              <router-link :to="`/partners/edit/${partner._id}`">
+                <span title="Edit" aria-hidden="true" class="fa fa-pencil btn_edit"></span>
+              </router-link>
+              <span
+                title="Delete"
+                aria-hidden="true"
+                class="fa fa-trash btn_delete"
+                v-on:click="deletepartner(partner)"
+              ></span>
+              <span
+                <span
+                v-if="partner.offerings.manual_exchange.enabled == true"
+                title="Export"
+                aria-hidden="true"
+                class="fa fa-arrow-up btn_delete"
+                v-on:click="showModal=true;partner_id=partner._id"
+              ></span>
+            </div>
+            <div id="myModal" class="modal" v-if="showModal">
+              <!-- Modal content -->
+              <div class="modal-content">
+                <span v-on:click="showModal=false" class="close">&times;</span>
+                <p style="padding: 5px 10px">From:</p>
+                <input type="date" v-model="from" />
+                <p style="padding: 5px 10px">To:</p>
+                <input type="date" v-model="to" />
+                <downloadexcel class="button" style="width: 200px" :fetch="exportdata" :fields="json_fields" type="csv">
+                  Download Excel
+                </downloadexcel>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

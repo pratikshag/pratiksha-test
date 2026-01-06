@@ -1,0 +1,45 @@
+@import '~@/sass/partial/help-reset';
+@import '~@/sass/partial/help-mixin';
+
+.help-contact-us {
+    table {
+        > tbody {
+            ::v-deep {
+                > tr {
+                    > td {
+                        &.image {
+                            > img {
+                                margin-right: .25rem;
+                                object-fit: cover;
+
+                                &:last-child {
+                                    margin-right: 0;
+                                }
+                            }
+                        }
+                        &.status {
+                            color: #dc3545;
+                            white-space: nowrap;
+
+                            &.active {
+                                color: #28a745
+                            }
+                        }
+                        &.action > a > .fa {
+                            font-size: 20px;
+                        }
+                        > a {
+                            white-space: nowrap;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+::v-deep {
+    ul.actions {
+        @include actions
+    }
+}

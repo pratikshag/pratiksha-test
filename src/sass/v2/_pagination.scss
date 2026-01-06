@@ -1,0 +1,130 @@
+.sc-pagination {
+    width: 100%;
+    display: block;
+    padding: 15px 0;
+    .sc-pagination-label {
+        margin: 0 0 10px;
+        padding: 0;
+        font-size: 14px;
+        font-family: $fonttype_c;
+        text-transform: uppercase;
+    }
+    .sc-pagination-form {
+        display: flex;
+        .sc-pagination-input {
+            font-size: 12px !important;
+            width: 50px;
+            height: 30px;
+            text-align: center;
+            border: 1px solid #ddd !important;
+        }
+        .sc-pagination-btn {
+            font-size: 12px !important;
+            min-width: 80px;
+            height: 30px;
+            font-family: $fonttype_d;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+    }
+}
+
+.sc-pagination-page {
+  width: 100%;
+  padding: 15px 0;
+  margin: 0;
+
+  .sc-pagination-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .sc-pagination-text-container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sc-pagination-text {
+    font-size: 13px;
+    font-family: $fonttype_b;
+
+    &:first-child {
+      margin-bottom: 5px;
+    }
+  }
+
+  .table-pagination {
+    color: #000;
+    min-height: 40px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    flex-grow: 1;
+    position: relative;
+
+    button {
+      width: auto !important;
+      box-shadow: #e6e6e6 0 -2px 0 inset;
+      color: #555;
+      background-color: #fff;
+      display: inline-block;
+      margin-bottom: 0;
+      font-weight: normal;
+      text-align: center;
+      vertical-align: middle;
+      cursor: pointer;
+      background-image: none;
+      border: 1px solid #ccc;
+      white-space: nowrap;
+      padding: 4px 8px;
+      font-size: 12px;
+      line-height: 1.42857;
+      border-radius: 3px;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background-color: #f5f5f5;
+      }
+    }
+
+    .icon-red {
+      color: red;
+    }
+
+    .icon-green {
+      color: green;
+    }
+  }
+
+  .display-per-page {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateX(-50%);
+    top: 15%;
+
+    &.open > .dropdown-menu {
+      display: block;
+    }
+
+    span {
+      color: #555;
+    }
+  }
+}
+
+.sc-pagination-row {
+    display: flex;
+    &.between {
+        justify-content: space-between;
+        .sc-pagination {
+            text-align: right;
+            justify-content: flex-end;
+            .sc-pagination-form {
+                justify-content: flex-end;
+            }
+        }
+    }
+}

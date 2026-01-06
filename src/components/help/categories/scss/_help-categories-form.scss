@@ -1,0 +1,35 @@
+@import '~@/sass/partial/help-reset';
+
+h3 {
+    display: inline-block;
+    font-size: 30px;
+    margin-top: 2rem;
+    margin-bottom: 3rem;
+}
+
+::v-deep {
+    .croppa-container {
+        align-self: flex-start;
+        background-color: #fff;
+        display: inline-flex;
+        position: relative;
+        border: 1px solid $grey;
+        
+        &.croppa--has-target {
+            cursor: move;
+        }
+        &.croppa--disabled {
+            cursor: not-allowed;
+        }
+    
+        > .icon-remove {
+            cursor: pointer;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            background-color: #fff;
+            position: absolute;
+            top: -10px !important;
+            right: -10px !important;
+        }
+    }
+}

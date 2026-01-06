@@ -1,0 +1,54 @@
+.login.bj {
+  @include media-breakpoint-down(md) {
+    width: 100%;
+    padding-right: 2rem;
+    padding-left: 2rem;
+
+    .down-container {
+      .link {
+        margin-top: 2rem;
+      }
+    }
+  }
+}
+
+.nbtn {
+  height: 18px;
+  text-transform: uppercase;
+  font-family: 'lato-bold', sans-serif;
+  font-size: 12px;
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: 0.93px;
+  text-align: center;
+  color: #f8f8f8;
+  width: auto;
+  border-radius: 4px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  background-color: #da2a52;
+
+  &.btn-sm {
+    background-color: #f083a6;
+    height: 20px;
+    font-size: 10px;
+  }
+
+  &.btn-white {
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+  }
+
+  &.btn-black {
+    background-color: black;
+    color: white;
+    border: 1px solid white;
+  }
+
+}

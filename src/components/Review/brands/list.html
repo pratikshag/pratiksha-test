@@ -1,0 +1,303 @@
+<div>
+  <div class="sc-tab-section">
+    <div
+      class="sc-tab-item sc-tab-item-3"
+      :class="{'sc-selected': currentContent == 'all', '': currentContent != 'all'}"
+      @click.prevent="filterStatus('all')"
+    >
+      <div class="sc-tab-title">All Brands</div>
+      <div class="sc-tab-total">{{ totalCount.all }}</div>
+    </div>
+    <div
+      class="sc-tab-item sc-tab-item-3"
+      :class="{'sc-selected': currentContent === 'active', '': currentContent != 'active'}"
+      @click.prevent="filterStatus('active')"
+    >
+      <div class="sc-tab-title">Active Brands</div>
+      <div class="sc-tab-total">{{ totalCount.active }}</div>
+    </div>
+    <div
+      class="sc-tab-item sc-tab-item-3"
+      :class="{'sc-selected': currentContent === 'inactive', '': currentContent != 'inactive'}"
+      @click.prevent="filterStatus('inactive')"
+    >
+      <div class="sc-tab-title">Inactive Brands</div>
+      <div class="sc-tab-total">{{ totalCount.inactive }}</div>
+    </div>
+  </div>
+
+  <div class="sc-filter">
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Product data searching: </label>
+      <select class="sc-filter-input" name="cat" v-model="filter.type">
+        <option value="" selected>-- Select type --</option>
+        <option value="duplicate">Duplicate By Name</option>
+      </select>
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Location: </label>
+      <select class="sc-filter-input" name="cat" v-model="filter.location">
+        <option value="" selected>-- Select type --</option>
+        <option value="ID">ID</option>
+        <option value="VN">VN</option>
+      </select>
+    </div>
+  </div>
+  <div class="sc-filter">
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">SOCO ID: </label>
+      <input class="sc-filter-input" type="text" v-model="filter.id" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Brand Name: </label>
+      <input class="sc-filter-input" type="text" v-model="filter.name" />
+    </div>
+    <div class="sc-filter-item sc-filter-button">
+      <input
+        type="submit"
+        value="Filter"
+        class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-mr-10"
+        @click="filterAction(false)"
+      />
+      <input
+        type="submit"
+        value="Add Brand"
+        class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded"
+        @click="$router.push({ name: 'brand-form-add'})"
+      />
+    </div>
+  </div>
+
+  <div class="sc-table-responsive">
+  <table class="sc-table">
+    <thead>
+      <tr>
+        <th style="width: 15%">
+          SOCO ID
+          <sortField v-show="!is_loading" field="my_soco_sql_id" :sort="sortField" @sort="sort" />
+        </th>
+        <th style="width: 15%">Image</th>
+        <th style="width: 20%">Name</th>
+        <th style="width: 18%">Description</th>
+        <th style="width: 10%">
+          Total <br />Active Products
+          <sortField v-show="!is_loading" field="review_stats.total_products" :sort="sortField" @sort="sort" />
+        </th>
+        <th style="width: 10%">Status</th>
+        <th style="width: 120px">Action</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <div v-if="is_loading" class="loader" style="text-align: center">
+        <ball-pulse-loader color="#000000" size="20px"></ball-pulse-loader>
+      </div>
+
+      <TableEmpty :cols="7" v-if="!is_loading && !(data && data.length)" />
+
+      <tr v-for="row in data">
+        <td>{{ row.my_soco_sql_id }}</td>
+        <td>
+          <img v-if="row.logo" :src="row.logo" onerror="this.src = '/assets/img/dummy_product.svg'" />
+          <img v-else src="/assets/img/dummy_product.svg" />
+        </td>
+        <td>{{ row.name }}</td>
+        <td>{{ row.description }}</td>
+        <td>{{ row.total_products }}</td>
+        <td>{{ row.is_active_in_review ? 'Active In Review' : 'Inactive In Review' }}</td>
+        <td>
+          <button @click="$router.push({ name: 'brand-form', params: { id: row._id } })">
+            <span title="Edit" aria-hidden="true" class="fa fa-edit btn-action"></span>
+          </button>
+          <!-- <button>
+						<span title="Form" aria-hidden="true" class="fa fa-random btn-action"></span>
+					</button> -->
+          <button>
+            <span
+              v-if="row.is_active_in_review"
+              title="Active In Review"
+              aria-hidden="true"
+              class="fa fa-toggle-on btn-action on"
+              @click.prevent="toggleStatus(row)"
+            ></span>
+            <span
+              v-else
+              title="Inactive"
+              aria-hidden="true"
+              class="fa fa-toggle-off btn-action off"
+              @click.prevent="toggleStatus(row)"
+            ></span>
+          </button>
+          <button @click="showBrandPreview(row._id)">
+            <span title="Preview" aria-hidden="true" class="fa fa-eye btn-action"></span>
+          </button>
+          <button @click.prevent="toggleModalRelocate(row)">
+            <span title="Relocate" aria-hidden="true" class="fa fa-random btn-action"></span>
+          </button>
+          <button>
+            <span
+              title="Delete"
+              aria-hidden="true"
+              class="fa fa-trash btn-action"
+              @click.prevent="deleteBrand(row)"
+            ></span>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="sc-pagination-row between">
+    <div class="sc-pagination-page">
+      <div class="sc-pagination-content">
+        <div class="sc-pagination-text-container">
+          <div class="sc-pagination-text">Page: {{ pagination.currentPage }} out of {{ pagination.totalPage}}</div>
+          <div class="sc-pagination-text">Total Record: {{ pagination.currentTotalRecord }}</div>
+        </div>
+        <div class="table-pagination">
+          <DisplayPerPage :all="all" @display="display"></DisplayPerPage>
+           <Pagination :limit="pagination.limit" :skip="pagination.skip" :total="pagination.totalPage" @page="setSkip" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <Modal
+    ref="brand_preview"
+    :medium="true"
+    :okText="'Ok'"
+    :okClass="'btn btn-success btn-sm'"
+    :cancelText="'Close'"
+    :cancelClass="'btn btn-dark btn-sm'"
+    @ok="closeBrandPreview()"
+  >
+    <div slot="title" v-if="brandPreview && brandPreview.name">Brand Details</div>
+    <div class="brand-detail text-center" v-if="brandPreview">
+      <div class="d-flex">
+        <img
+          style="max-width: 240px; max-height: 160px; margin-bottom: 20px"
+          v-if="brandPreview && brandPreview.name"
+          :src="brandPreview.logo || `/assets/img/dummy_product.svg`"
+          :alt="brandPreview.name"
+        />
+        <div class="description" style="flex: 1; text-align: left; padding-left: 20px">
+          <h1
+            style="
+              font-family: lato-bold;
+              margin-top: 0;
+              font-size: 22px;
+              border-bottom: 1px dashed gainsboro;
+              padding-bottom: 20px;
+            "
+            v-if="brandPreview.name"
+          >
+            {{brandPreview.name}}
+          </h1>
+          <h3 style="font-family: lato-bold; margin-top: 12px">Total product:</h3>
+          <p>{{brandPreview.total_products}}</p>
+
+          <h3 style="font-family: lato-bold; margin-top: 12px">Status:</h3>
+          <p>{{brandPreview.is_active_in_review?'active':'inactive'}}</p>
+
+          <h3 style="font-family: lato-bold; margin-top: 12px">Description:</h3>
+          <div v-html="brandPreview.description?brandPreview.description:'-'"></div>
+
+          <h3 style="font-family: lato-bold; margin-top: 12px">Banner Image:</h3>
+          <div v-html="brandPreview.short_description?brandPreview.short_description:'-'"></div>
+          <h3 style="font-family: lato-bold; margin-top: 12px">Total Review:</h3>
+          <p>{{brandPreview.total_reviews}}</p>
+        </div>
+      </div>
+    </div>
+  </Modal>
+
+  <Modal
+    ref="brand_relocate"
+    :medium="true"
+    :okText="'Process'"
+    :okClass="'btn btn-success btn-sm'"
+    :cancelText="'Close'"
+    :cancelClass="'btn btn-dark btn-sm'"
+    @ok="processRelocateBrand()"
+  >
+    <div slot="title">Relocate Brands</div>
+
+    <div class="d-flex grouped-input">
+      <div class="col-md-12 pr-3">
+        <div class="d-flex field">
+          <label for="brand-name">From</label>
+          <multiselect
+            id="ajax"
+            v-model="relocateBrand.source"
+            placeholder=""
+            open-direction="bottom"
+            :options="options.brands.data"
+            :searchable="true"
+            :loading="options.brands.is_loading"
+            :internal-search="false"
+            :disabled="options.brands.disabled"
+            :clear-on-select="true"
+            :close-on-select="true"
+            :options-limit="300"
+            :max-height="600"
+            :show-no-results="true"
+            :hide-selected="true"
+            @search-change="findBrands"
+            :show-labels="false"
+            track-by="_id"
+            :custom-label="sourcename"
+          >
+            <template slot="clear" slot-scope="props">
+              <div
+                class="multiselect__clear"
+                v-if="options.brands.data.length === 0"
+                @mousedown.prevent.stop="clearAll"
+              ></div> </template
+            ><span slot="noResult">Oops! No brands found. Consider changing your query.</span>
+          </multiselect>
+        </div>
+
+        <div class="d-flex field">
+          <label for="brand-name">To</label>
+
+          <multiselect
+            id="ajax"
+            v-model="relocateBrand.target"
+            placeholder=""
+            open-direction="bottom"
+            :options="options.brands.data"
+            :searchable="true"
+            :loading="options.brands.is_loading"
+            :internal-search="false"
+            :disabled="options.brands.disabled"
+            :clear-on-select="true"
+            :close-on-select="true"
+            :options-limit="300"
+            :max-height="600"
+            :show-no-results="true"
+            :hide-selected="true"
+            @search-change="findBrands"
+            :show-labels="false"
+            track-by="_id"
+            :custom-label="sourcename"
+          >
+            <template slot="clear" slot-scope="props">
+              <div
+                class="multiselect__clear"
+                v-if="options.brands.data.length === 0"
+                @mousedown.prevent.stop="clearAll"
+              ></div> </template
+            ><span slot="noResult">Oops! No brands found. Consider changing your query.</span>
+          </multiselect>
+        </div>
+
+        <template v-if="is_loading_relocate">
+          <div class="loader" style="text-align: center">
+            <ball-pulse-loader color="#000000" size="20px"></ball-pulse-loader>
+          </div>
+        </template>
+      </div>
+    </div>
+  </Modal>
+</div>

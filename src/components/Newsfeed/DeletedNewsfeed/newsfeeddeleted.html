@@ -1,0 +1,443 @@
+<div>
+  <div class="sc-tab-section">
+    <div
+      class="sc-tab-item sc-tab-item-5"
+      :class="{'sc-selected': current_object_type == 'all', '': current_object_type != 'all'}"
+      @click.prevent="changeObjectType('all')"
+    >
+      <div class="sc-tab-title">All Report</div>
+      <div class="sc-tab-total">{{ total_data.all }}</div>
+    </div>
+    <div
+      class="sc-tab-item sc-tab-item-5"
+      :class="{'sc-selected': current_object_type == 'article', '': current_object_type != 'article'}"
+      @click.prevent="changeObjectType('article')"
+    >
+      <div class="sc-tab-title">Article</div>
+      <div class="sc-tab-total">{{ total_data.article }}</div>
+    </div>
+    <div
+      class="sc-tab-item sc-tab-item-5"
+      :class="{'sc-selected': current_object_type == 'video', '': current_object_type != 'video'}"
+      @click.prevent="changeObjectType('video')"
+    >
+      <div class="sc-tab-title">Video</div>
+      <div class="sc-tab-total">{{ total_data.video }}</div>
+    </div>
+    <div
+      class="sc-tab-item sc-tab-item-5"
+      :class="{'sc-selected': current_object_type == 'photo-tagging', '': current_object_type != 'photo-tagging'}"
+      @click.prevent="changeObjectType('photo-tagging')"
+    >
+      <div class="sc-tab-title">Photo</div>
+      <div class="sc-tab-total">{{ total_data['photo-tagging'] }}</div>
+    </div>
+    <div
+      class="sc-tab-item sc-tab-item-5"
+      :class="{'sc-selected': current_object_type == 'collection', '': current_object_type != 'collection'}"
+      @click.prevent="changeObjectType('collection')"
+    >
+      <div class="sc-tab-title">Collection</div>
+      <div class="sc-tab-total">{{ total_data.collection }}</div>
+    </div>
+    <div
+      class="sc-tab-item sc-tab-item-5"
+      :class="{'sc-selected': current_object_type == 'vote', '': current_object_type != 'vote'}"
+      @click.prevent="changeObjectType('vote')"
+    >
+      <div class="sc-tab-title">Vote</div>
+      <div class="sc-tab-total">{{ total_data.vote }}</div>
+    </div>
+    <div
+      class="sc-tab-item sc-tab-item-5"
+      :class="{'sc-selected': current_object_type == 'add-review', '': current_object_type != 'add-review'}"
+      @click.prevent="changeObjectType('add-review')"
+    >
+      <div class="sc-tab-title">Review</div>
+      <div class="sc-tab-total">{{ total_data['add-review'] }}</div>
+    </div>
+  </div>
+
+  <div class="sc-pagination">
+    <h1 class="sc-pagination-label">Pagination</h1>
+    <div class="sc-pagination-form">
+      <input
+        class="sc-btn sc-btn-secondary sc-pagination-btn"
+        v-if="pagination.currentPage > 1"
+        type="submit"
+        value="Prev"
+        v-on:click="gotoPage(pagination.currentPage - 1)"
+      />
+      <input
+        class="sc-pagination-input"
+        type="number"
+        min="1"
+        :max="pagination.totalPage"
+        name=""
+        v-model="pagination.currentPage"
+        @keyup.enter.prevent="gotoPage(pagination.currentPage)"
+      />
+      <input
+        class="sc-btn sc-btn-secondary sc-pagination-btn"
+        v-if="pagination.totalPage > pagination.currentPage"
+        type="submit"
+        value="Next"
+        v-on:click="gotoPage(pagination.currentPage+1)"
+      />
+    </div>
+  </div>
+
+  <div class="sc-filter">
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Owner Username: </label><br />
+      <input class="sc-filter-input" type="input" v-model="filter.username" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Actor: </label> <br />
+      <input class="sc-filter-input" type="input" v-model="filter.actor" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Deleted by: </label> <br />
+      <input class="sc-filter-input" type="input" v-model="filter.deleted_by" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Spam Criteria: </label><br />
+      <select class="sc-filter-input" name="cat" v-model="filter.spam_criteria">
+        <option value="" selected>-- Select type --</option>
+        <option value="1a">1a</option>
+        <option value="1b">1b</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+      </select>
+    </div>
+  </div>
+  <div class="sc-filter">
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Created:</label>
+      <div class="sc-filter-item sc-filter-item-row">
+        <div>
+          <span>From </span>
+          <input class="sc-filter-input m-r-10" type="date" v-model="filter.date_begin" />
+        </div>
+
+        <div>
+          <span>To</span>
+          <input class="sc-filter-input" type="date" v-model="filter.date_end" />
+        </div>
+      </div>
+    </div>
+    <div class="sc-filter-item m-l-128">
+      <label class="sc-filter-label">Deleted:</label>
+      <div class="sc-filter-item sc-filter-item-row">
+        <div>
+          <span>From </span>
+          <input class="sc-filter-input m-r-10" type="date" v-model="filter.deleted_date_begin" />
+        </div>
+
+        <div>
+          <span>To</span>
+          <input class="sc-filter-input" type="date" v-model="filter.deleted_date_end" />
+        </div>
+      </div>
+    </div>
+    <div class="sc-filter-item sc-filter-button">
+      <input
+        type="submit"
+        value="Filter"
+        class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-mr-10"
+        @click="filterData"
+      />
+      <input
+        type="submit"
+        value="Reset"
+        class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-mr-10"
+        @click="resetFilter"
+      />
+    </div>
+    <div v-if="checkedIds.length" class="sc-filter-item sc-filter-button">
+      <div style="margin-right: 10px">
+        <label class="sc-filter-label">Action: </label>
+      </div>
+      <input
+        type="submit"
+        value="Unreported"
+        class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-mr-10"
+        @click="bulkUnreported"
+      />
+    </div>
+  </div>
+  <div class="sc-table-responsive">
+    <table class="sc-table">
+      <thead>
+        <tr class="row200 head">
+          <th>
+            {{checkedIds.length >= 5 ? 'Remove All' : 'Select All'}}
+            <input type="checkbox" :value="checkedIds.length >= 5 ?  true :false" @change="selectAll" />
+          </th>
+          <th style="width: 100px">Newsfeed Id</th>
+          <th style="max-width: 350px; word-wrap: break-word">Newsfeed</th>
+          <th style="width: 250px">User</th>
+          <th style="width: 180px">
+            Report
+            <sortField v-show="!is_loading" field="total_reports" :sort="sortParam" @sort="sort" />
+          </th>
+          <th style="width: 120px">
+            Last Report
+            <sortField v-show="!is_loading" field="last_reported_at" :sort="sortParam" @sort="sort" />
+          </th>
+          <th style="width: 120px">Created</th>
+          <th style="width: 150px">Deleted At</th>
+          <th style="width: 150px">Deleted by</th>
+          <th style="width: 120px">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <div v-if="is_loading" class="loader" style="text-align: center">
+          <ball-pulse-loader color="#000000" size="20px"></ball-pulse-loader>
+        </div>
+
+        <TableEmpty :cols="10" v-if="!is_loading && !(data && data.length)" />
+
+        <template v-for="(newsfeed, key) in data">
+          <tr :key="key">
+            <!-- CHECKBOX -->
+            <td>
+              <input type="checkbox" :id="newsfeed._id" :value="newsfeed._id" v-model="checkedIds" />
+            </td>
+            <!-- NEWSFEED ID -->
+            <td v-if="newsfeed && newsfeed.object_type == 'vote' &&  newsfeed.vote">
+              <a target="_BLANK" :href="`${socoWebUrl}/polling/${newsfeed._id}`">{{newsfeed._id}}</a>
+            </td>
+            <td v-else-if="newsfeed && newsfeed.object_type == 'add-review' && newsfeed.review">
+              <a
+                target="_BLANK"
+                :href="`${reviewWebUrl}${(newsfeed && newsfeed.review && newsfeed.review.product)? newsfeed.review.product.url_review : ''} ` "
+                >{{newsfeed._id}}</a
+              >
+            </td>
+            <td v-else-if="newsfeed && newsfeed.object_type == 'add-review' && !newsfeed.review">-</td>
+            <td v-else-if="newsfeed && newsfeed.object_type == 'video' &&  newsfeed.video">
+              <a target="_BLANK" :href="`${socoWebUrl}/s/${newsfeed._id} ` ">{{newsfeed._id}}</a>
+            </td>
+            <td v-else-if="newsfeed && newsfeed.object_type == 'article' &&  newsfeed.article">
+              <a
+                target="_BLANK"
+                :href="`${journalWebUrl}${(newsfeed && newsfeed.article && newsfeed.article.url)? newsfeed.article.url : ''} ` "
+                >{{newsfeed._id}}</a
+              >
+            </td>
+            <td
+              style="max-width: 350px; word-wrap: break-word"
+              v-else-if="newsfeed && (newsfeed.object_type == 'event' &&  newsfeed.event) || (newsfeed.object_type == 'event_checkin' &&  newsfeed.event)"
+            >
+              <a target="_BLANK" :href="`${socoWebUrl}/events/${newsfeed._id}`">{{newsfeed._id}}</a>
+            </td>
+            <td
+              style="max-width: 350px; word-wrap: break-word"
+              v-else-if="newsfeed && newsfeed.object_type == 'collection' &&  newsfeed.collection"
+            >
+              <a target="_BLANK" :href="`${socoWebUrl}/collection/${newsfeed._id}` ">{{newsfeed._id}}</a>
+            </td>
+            <td
+              style="max-width: 350px; word-wrap: break-word"
+              v-else-if="newsfeed && newsfeed.object_type == 'photo-tagging'"
+            >
+              <a target="_BLANK" :href="`${socoWebUrl}/photo/${newsfeed._id}` ">{{newsfeed._id}}</a>
+            </td>
+            <td style="max-width: 350px; word-wrap: break-word" v-else="newsfeed">
+              <div>{{newsfeed._id}}</div>
+            </td>
+            <!-- NEWSFEED -->
+            <td style="max-width: 350px; word-wrap: break-word" v-if="newsfeed.object_type == 'vote' && newsfeed.vote">
+              Vote<br />
+              <b>{{ newsfeed.vote.question }}</b>
+            </td>
+            <td
+              style="max-width: 350px; word-wrap: break-word"
+              v-else-if="newsfeed.object_type == 'add-review' && newsfeed.review"
+            >
+              Review Product:<br />
+              <p v-if="newsfeed.review.product && newsfeed.review.product.name">
+                <b>{{ newsfeed.review.product.name }}</b>
+              </p>
+              <p v-if="newsfeed.review.details">{{ newsfeed.review.details.substring(0, 200) }}</p>
+            </td>
+            <td
+              style="max-width: 350px; word-wrap: break-word"
+              v-else-if="newsfeed.object_type == 'add-review' && !newsfeed.review"
+            >
+              Review Product:<br />
+              <p>
+                <b>Review Not Found</b>
+              </p>
+            </td>
+            <td
+              style="max-width: 350px; word-wrap: break-word"
+              v-else-if="newsfeed.object_type == 'video' && newsfeed.video"
+            >
+              Video:<br />
+              <b v-if="newsfeed.video.post_title">{{ newsfeed.video.post_title }}</b>
+              <p v-if="newsfeed.video.post_content">{{ newsfeed.video.post_content.substring(0,200) }}</p>
+            </td>
+            <td
+              style="max-width: 350px; word-wrap: break-word"
+              v-else-if="newsfeed.object_type == 'collection' && newsfeed.collection"
+            >
+              Video:<br />
+              <b v-if="newsfeed.collection.title">{{ newsfeed.collection.title }}</b>
+              <p v-if="newsfeed.collection.description">{{ newsfeed.collection.description.substring(0,200) }}</p>
+            </td>
+            <td
+              style="max-width: 350px; word-wrap: break-word"
+              v-else-if="newsfeed.object_type == 'article' && newsfeed.article"
+            >
+              Article: <br />
+              <p v-if="newsfeed.article.post_title">
+                <b>{{ newsfeed.article.post_title }}</b>
+              </p>
+              <p v-if="newsfeed.article.post_content">{{ newsfeed.article.post_content.substring(0, 200) }}</p>
+            </td>
+            <td
+              style="max-width: 350px; word-wrap: break-word"
+              v-else-if="newsfeed.object_type == 'photo-tagging' && newsfeed['photo-tagging']"
+            >
+              Caption: <br />
+              <div v-if="newsfeed['photo-tagging'].caption">
+                <div class="wrap-text">
+                  {{ String(newsfeed['photo-tagging'].caption).substring(0, 200) }}
+                  <span v-if="String(newsfeed['photo-tagging'].caption).length > 200"></span>
+                </div>
+              </div>
+              <br />
+              Product: <br />
+              <ul v-if="newsfeed['photo-tagging'].products">
+                <li v-for="(product, key) in newsfeed['photo-tagging'].products" :key="key">
+                  <b>{{ product.name }}</b>
+                </li>
+              </ul>
+            </td>
+            <td
+              style="max-width: 350px; word-wrap: break-word"
+              v-else-if="newsfeed.object_type == 'event' && newsfeed.event"
+            >
+              Event: <br />
+              <p v-if="newsfeed.event.title">
+                <b>{{ newsfeed.event.title}}</b>
+              </p>
+              <p v-if="newsfeed.event.category">Category: {{ newsfeed.event.category}}</p>
+            </td>
+            <td
+              style="max-width: 350px; word-wrap: break-word"
+              v-else-if="newsfeed.object_type == 'freebies' && newsfeed.freebies"
+            >
+              Freebies: <br />
+              <p v-if="newsfeed.freebies.title">
+                <b>{{ newsfeed.freebies.title }}</b>
+              </p>
+            </td>
+            <td style="max-width: 350px; word-wrap: break-word" v-else>
+              Object <b>{{ newsfeed.object_type }}</b> newsfeed not found
+            </td>
+            <!-- SOURCE CHANNEL COLUMN -->
+            <td>
+              <span>{{ newsfeed.acquisition_source }}</span>
+            </td>
+            <!-- USER COLUMN -->
+            <td>
+              <p v-if="newsfeed.owner && newsfeed.owner.name">Owner: {{ newsfeed.owner.name }}</p>
+              <p v-if="newsfeed.owner && newsfeed.owner.user_name">
+                Username:
+                <a :href="userNameLink(newsfeed.owner.user_name)" noopener noreferrer>{{ newsfeed.owner.user_name }}</a>
+              </p>
+              <p v-if="newsfeed.last_reported_user && newsfeed.last_reported_user.name">
+                Actor: {{ newsfeed.last_reported_user.name }}
+              </p>
+              <p v-if="newsfeed.spam_criteria && newsfeed.spam_criteria.length">
+                Criteria: {{ newsfeed.spam_criteria.join(', ') }}
+              </p>
+              <p>
+                Violation Counter: {{ newsfeed.owner && newsfeed.owner.violation_counter ?
+                newsfeed.owner.violation_counter : 0 }}
+              </p>
+              <p>
+                Last spam review date: {{ newsfeed.owner && newsfeed.owner.last_spam_review_date ?
+                filterDate(newsfeed.owner.last_spam_review_date) : '-' }}
+              </p>
+            </td>
+            <!-- REPORT COLUMN -->
+            <td>
+              <span>Total Report: {{ newsfeed.total_reports }}</span>
+              <hr />
+              <span v-for="(value, key) in newsfeed.reason_counter_report" style="text-transform: capitalize" :key="key"
+                >{{ key }}: {{ value }}<br
+              /></span>
+            </td>
+            <!-- LAST REPORT COLUMN -->
+            <td>{{ (newsfeed.last_reported_at)? filterDate(newsfeed.last_reported_at) : '' }}</td>
+            <!-- CREATED COLUMN -->
+            <td>{{ (newsfeed.created_at)? filterDate(newsfeed.created_at) : '' }}</td>
+            <!-- DELETED AT COLUMN -->
+            <td>{{ (newsfeed.deleted_at)? filterDate(newsfeed.deleted_at) : '' }}</td>
+            <!-- DELETED BY COLUMN -->
+            <td>
+              <a
+                target="_BLANK"
+                :href="`${socoAdminUrl}/users/detail/${(newsfeed && newsfeed.deleted_by)? newsfeed.deleted_by : ''}`"
+                >{{newsfeed.deleted_by ? newsfeed.deleted_by : '-'}}</a
+              >
+            </td>
+            <!-- ACTION COLUMN -->
+            <td>
+              <span
+                title="Unreported Spam Rules"
+                aria-hidden="true"
+                class="btn_delete new_btn"
+                v-on:click="unreport(newsfeed._id)"
+              >
+                <img src="/assets/img/iconfinder_delete_list.svg" />
+              </span>
+            </td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="table-pagination">
+    <p>Page: {{ pagination.currentPage }} out of {{ pagination.totalPage}}</p>
+    <p>Total Record: {{ pagination.currentTotalRecord }}</p>
+  </div>
+  <!-- <modalv2 class="custom-modal modal-mask modal--confirm" v-if="showModalSpam">
+    <div slot="body">
+      <div class="modal-header">
+        <button type="button" class="close" aria-label="Close">
+          <img src="/assets/img/icon-close-white.svg" alt="icon-close-modal" @click.prevent="hideModalSpam" />
+        </button>
+      </div>
+      <div class="product-preview">
+        <p>
+          The action will trigger
+          <ul>
+            <li>1. If user with violation counter 1 then socoguru will send email spam review reminder level 1</li>
+            <li>2. If user with violation counter 2 then send email spam review reminder level 2 + soft delete the user (user cannot login) <br/> (to unlock user should call customer service)
+            (when user want to login then show notif -> "Akun kamu tidak dapat diakses. Jika ini sebuah kesalahan, silahkan hubungi cs@sociolla.com")</li>
+            <li>3. If a user with violation counter 3 then sends an email spam review reminder level 3 + soft delete the user (user cannot login).<br/>
+            (when user want to login then show notif -> "Akun kamu tidak dapat diakses. Jika ini sebuah kesalahan, silahkan hubungi cs@sociolla.com")</li>
+          </ul>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <div class="create-review-text">
+          <button type="button" class="btn" @click.prevent="hideModalSpam">CANCEL</button>
+          <template v-if="statusSpam === 'bulk'">
+            <button type="button" class="btn btn-blue" @click.prevent="bulkDeleteSpam">CONTINUE</button>
+          </template>
+          <template v-else-if="statusSpam === 'notbulk'">
+            <button type="button" class="btn btn-blue" @click.prevent="deletes">CONTINUE</button>
+          </template>
+        </div>
+      </div>
+    </div>
+  </modalv2> -->
+</div>

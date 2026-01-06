@@ -1,0 +1,54 @@
+<div>
+  <div class="sc-pagination">
+    <h1 class="sc-pagination-label">Pagination</h1>
+    <div class="sc-pagination-form">
+      <input
+        class="sc-btn sc-btn-secondary sc-pagination-btn"
+        v-if="currentPage > 1"
+        type="submit"
+        value="Prev"
+        v-on:click="gotoPage(currentPage - 1)"
+      />
+      <input
+        class="sc-pagination-input"
+        type="number"
+        min="1"
+        :max="totalPage"
+        name=""
+        v-model="currentPage"
+        @keyup.enter.prevent="gotoPage(currentPage)"
+      />
+      <input
+        class="sc-btn sc-btn-secondary sc-pagination-btn"
+        v-if="totalPage > currentPage"
+        type="submit"
+        value="Next"
+        v-on:click="gotoPage(currentPage+1)"
+      />
+    </div>
+  </div>
+
+  <div class="sc-table-responsive">
+    <table class="sc-table">
+      <thead>
+        <tr>
+          <th width="300px">Type</th>
+          <th width="140px">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <TableEmpty :cols="2" v-if="!is_loading && !(allreward && allreward.length)" />
+        <tr v-for="reward in allreward">
+          <td>{{reward.name}}</td>
+          <td>
+            <div>
+              <router-link :to="`/gamification/view/${reward._id}`">
+                <span title="Edit" aria-hidden="true" class="fa fa-pencil btn_edit"></span>
+              </router-link>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

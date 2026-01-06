@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200px" height="200px" viewBox="0 0 200 200" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 48.2 (47327) - http://www.bohemiancoding.com/sketch -->
+    <title>Group 4</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <radialGradient cx="29.9614583%" cy="-16.0645833%" fx="29.9614583%" fy="-16.0645833%" r="117.835215%" id="radialGradient-1">
+            <stop stop-color="#F8C3D7" offset="0%"></stop>
+            <stop stop-color="#B22655" offset="100%"></stop>
+        </radialGradient>
+        <rect id="path-2" x="0" y="0" width="200" height="200"></rect>
+    </defs>
+    <g id="Pop-up-profile" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(-844.000000, -232.000000)">
+        <rect id="bg" fill="#F8F8F8" x="0" y="0" width="1440" height="1612"></rect>
+        <g id="mid-content" transform="translate(464.000000, 84.000000)">
+            <g id="Head-Profile">
+                <rect id="Rectangle-5" fill="#FFFFFF" x="1" y="0" width="510" height="285" rx="2"></rect>
+                <g id="Profile-stats" transform="translate(0.000000, 221.000000)">
+                    <g id="following" transform="translate(255.000000, 1.000000)">
+                        <rect id="Rectangle-9" x="0" y="0" width="255" height="62"></rect>
+                        <text id="13" font-family="BrandonText-Bold, Brandon Text" font-size="14" font-weight="bold" fill="#000000">
+                            <tspan x="120.983" y="27">13</tspan>
+                        </text>
+                        <text id="Following" font-family="BrandonText-Regular, Brandon Text" font-size="13" font-weight="normal" fill="#000000">
+                            <tspan x="100.551" y="46">Following</tspan>
+                        </text>
+                    </g>
+                    <path d="M1.5,1 L511.5,1" id="Line-3" stroke="#F1F1F1" stroke-linecap="square"></path>
+                </g>
+            </g>
+            <g id="newsfeed" transform="translate(1.000000, 301.000000)"></g>
+        </g>
+        <g id="Right-Sidebar" transform="translate(1005.000000, 84.000000)">
+            <g id="banner-copy" transform="translate(1.000000, 164.000000)" fill="#FFFFFF">
+                <rect id="Rectangle-6" x="0" y="0" width="240" height="400" rx="2"></rect>
+            </g>
+            <g id="share-profile" transform="translate(1.000000, 0.000000)" fill="#F8C3D7">
+                <g id="banner-copy-2">
+                    <rect id="Rectangle-6" x="0" y="0" width="240" height="156" rx="2"></rect>
+                </g>
+            </g>
+        </g>
+        <rect id="overlay" fill-opacity="0.482110507" fill="#000000" x="0" y="0" width="1443" height="1120"></rect>
+        <g id="Pop-Up" transform="translate(360.000000, 141.000000)">
+            <rect id="Rectangle-10" fill="#FFFFFF" x="0" y="0" width="720" height="365" rx="2"></rect>
+            <g id="Profile-share-3" transform="translate(484.000000, 91.000000)">
+                <g id="Group-4">
+                    <mask id="mask-3" fill="white">
+                        <use xlink:href="#path-2"></use>
+                    </mask>
+                    <use id="Mask" fill="url(#radialGradient-1)" xlink:href="#path-2"></use>
+                </g>
+                <g id="Picture" transform="translate(38.666667, 34.933333)" fill="#F083A6" fill-opacity="0.600000024">
+                    <circle id="Oval" style="mix-blend-mode: multiply;" cx="61.3333333" cy="61.3333333" r="61.3333333"></circle>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

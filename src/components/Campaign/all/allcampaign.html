@@ -1,0 +1,167 @@
+<div>
+  <div class="sc-pagination">
+    <h1 class="sc-pagination-label">Pagination</h1>
+    <div class="sc-pagination-form">
+      <input
+        class="sc-btn sc-btn-secondary sc-pagination-btn"
+        v-if="currentPage > 1"
+        type="submit"
+        value="Prev"
+        v-on:click="pagination(currentPage - 1)"
+      />
+      <input
+        class="sc-pagination-input"
+        type="number"
+        min="1"
+        :max="totalPage"
+        name=""
+        v-model="currentPage"
+        @keyup.enter.prevent="pagination(currentPage)"
+      />
+      <input
+        class="sc-btn sc-btn-secondary sc-pagination-btn"
+        v-if="totalPage > currentPage"
+        type="submit"
+        value="Next"
+        v-on:click="pagination(currentPage+1)"
+      />
+    </div>
+  </div>
+
+  <div class="sc-filter">
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Search Campaign: </label>
+      <input class="sc-filter-input" type="input" v-model="search" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Search Campaign: </label>
+      <select name="cat" class="sc-filter-input" v-model="status">
+        <option value="" selected>-- Select Status --</option>
+        <option value="true">Active</option>
+        <option value="false">Not Active</option>
+      </select>
+    </div>
+    <div class="sc-filter-item sc-filter-button">
+      <input
+        type="submit"
+        value="Filter"
+        class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-mr-10"
+        @click="filterBystatus(status)"
+      />
+    </div>
+  </div>
+
+  <div class="sc-table-responsive">
+    <table class="sc-table">
+      <thead>
+        <tr>
+          <th width="100px">Name</th>
+          <th>Prize Details</th>
+          <th>Banner</th>
+          <th style="min-width: 140px">Expired By</th>
+          <th style="min-width: 120px">Winners</th>
+          <th style="min-width: 140px">Users Joined</th>
+          <th width="250px">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <TableEmpty :cols="7" v-if="!is_loading && !(allCampaign && allCampaign.length)" />
+
+        <tr v-for="campaign in allCampaign">
+          <td>{{campaign.title}}</td>
+          <td>{{campaign.prize_details}}</td>
+          <td>
+            <img v-if="campaign.thumbnail" :src="campaign.thumbnail" style="width: 100px; height: 100px" />
+          </td>
+
+          <td>{{ new Date(campaign.end_date).toDateString() }}</td>
+          <td>{{campaign.users}}</td>
+          <td>{{campaign.total_user}}</td>
+          <td>
+            <div>
+              <router-link :to="`/campaign/edit/${campaign._id}`">
+                <span title="Edit" aria-hidden="true" class="fa fa-pencil btn_edit"></span>
+              </router-link>
+              <span
+                title="Delete"
+                aria-hidden="true"
+                class="fa fa-trash btn_delete"
+                v-on:click="deleteCampaign(campaign._id)"
+              ></span>
+              <span
+                title="Export"
+                aria-hidden="true"
+                class="fa fa-arrow-up btn_delete"
+                v-on:click="showModal=true;campaign_id=campaign._id"
+              ></span>
+              <span
+                v-if="isCampaignExpired(campaign.end_date)"
+                title="Add Winners"
+                aria-hidden="true"
+                class="fa fa-flag-checkered btn_delete"
+                v-on:click="addWinner=true;campaign_id=campaign._id"
+              ></span>
+              <span
+                title="Notify Winners (points, email, notification)"
+                aria-hidden="true"
+                class="fa fa-bell btn_delete"
+                @click="campaign_id=campaign._id;notifyWinners()"
+              >
+              </span>
+            </div>
+            <div id="myModal" class="modal" v-if="showModal">
+              <!-- Modal content -->
+              <div class="modal-content">
+                <span v-on:click="showModal=false" class="close">&times;</span>
+                <p style="padding: 5px 10px">From:</p>
+                <input type="date" v-model="from" />
+                <p style="padding: 5px 10px">To:</p>
+                <input type="date" v-model="to" />
+                <downloadexcel class="button" style="width: 200px" :fetch="exportdata" :fields="json_fields" type="csv">
+                  Download Excel
+                </downloadexcel>
+              </div>
+            </div>
+            <div id="myModal" class="modal" v-if="addWinner">
+              <!-- Winner Add -->
+              <div class="modal-content">
+                <span v-on:click="addWinner=false" class="close">&times;</span>
+                <div class="row" style="padding-left: 50px">
+                  <p style="padding: 5px 10px">Search User:</p>
+                  <div class="field" :class="{'has-error': errors.has('form-article.category') }">
+                    <div class="fieldarea fieldselect">
+                      <multiselect
+                        v-model="users"
+                        name="category"
+                        :options="allUser"
+                        :searchable="true"
+                        @search-change="searchUser"
+                        :show-labels="false"
+                        track-by="_id"
+                        label="name"
+                        :custom-label="nameWithUsername"
+                      ></multiselect>
+                      <input type="hidden" name="category" v-validate="'required'" v-model="users" />
+                    </div>
+                  </div>
+                </div>
+                <div class="row" style="padding-left: 50px">
+                  <label>Points Earned</label>
+                  <input type="number" v-model="points_earned" style="text-align: center" />
+                </div>
+
+                <input
+                  style="padding-left: 20px; width: 200px"
+                  type="submit"
+                  value="Add Winner"
+                  class="button"
+                  v-on:click="addWinners(users,points_earned)"
+                />
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,159 @@
+<div>
+  <div class="sc-tab-section">
+    <div class="sc-tab-item sc-tab-item-6">
+      <div class="sc-tab-title">Total Reported User</div>
+      <div class="sc-tab-total">{{totalCount.all || '0'}}</div>
+    </div>
+    <div class="sc-tab-item sc-tab-item-6">
+      <div class="sc-tab-title">> 5x Reported User</div>
+      <div class="sc-tab-total">{{totalCount.more_than_5 || '0'}}</div>
+    </div>
+    <div class="sc-tab-item sc-tab-item-6">
+      <div class="sc-tab-title">< 5x Reported User</div>
+      <div class="sc-tab-total">{{totalCount.less_than_5 || '0'}}</div>
+    </div>
+    <div class="sc-tab-item sc-tab-item-6">
+      <div class="sc-tab-title">Suspended User</div>
+      <div class="sc-tab-total">{{totalCount.suspended || '0'}}</div>
+    </div>
+    <div class="sc-tab-item sc-tab-item-6">
+      <div class="sc-tab-title">Unsuspended User</div>
+      <div class="sc-tab-total">{{totalCount.unsuspended || '0'}}</div>
+    </div>
+    <div class="sc-tab-item sc-tab-item-6">
+      <div class="sc-tab-title">Deleted User</div>
+      <div class="sc-tab-total">{{totalCount.deleted || '0'}}</div>
+    </div>
+  </div>
+
+  <div class="sc-filter">
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">From date: </label>
+      <input class="sc-filter-input" type="date" v-model="filter.date.from" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">To date: </label>
+      <input class="sc-filter-input" type="date" v-model="filter.date.to" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Total count reported: </label>
+      <div class="sc-filter-item sc-filter-item-row">
+        <input class="sc-filter-input m-r-10" type="number" v-model="filter.total_count_from" /> to
+        <input class="sc-filter-input m-l-10" type="number" v-model="filter.total_count_to" />
+      </div>
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Search By Id: </label>
+      <input class="sc-filter-input" type="text" v-model="filter.id" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Search By Email: </label>
+      <input class="sc-filter-input" type="text" v-model="filter.email" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Username: </label>
+      <input class="sc-filter-input" type="text" v-model="filter.user_name" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Status: </label>
+      <select class="sc-filter-input" name="cat" v-model="filter.status">
+        <option value="" selected>-- Select type --</option>
+        <option value="suspended">Suspended</option>
+        <option value="active">Active</option>
+        <option value="deleted">Deleted</option>
+      </select>
+    </div>
+    <div class="sc-filter-item sc-filter-button">
+      <input
+        type="submit"
+        value="Filter"
+        class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-mr-10"
+        @click="filterAction"
+      />
+      <input type="submit" value="Reset" class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded" @click="resetAll" />
+    </div>
+  </div>
+
+  <div class="sc-table-responsive">
+    <table class="sc-table">
+      <thead>
+        <tr>
+          <th>No.</th>
+          <th>ID</th>
+          <th>
+            Username
+            <sortField v-show="!is_loading" field="user_name" :sort="sortParam" @sort="sort" />
+          </th>
+          <th>Email</th>
+          <th>Reported As</th>
+          <th>
+            Last Reported
+            <sortField v-show="!is_loading" field="updated_at" :sort="sortParam" @sort="sort" />
+          </th>
+          <th>Suspended Total</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <TableEmpty :cols="8" v-if="!is_loading && !(users && users.length)" />
+        <tr v-for="(user,index) in users">
+          <td>{{index + 1 + pagination.skip}}</td>
+          <td>{{user.user.id}}</td>
+          <td>{{user.user.user_name}}</td>
+          <td>{{maskEmail(user.user.email)}}</td>
+          <td>
+            <div class="pl-5 mb-2 d-flex flex-column align-items-start" style="font-size: 15px">
+              <span class="mb-2">Total Reported: {{ user.count_total }}</span>
+              <template v-if="user && user.count">
+                <span> Spam: {{user.count.spam ? user.count.spam : 0}}</span>
+                <span> Offensive: {{user.count.offensive ? user.count.offensive : 0}}</span>
+                <span> Others: {{user.count.others ? user.count.others : 0}}</span>
+              </template>
+              <a href="" @click.prevent="exportDatatoCSV(user.user)"><span>[Detail Report]</span></a>
+            </div>
+          </td>
+          <td>{{filterDate(user.updated_at) || '----'}}</td>
+          <td>{{user.suspended_count ? user.suspended_count : 0}}</td>
+          <td>{{user.status ? user.status : 'Active'}}</td>
+          <td class="flex-column align-items-start" style="font-size: 15px; width: 10%">
+            <button
+              @click.prevent="changeStatus('active',user._id,index)"
+              v-if="user.status && user.status !== 'active'"
+              class="d-flex text-primary mb-2"
+            >
+              <i class="fa fa-user-plus mr-1"></i> Unsuspend
+            </button>
+            <button @click.prevent="changeStatus('suspended',user.user.id,index)" class="d-flex text-warning mb-2">
+              <i class="fa fa-user-times mr-1"></i>Suspend
+            </button>
+            <button @click.prevent="deleteUser(user.user.id)" class="d-flex text-danger mb-2">
+              <i class="fa fa-trash mr-1"></i> Delete
+            </button>
+            <button
+              @click.prevent="changeToUnblock('active',user._id,index)"
+              v-if="user.password_failure_count >= 5"
+              class="d-flex text-primary mb-2"
+            >
+              <i class="fa fa-user-plus mr-1"></i> Unblock
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="sc-pagination-row between">
+    <div class="sc-pagination-page">
+      <div class="sc-pagination-content">
+        <div class="sc-pagination-text-container">
+          <div class="sc-pagination-text">Page: {{ pagination.currentPage }} out of {{ pagination.totalPage}}</div>
+          <div class="sc-pagination-text">Total Record: {{ pagination.currentTotalRecord }}</div>
+        </div>
+        <div class="table-pagination">
+          <DisplayPerPage :all="all" @display="display"></DisplayPerPage>
+          <Pagination :limit="pagination.limit" :skip="pagination.skip" :total="pagination.totalPage" @page="setSkip" />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

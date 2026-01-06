@@ -1,0 +1,806 @@
+<div class="component-users-list">
+  <modal
+    ref="modal_fill_content_approve_reject"
+    :medium="true"
+    :force="true"
+    :okText="'Submit'"
+    :okClass="'btn btn-normal btn-sm pink'"
+    class="modal-fill-content-batch modal-default-user-list"
+    :cancelClass="'btn btn-normal btn-sm no-rad'"
+    @ok="doApproveOrRejectSelectedUser(false, true)"
+  >
+    <p slot="title">{{status === 'pending' ? 'Input Vouchers' : 'Reject User'}}</p>
+    <ul>
+      <li v-for="user in data" v-if="user.checked" class="d-flex" :key="user.user_name">
+        <div class="text-detail">
+          <p>{{user.name}}</p>
+          <p>@{{user.user_name}}</p>
+        </div>
+        <input
+          class="form-control"
+          type="text"
+          v-if="status === 'pending'"
+          v-model="user.voucherCode"
+          placeholder="Voucher Code"
+        />
+        <div v-else class="fill-detail-reason">
+          <label>Select reason for rejection</label>
+          <select name="message" v-model="user.rejectMesage">
+            <option :value="message" :key="message" v-for="message in rejectionMessageList">{{message}}</option>
+          </select>
+          <textarea
+            name="message"
+            placeholder="Type reason here ..."
+            v-if="user.rejectMesage === 'Others'"
+            v-model="user.rejectReason"
+          />
+        </div>
+      </li>
+    </ul>
+  </modal>
+
+  <modal
+    ref="modal_approve_batch"
+    :medium="true"
+    :force="true"
+    okText="Yes"
+    class="modal-confirm-approve-reject modal-default-user-list"
+    okClass="btn btn-normal btn-sm pink"
+    :cancelClass="'btn btn-normal btn-sm no-rad'"
+    @ok="doApproveOrRejectSelectedUser(true)"
+  >
+    <p>Are you sure want to {{status === 'pending' ? 'approved' : 'reject'}} selected user as SBN Member ?</p>
+  </modal>
+
+  <modal
+    ref="modal_filter_by_content"
+    :medium="true"
+    :force="true"
+    okText="Confirm"
+    okClass="btn btn-normal btn-sm pink"
+    class="modal-confirm-approve-reject modal-default-user-list"
+    :cancelClass="'btn btn-normal btn-sm no-rad'"
+  >
+    <div class="modal-filter-by-content-container">
+      <div class="content-enthusiast-container">
+        <h4>Filter By Content Enthusiast</h4>
+        <div class="content-enthusiast-filter">
+          <div v-for="(item, index) in contentEnthusiastOption" :key="index" class="checkbox-group">
+            <input
+              v-model="filter.categories"
+              name="categories"
+              type="checkbox"
+              :value="item.value"
+              @change="() => $forceUpdate()"
+            />
+            <span>{{ item.text }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="content-hijab-container">
+        <h4>Filter By Content Enthusiast</h4>
+        <div class="content-hijab-filter">
+          <div v-for="(item, index) in isHijabOption" :key="index" class="radio-group">
+            <input class="sc-filter-input" type="radio" name="is_hijab" v-model="filter.is_hijab" :value="item.value" />
+            <label class="sc-filter-input" for="">{{ item.text }}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </modal>
+
+  <modal
+    ref="modal_filter_by_social_media"
+    :medium="true"
+    :force="true"
+    okText="Confirm"
+    okClass="btn btn-normal btn-sm pink"
+    class="modal-confirm-approve-reject modal-default-user-list"
+    :cancelClass="'btn btn-normal btn-sm no-rad'"
+  >
+    <div class="modal-filter-by-social-media-container">
+      <div class="by-social-media-container">
+        <h4>Filter By Social Media Account</h4>
+        <div class="content-social-media-filter">
+          <select name="" id="" v-model="filter.social_media_account_type">
+            <option value="">-- Select --</option>
+            <option v-for="(item, index) in socialMediaOption" :key="index" :value="item.value">{{ item.text }}</option>
+          </select>
+          <input v-model="filter.social_media_account_url" type="text" placeholder="Social Media URL" />
+        </div>
+        <h4 style="margin-top: 30px">Or Filter By Social Media Follower / Subscriber Counter</h4>
+        <div class="content-social-media-filter">
+          <select v-model="filter.social_media_counter_type" name="" id="">
+            <option value="">-- Select --</option>
+            <option v-for="(item, index) in socialMediaOption" :key="index" :value="item.value">{{ item.text }}</option>
+          </select>
+          <input v-model="filter.social_media_counter_value.min" type="number" min="0" placeholder="Min Follower" />
+          <span style="align-self: center">-</span>
+          <input v-model="filter.social_media_counter_value.max" type="number" min="0" placeholder="Max Follower" />
+        </div>
+      </div>
+    </div>
+  </modal>
+
+  <modal
+    ref="modal_bulk_voucher_status"
+    :medium="true"
+    :force="true"
+    okText="Confirm"
+    okClass="btn btn-normal btn-sm pink"
+    class="modal-confirm-approve-reject modal-default-user-list"
+    :cancelClass="'btn btn-normal btn-sm no-rad'"
+    @ok="processBulkVoucherStatus()"
+  >
+    <div class="bulk-voucher-container">
+      <div class="bulk-type-container">
+        Set expiration year
+        <soco-switch v-model="filterByDate" @update:modelValue="updateFilterByDate"></soco-switch>
+        Set expiration date
+      </div>
+      <div class="filter-field-container">
+        <input v-model="bulkVoucherDate" v-if="filterByDate" type="date" />
+        <select v-model="bulkVoucherDate" v-else name="" id="">
+          <option v-for="(item, index) in availableYears" :value="item.value" :key="index">{{ item.label }}</option>
+        </select>
+      </div>
+      <div class="sc-filter-item">
+        <label class="sc-filter-label">SBN Voucher Status: </label>
+        <select class="sc-filter-input" name="cat" v-model="filter.sbn_voucher_status">
+          <option value="" selected>-- Select Status --</option>
+          <option value="true">Enabled</option>
+          <option value="false">Disabled</option>
+        </select>
+      </div>
+    </div>
+  </modal>
+
+  <div class="sc-tab-section">
+    <div
+      class="sc-tab-item sc-tab-item-3"
+      :class="{'sc-selected': status === 'pending'}"
+      @click.prevent="filterStatus('pending')"
+    >
+      <div class="sc-tab-title">Pending User</div>
+      <div class="sc-tab-total">{{totalCount.pending || '0'}}</div>
+    </div>
+    <div
+      class="sc-tab-item sc-tab-item-3"
+      :class="{'sc-selected': status === 'approved'}"
+      @click.prevent="filterStatus('approved')"
+    >
+      <div class="sc-tab-title">Approved User</div>
+      <div class="sc-tab-total">{{totalCount.approved || '0'}}</div>
+    </div>
+    <div
+      class="sc-tab-item sc-tab-item-3"
+      :class="{'sc-selected': status === 'rejected'}"
+      @click.prevent="filterStatus('rejected')"
+    >
+      <div class="sc-tab-title">Rejected User</div>
+      <div class="sc-tab-total">{{totalCount.rejected || '0'}}</div>
+    </div>
+  </div>
+  <div class="sc-pagination">
+    <h1 class="sc-pagination-label">Pagination</h1>
+    <div class="sc-pagination-form">
+      <input
+        class="sc-btn sc-btn-secondary sc-pagination-btn"
+        v-if="pagination.currentPage > 1"
+        type="submit"
+        value="Prev"
+        v-on:click="gotoPage(pagination.currentPage - 1)"
+      />
+      <input
+        class="sc-pagination-input"
+        type="number"
+        min="1"
+        :max="pagination.totalPage"
+        name=""
+        v-model="pagination.currentPage"
+        @keyup.enter.prevent="gotoPage(pagination.currentPage)"
+      />
+      <input
+        class="sc-btn sc-btn-secondary sc-pagination-btn"
+        v-if="pagination.totalPage > pagination.currentPage"
+        type="submit"
+        value="Next"
+        v-on:click="gotoPage(pagination.currentPage+1)"
+      />
+      <a
+        v-if="status !== 'rejected'"
+        @click="doApproveOrRejectSelectedUser()"
+        class="sc-btn sc-btn-rounded sc-btn-secondary sc-ml-10"
+      >
+        {{status === 'pending' ? 'Approved' : 'Reject'}} Selected User
+      </a>
+    </div>
+  </div>
+  <div class="sc-filter">
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Username/Email: </label>
+      <input class="sc-filter-input" type="input" v-model="filter.username" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">User Id: </label>
+      <input class="sc-filter-input" type="input" v-model="filter.user_id" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Phone no: </label>
+      <input class="sc-filter-input" type="input" v-model="filter.phone_no" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">From: </label>
+      <input class="sc-filter-input" type="date" v-model="filter.date_begin" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">To: </label>
+      <input class="sc-filter-input" type="date" v-model="filter.date_end" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Approved Form Date: </label>
+      <input class="sc-filter-input" type="date" v-model="filter.approved_from_date" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Approved To Date: </label>
+      <input class="sc-filter-input" type="date" v-model="filter.approved_to_date" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">SBN Voucher Status: </label>
+      <select class="sc-filter-input" name="cat" v-model="filter.sbn_voucher_status">
+        <option value="" selected>-- Select Status --</option>
+        <option value="true">Enabled</option>
+        <option value="false">Disabled</option>
+      </select>
+    </div>
+    <div class="sc-filter-item" style="align-self: center">
+      <div
+        @click="$refs.modal_filter_by_content.open()"
+        class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded button-filter-content"
+      >
+        Filter By Content
+      </div>
+    </div>
+    <div class="sc-filter-item" style="align-self: center">
+      <div
+        @click="$refs.modal_filter_by_social_media.open()"
+        class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded button-filter-social-media"
+      >
+        Filter By Social Media
+      </div>
+    </div>
+  </div>
+  <div class="flex flex-col mb-4">
+    <div class="sc-filter-details p-4 border rounded mb-4">
+      <p class="font-medium mb-2">Detail Filter:</p>
+      <ul class="space-y-1">
+        <li>Username/Email: {{ filter.username || '-' }}</li>
+        <li>User ID: {{ filter.user_id || '-' }}</li>
+        <li>Phone: {{ filter.phone_no || '-' }}</li>
+        <li>From Date: {{ filter.date_begin ? formatDate(filter.date_begin) : '-' }}</li>
+        <li>To Date: {{ filter.date_end ? formatDate(filter.date_end) : '-' }}</li>
+        <li>Approved From: {{ filter.approved_from_date ? formatDate(filter.approved_from_date) : '-' }}</li>
+        <li>Approved To: {{ filter.approved_to_date ? formatDate(filter.approved_to_date) : '-' }}</li>
+        <li>
+          SBN Voucher Status: {{ filter.sbn_voucher_status === 'true' ? 'Enabled' : filter.sbn_voucher_status ===
+          'false' ? 'Disabled' : '-' }}
+        </li>
+        <li>
+          Categories Content: {{ filter.categories && filter.categories.length > 0 ? filter.categories.join(', ') : '-'
+          }}
+        </li>
+        <li>Hijab: {{ filter.is_hijab === true ? 'Hijab' : filter.is_hijab === false ? 'No Hijab' : '-' }}</li>
+        <li>
+          Social Media Account: {{ filter.social_media_account_type ? `${filter.social_media_account_type} -
+          ${filter.social_media_account_url || '-'}` : '-' }}
+        </li>
+        <li>
+          Social Media Counter: {{ filter.social_media_counter_type ? `${filter.social_media_counter_type} - Min:
+          ${filter.social_media_counter_value.min || '-'} - Max: ${filter.social_media_counter_value.max || '-'}` : '-'
+          }}
+        </li>
+      </ul>
+    </div>
+    <div class="sc-filter-item sc-filter-button">
+      <input
+        type="submit"
+        value="Filter"
+        class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-mr-10"
+        @click="filterData"
+      />
+      <input
+        type="button"
+        value="Reset"
+        class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-mr-10"
+        @click="resetData"
+      />
+      <input
+        type="button"
+        value="Export Data"
+        class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-mr-10"
+        @click="exportData"
+      />
+      <input
+        v-if="selectedSbnUsers.length > 0"
+        type="button"
+        value="Clear Selected User"
+        class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-mr-10"
+        @click="clearSelectedUser"
+      />
+      <input
+        v-if="selectedSbnUsers.length > 0 || toggleCheckAll"
+        type="button"
+        value="Bulk Voucher Status"
+        class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded"
+        @click="$refs.modal_bulk_voucher_status.open()"
+      />
+    </div>
+  </div>
+
+  <div class="sc-table-responsive">
+    <table class="sc-table">
+      <thead>
+        <tr style="height: 25px">
+          <th v-if="status !== 'rejected'" style="width: 50px">
+            <input type="checkbox" @change="onChageToggleCheckAll" v-model="toggleCheckAll" />
+          </th>
+          <th style="width: 150px"># ID</th>
+          <th style="width: 250px">Name</th>
+          <th>Email</th>
+          <th v-if="status === 'approved'" style="width: 120px">Voucher Code</th>
+          <th v-if="status === 'approved'" style="width: 120px">Voucher Status</th>
+          <th style="width: 200px">
+            SOCO Username
+            <sortField v-show="!is_loading" field="user_name" :sort="sortParam" @sort="sort" />
+          </th>
+          <th style="width: 300px">
+            Content Category
+            <sortField v-show="!is_loading" field="category" :sort="sortParam" @sort="sort" />
+          </th>
+          <th style="width: 220px">
+            {{labelDate}}
+            <sortField v-show="!is_loading" :sort="sortParam" @sort="sort" :field="sortFieldDate" />
+          </th>
+          <th v-if="status === 'approved' || status === 'pending'" style="width: 120px">Instagram</th>
+          <th v-if="status === 'approved' || status === 'pending'" style="width: 120px">Tiktok</th>
+          <th v-if="status === 'approved' || status === 'pending'" style="width: 120px">Youtube</th>
+          <th v-if="status === 'approved' || status === 'pending'" style="width: 120px">Blog</th>
+          <th v-if="status === 'approved' || status === 'pending'" style="width: 120px">Hijab</th>
+          <th style="width: 150px">Apply Count</th>
+          <th style="width: 150px">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <div class="loader" v-if="is_loading" style="width: 100%; text-align: center">
+          <ball-pulse-loader color="#000000" size="20px"></ball-pulse-loader>
+        </div>
+        <TableEmpty :cols="status !== 'rejected' ? 9 : 8" v-if="!is_loading && !(data && data.length)" />
+        <tr v-for="(user, idx) in data" :key="idx" v-if="user.sbn_user_detail">
+          <td v-if="status !== 'rejected'">
+            <input
+              :name="`checkbox-${idx}`"
+              type="checkbox"
+              v-model="user['checked']"
+              :checked="isUserSelected(user)"
+              @click="$store.dispatch('sbn/setSelectedSbnUsers', user)"
+            />
+          </td>
+          <td>{{user._id}}</td>
+          <td>
+            {{ user.name }}
+            <vuestic-tooltip
+              v-if="infoWarningPageViewLikeSubscriber(user)"
+              class="is-tooltip-danger"
+              :options="{content: infoWarningPageViewLikeSubscriber(user), placement: 'bottom'}"
+            >
+              <i class="fa fa-info-circle"></i>
+            </vuestic-tooltip>
+          </td>
+          <td>{{maskEmail(user.email)}}</td>
+          <td v-if="user.sbn_user_detail.status === 'approved'">{{user.sbn_user_detail.voucher.code}}</td>
+          <td style="text-align: center" v-if="status === 'approved'">
+            <button>
+              <span
+                v-if="user.sbn_user_detail.voucher_status"
+                title="Active"
+                aria-hidden="true"
+                class="fa fa-toggle-on btn-action on"
+                @click.prevent="updateSbnVoucher({ 
+                status: false, 
+                userId: user.sbn_user_detail.user_id, 
+                voucherCode: user.sbn_user_detail.voucher.code,
+                toDate: user.sbn_user_detail.created_at,
+              })"
+              ></span>
+              <span
+                v-else
+                title="Inactive"
+                aria-hidden="true"
+                class="fa fa-toggle-off btn-action off"
+                @click.prevent="updateSbnVoucher({ 
+                status: true, 
+                userId: user.sbn_user_detail.user_id, 
+                voucherCode: user.sbn_user_detail.voucher.code,
+                toDate: user.sbn_user_detail.created_at,
+              })"
+              ></span>
+            </button>
+          </td>
+          <td>{{user.user_name}}</td>
+          <td>{{getCategories(user.sbn_user_detail.categories)}}</td>
+          <td v-if="status === 'pending' ">{{ dateFormat_Ymd( user.sbn_user_detail.created_at)}}</td>
+          <td v-if="status === 'approved' ">{{ dateFormat_Ymd( user.sbn_user_detail.voucher.activated_at)}}</td>
+          <td v-if="status === 'approved' || status === 'pending'">
+            <span v-html="showSocialMediaURL(user, 'instagram')"></span>
+          </td>
+          <td v-if="status === 'approved' || status === 'pending'">
+            <span v-html="showSocialMediaURL(user, 'tiktok')"></span>
+          </td>
+          <td v-if="status === 'approved' || status === 'pending'">
+            <span v-html="showSocialMediaURL(user, 'youtube')"></span>
+          </td>
+          <td v-if="status === 'approved' || status === 'pending'">
+            <span v-html="showSocialMediaURL(user, 'blog')"></span>
+          </td>
+          <td v-if="status === 'approved' || status === 'pending'">{{user.sbn_user_detail.is_hijab ? "Yes" :"No"}}</td>
+          <td v-if="status === 'rejected' ">{{ dateFormat_Ymd( user.sbn_user_detail.updated_at)}}</td>
+          <td>{{ user.sbn_user_detail.total_apply_count || '-'}}</td>
+          <td>
+            <div class="sc-table-btn">
+              <span
+                v-if="status === 'approved'"
+                title="Preview"
+                aria-hidden="true"
+                class="fa fa-search sc-table-btn-item sc-detail"
+                @click="editUser(user)"
+              >
+              </span>
+              <template v-else>
+                <span
+                  title="Edit"
+                  aria-hidden="true"
+                  class="fa fa-edit sc-table-btn-item sc-detail"
+                  @click="editUser(user)"
+                ></span>
+              </template>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class=""></div>
+  <div class="pagination-custom-footer">
+    <div class="pagination-info">
+      <div class="">Page: {{ pagination.currentPage }} out of {{ pagination.totalPage}}</div>
+      <div class="">Total Record: {{ pagination.currentTotalRecord }}</div>
+    </div>
+    <div class="display-setting">
+      <span>Display</span>
+      <select v-model="pagination.limit" name="" id="">
+        <option value="10">10</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+        <option value="300">300</option>
+      </select>
+      <span> / {{ pagination.currentTotalRecord }} Results</span>
+    </div>
+  </div>
+  <!-- .................form modal............ -->
+  <modal
+    ref="edit_modal"
+    :medium="true"
+    :force="true"
+    :okText="'Approve'"
+    :okClass="'btn btn-danger btn-sm no-rad'"
+    :secondaryText="'Reject'"
+    :cancelText="'Cancel'"
+    :secondaryClass="'btn btn-dark btn-sm no-rad'"
+    :cancelClass="'btn btn-normal btn-sm no-rad'"
+    @ok="confirmModal(userData,'approved')"
+    :isOkButton="status === 'rejected' || status === 'pending'"
+    @secondary="confirmModal(userData,'rejected')"
+    :isSecondaryButton="status === 'approved' || status === 'pending'"
+  >
+    <div slot="title">{{userData && userData.name}} user detail</div>
+    <div class="user-detail-container">
+      <img class="rounded-circle mb-2" style="height: 80px; width: 80px" :src="userData && userData.image" />
+      <div v-if="userData && userData.sbn_user_detail && userData.sbn_user_detail.status === 'approved'">
+        <div class="title-container info-container">VOUCHER INFORMATION</div>
+        <div class="info-container">
+          <div>Voucher Code</div>
+          <div>{{ userData && userData.sbn_user_detail && userData.sbn_user_detail.voucher.code }}</div>
+        </div>
+        <div class="info-container">
+          <div>Active From</div>
+          <div>{{ dateFormat_Ymd(userData.sbn_user_detail.voucher.activated_at) }}</div>
+        </div>
+        <div class="info-container">
+          <div>Expired On</div>
+          <div>{{ dateFormat_Ymd(userData.sbn_user_detail.voucher.expires_at) }}</div>
+        </div>
+        <div class="button-container">
+          <div class="center">
+            <input
+              type="submit"
+              title="update voucher"
+              value="Update Voucher"
+              class="btn btn-normal btn-sm pink"
+              @click="editVoucher(userData)"
+            />
+          </div>
+          <div class="center">
+            <input
+              type="submit"
+              :title="userData.sbn_user_detail.voucher_status === true ? 'disable voucher' : 'enable voucher'"
+              :value="userData.sbn_user_detail.voucher_status === true ? 'Disable Voucher' : 'Enable Voucher'"
+              class="btn btn-normal btn-sm pink"
+              @click="updateSbnVoucher({ 
+                status: userData.sbn_user_detail.voucher_status === true ? false : true, 
+                userId: userData.sbn_user_detail.user_id, 
+                voucherCode: userData.sbn_user_detail.voucher.code 
+              })"
+            />
+          </div>
+        </div>
+      </div>
+      <div class="title-container info-container">USER INFORMATION</div>
+      <div class="info-container">
+        <div>Name</div>
+        <div>{{userData && userData.name}}</div>
+      </div>
+      <div class="info-container">
+        <div>Username</div>
+        <div>{{userData && userData.user_name}}</div>
+      </div>
+      <div class="info-container">
+        <div>Email</div>
+        <div>{{userData && maskEmail(userData.email)}}</div>
+      </div>
+      <div class="info-container">
+        <div>Phone No.</div>
+        <div>{{userData && maskPhoneSimple(userData.phone_no)}}</div>
+      </div>
+      <div class="info-container">
+        <div>Date of Birth</div>
+        <div>{{userData && userData.date_of_birth}}</div>
+      </div>
+      <div class="info-container">
+        <div>City</div>
+        <div>{{userData && userData.city && userData.city.name}}</div>
+      </div>
+      <div class="info-container">
+        <div class="sub-container">
+          <h1 class="mb-5">KTP Number</h1>
+          <span class="mb-2">KTP Image</span>
+          <span>KTP Selfie Image</span>
+        </div>
+        <div class="sub-container text-right">
+          <div>{{userData && userData.sbn_user_detail && userData.sbn_user_detail.ktp.number}}</div>
+          <a class="link mb-2" @click="viewKtp(userData)">View KTP Photo </a>
+          <a class="link" @click="viewKtpSelfie(userData)">View KTP Selfie Photo </a>
+        </div>
+      </div>
+      <div class="info-container">
+        <div class="sub-container">
+          <h1 class="mb-5">NPWP Number</h1>
+        </div>
+        <div
+          class="sub-container text-right"
+          v-if="userData && userData.sbn_user_detail && userData.sbn_user_detail.npwp.number"
+        >
+          <div>{{userData && userData.sbn_user_detail && userData.sbn_user_detail.npwp.number}}</div>
+          <a class="link" @click="viewNpwp(userData)">View NPWP Photo </a>
+        </div>
+        <span v-else>&mdash;</span>
+      </div>
+      <div class="title-container info-container">SOCIAL MEDIA INFORMATION</div>
+      <div class="info-container">
+        <div>Last Update</div>
+        <div>{{ userData && userData.sbn_user_detail && userData.sbn_user_detail.social_updated_at | dateType1 }}</div>
+      </div>
+      <div class="info-container">
+        <div>Line Id</div>
+        <div>{{userData && userData.sbn_user_detail && userData.sbn_user_detail.line_id}}</div>
+      </div>
+      <div class="info-container">
+        <div class="sub-container">
+          <h1 class="mb-2">
+            Instagram
+            <vuestic-tooltip
+              v-if="infoWarningIg(userData)"
+              class="is-tooltip-danger"
+              :options="{content: infoWarningIg(userData), placement: 'bottom'}"
+            >
+              <i class="fa fa-info-circle"></i>
+            </vuestic-tooltip>
+          </h1>
+          <span>User Name</span>
+          <span>Follower</span>
+        </div>
+        <div class="sub-container text-right">
+          <span>{{userData?.social?.instagram?.url || '-'}}</span>
+          <span>{{userData?.social?.instagram?.total_followers || '-'}}</span>
+        </div>
+      </div>
+      <div class="info-container">
+        <div class="sub-container">
+          <h1 class="mb-2">Tiktok</h1>
+          <span>User Name</span>
+          <span>Follower</span>
+        </div>
+        <div class="sub-container text-right" v-if="userData && userData.social && userData?.social?.tiktok">
+          <span>{{userData?.social?.tiktok?.url || '-'}}</span>
+          <span>{{userData?.social?.tiktok?.total_followers || '-'}}</span>
+        </div>
+      </div>
+      <div class="info-container">
+        <div class="sub-container">
+          <h1 class="mb-2">
+            Blog
+            <vuestic-tooltip
+              v-if="infoWarningBlogPageView(userData)"
+              class="is-tooltip-danger"
+              :options="{content: infoWarningBlogPageView(userData), placement: 'bottom'}"
+            >
+              <i class="fa fa-info-circle"></i>
+            </vuestic-tooltip>
+          </h1>
+          <span>Blog Link</span>
+          <span>Monthly Pages Views</span>
+        </div>
+        <div class="sub-container text-right">
+          <span>{{userData?.social?.blog?.url || "-"}}</span>
+          <span>{{userData?.social?.blog?.total_page_views || '-'}}</span>
+        </div>
+      </div>
+      <div class="info-container">
+        <div class="sub-container">
+          <h1 class="mb-2">
+            Youtube
+            <vuestic-tooltip
+              v-if="infoWarningYoutubeSubs(userData)"
+              class="is-tooltip-danger"
+              :options="{content: infoWarningYoutubeSubs(userData), placement: 'bottom'}"
+            >
+              <i class="fa fa-info-circle"></i>
+            </vuestic-tooltip>
+          </h1>
+          <span>Youtube Link</span>
+          <span>Subscribers</span>
+        </div>
+        <div class="sub-container text-right">
+          <span>{{userData?.social?.youtube?.url || '-'}}</span>
+          <span>{{userData?.social?.youtube?.total_subscribers || '-'}}</span>
+        </div>
+      </div>
+      <div class="title-container info-container">CONTENT INFORMATION</div>
+      <div class="info-container">
+        <div>Hijab</div>
+        <div>{{userData && userData.sbn_user_detail && userData.sbn_user_detail.is_hijab ? "Yes" :"No"}}</div>
+      </div>
+      <div class="info-container">
+        <div>Content Category</div>
+        <div>{{getCategories(userData && userData.sbn_user_detail && userData.sbn_user_detail.categories)}}</div>
+      </div>
+      <div class="info-container">
+        <div>Meneginal SBN dari</div>
+        <div>{{userData && userData.sbn_user_detail && userData.sbn_user_detail.how_do_you_know_sbn}}</div>
+      </div>
+      <div class="info-container">
+        <div>Registration Date</div>
+        <div>{{ dateFormat_Ymd(userData && userData.sbn_user_detail && userData.sbn_user_detail.created_at) }}</div>
+      </div>
+    </div>
+  </modal>
+
+  <!-- modal for voucher edit -->
+  <modal
+    ref="edit_modal_voucher"
+    :medium="true"
+    :force="true"
+    :okText="'Submit'"
+    :okClass="'btn btn-normal btn-sm pink'"
+    :cancelText="'Cancel'"
+    :cancelClass="'btn btn-normal btn-sm no-rad'"
+    @ok="updateSbnVoucher(newdate)"
+  >
+    <div slot="title">Set new expiry date</div>
+    <div class="info-container">
+      <input type="date" style="width: 100%" v-model="newdate" required />
+    </div>
+  </modal>
+
+  <!-- modal for download image -->
+  <modal class="view-image" ref="image_download_ktp">
+    <div slot="title">View Image</div>
+    <div class="center">
+      <img :src="image_ktp" style="height: 100%; width: 100%" />
+      <a
+        :href="image_ktp"
+        class="btn btn-sm pink"
+        download
+        @click.prevent="$options.filters.downloadImage(image_ktp,userData.name,'KTP_')"
+        >Download image</a
+      >
+    </div>
+  </modal>
+
+  <modal class="view-image" ref="image_download_ktp_selfie">
+    <div slot="title">View Image</div>
+    <div class="center">
+      <img :src="image_ktp_selfie" style="height: 100%; width: 100%" />
+      <a
+        :href="image_ktp_selfie"
+        class="btn btn-sm pink"
+        download
+        @click.prevent="$options.filters.downloadImage(image_ktp_selfie,userData.name,'SELFIE_')"
+        >Download image</a
+      >
+    </div>
+  </modal>
+
+  <!-- modal for download image -->
+  <modal class="view-image" ref="image_download_npwp">
+    <div slot="title">View Image</div>
+    <div class="center">
+      <img :src="image_npwp" style="height: 100%; width: 100%" />
+      <a
+        :href="image_npwp"
+        class="btn btn-sm pink"
+        download
+        @click.prevent="$options.filters.downloadImage(image_npwp,userData.name,'NPWP_')"
+        >Download image</a
+      >
+    </div>
+  </modal>
+  <!--  button confirmation for delete & applying voucher code  -->
+  <modal
+    ref="delete_modal"
+    :medium="true"
+    :force="true"
+    :okText="confirmationData.status === 'approved' ? 'Approve' : 'Reject'"
+    :okDisabled="isOkDisabledDeleteModal && !confirmationData.status === 'approved' "
+    cancelText="Cancel"
+    :okClass="confirmationData.status === 'approved' ? 'btn btn-danger btn-sm' : 'btn btn-dark btn-sm'"
+    cancelClass="btn btn-secondary btn-sm"
+    @ok="updateSbnUser(confirmationData)"
+  >
+    <div slot="title">Please confirm</div>
+    <div class="mb-3">
+      Are you sure you want to {{confirmationData.status === "approved" ? 'approve' : 'reject'}} this SBN User ?
+    </div>
+    <!-- <div class="input-voucher-code-wrp" v-if="confirmationData.status === 'approved'">
+            <input type="text" placeholder="SBN CODE" @focus="() => onInputBlurFocusVoucherCode(true)"
+                   v-model="voucherCode" @blur="onInputBlurFocusVoucherCode"/>
+            <p v-if="approvedVoucherFeedbackMessage" class="approved-err">
+                {{approvedVoucherFeedbackMessage}}
+            </p>
+        </div> -->
+    <div v-if="confirmationData.status === 'rejected'">
+      <label for="rejection">Select reason for rejection</label>
+      <p>{{rejectedUserFeedbackMessage}}</p>
+      <select
+        style="width: 100%"
+        name="message"
+        v-model="message"
+        required
+        v-validate="'required'"
+        placeholder="Select reason"
+      >
+        <option v-for="message in rejectionMessageList">{{message}}</option>
+      </select>
+      <div style="border: 1px solid #a6a6a6; margin-top: 5px; border-radius: 2px" v-if="message === 'Others'">
+        <textarea
+          style="width: 100%"
+          v-model="reason"
+          name="message"
+          v-validate="'required'"
+          required
+          placeholder="Type reason here ..."
+        >
+        </textarea>
+      </div>
+    </div>
+  </modal>
+</div>

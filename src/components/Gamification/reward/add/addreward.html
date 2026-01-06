@@ -1,0 +1,93 @@
+<div class="sc-form">
+  <div class="sc-form-title">ADD REWARD</div>
+  <form data-vv-scope="formReward" class="sc-form-container">
+    <div class="sc-form-group" :class="{'has-error': errors.has('formReward.name') }">
+      <label for="brand_name" class="sc-form-label">NAME</label>
+      <div class="sc-form-child-group">
+        <input class="sc-form-input" id="name" name="name" type="text" v-model="name" v-validate="'required'" />
+        <p v-show="errors.has('formReward.name')" class="alert">{{ errors.first('formReward.name') }}</p>
+      </div>
+    </div>
+
+    <div class="sc-form-group" :class="{'has-error': errors.has('formReward.type') }">
+      <label for="brand_name" class="sc-form-label">TYPE</label>
+      <div class="sc-form-child-group">
+        <select
+          class="sc-form-input"
+          id="type"
+          v-model="selected_reward_type"
+          required
+          name="type"
+          v-validate="'required'"
+        >
+          <option value="">Pilih</option>
+          <option v-for="type in reward_types" :value="type._id">{{ type.name }}</option>
+        </select>
+        <p v-show="errors.has('formReward.type')" class="alert">{{ errors.first('formReward.type') }}</p>
+      </div>
+    </div>
+
+    <div class="sc-form-group">
+      <label for="" class="sc-form-label">Rule</label>
+      <div class="sc-form-group sc-form-group-full sc-row">
+        <div class="sc-row-item sc-row-item-3 sc-mr-10">
+          <label for="is_active" class="sc-form-label">Action</label>
+        </div>
+        <div class="sc-row-item sc-row-item-3 sc-mr-10">
+          <label class="sc-form-label">Rules</label>
+        </div>
+        <div class="sc-row-item sc-row-item-3">
+          <label class="sc-form-label">Count/Point</label>
+        </div>
+      </div>
+      <div id="action-rule" class="sc-form-group sc-form-group-full sc-row" v-for="rule in rules">
+        <div class="sc-row-item sc-row-item-3 sc-mr-10">
+          <select class="sc-form-input action" name="action" v-model="rule.action_id">
+            <option value="">Select Action</option>
+            <option v-for="action in actions" v-bind:value="action.val">{{ action.name }}</option>
+          </select>
+        </div>
+        <div class="sc-row-item sc-row-item-3 sc-mr-10">
+          <select class="sc-form-input action" name="rule" v-model="rule.type">
+            <option v-for="rule in ruleTypes" v-bind:value="rule.val">{{ rule.name }}</option>
+          </select>
+        </div>
+        <div class="sc-row-item sc-row-item-3">
+          <input v-model="rule.gt_count" class="sc-form-input action" name="point" type="text" />
+          <input v-if="rule.gt_point" v-model="rule.gt_point" class="sc-form-input action" name="point" type="text" />
+        </div>
+      </div>
+      <div>
+        <button
+          v-on:click="addmore()"
+          type="button"
+          class="sc-btn sc-btn-rounded sc-btn-md sc-btn-primary sc-uppercase"
+          id="add-action"
+        >
+          Add
+        </button>
+      </div>
+    </div>
+
+    <div class="sc-form-group" id="prize-image">
+      <label for="image" class="sc-form-label">IMAGE</label>
+      <div class="sc-form-child-group">
+        <input class="get_preview_image sc-form-input" id="image" name="image" type="file" @change="imageUpload" />
+      </div>
+      <ball-pulse-loader v-if="image && image == 'uploading'" color="#000000" size="20px"></ball-pulse-loader>
+      <img id="file-image" v-if="image && image != 'uploading'" :src="image" style="width: 100px; height: 100px" />
+    </div>
+
+    <div class="sc-form-group">
+      <div>
+        <input
+          type="Submit"
+          v-on:click="editreward()"
+          value="Submit"
+          id="form_submit_btn"
+          class="sc-btn sc-btn-rounded sc-btn-md sc-btn-primary sc-uppercase"
+        />
+      </div>
+    </div>
+  </form>
+</div>

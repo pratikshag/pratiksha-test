@@ -1,0 +1,266 @@
+<div>
+  <div class="sc-tab-section" v-if="isDashboard">
+    <div
+      class="sc-tab-item sc-tab-item-3"
+      :class="{'sc-selected': status === 'all'}"
+      @click.prevent="filterStatus('all')"
+    >
+      <div class="sc-tab-title">All Verified User</div>
+      <div class="sc-tab-total">{{totalCount.all || '0'}}</div>
+    </div>
+    <div
+      class="sc-tab-item sc-tab-item-3"
+      :class="{'sc-selected': status === 'old'}"
+      @click.prevent="filterStatus('old')"
+    >
+      <div class="sc-tab-title">Old Verified User</div>
+      <div class="sc-tab-total">{{totalCount.old || '0'}}</div>
+    </div>
+    <div
+      class="sc-tab-item sc-tab-item-3"
+      :class="{'sc-selected': status === 'new'}"
+      @click.prevent="filterStatus('new')"
+    >
+      <div class="sc-tab-title">Old Verified User</div>
+      <div class="sc-tab-total">{{totalCount.new || '0'}}</div>
+    </div>
+  </div>
+
+  <button class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded float-right" @click.prevent="showDashboard()">
+    Dashboard
+  </button>
+
+  <div class="sc-filter">
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Search By Email: </label>
+      <input class="sc-filter-input" type="text" v-model="email" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Username: </label>
+      <input class="sc-filter-input" type="text" v-model="user_name" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Phone Number: </label>
+      <input class="sc-filter-input" type="text" v-model="phone_no" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Name: </label>
+      <input class="sc-filter-input" type="text" v-model="name" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Source: </label>
+      <input class="sc-filter-input" type="text" v-model="source" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Country: </label>
+      <select name="country" class="sc-form-input" v-model="country">
+        <option value="" selected>-- Country --</option>
+        <option v-for="country in countries" :value="country">{{country}}</option>
+      </select>
+    </div>
+    <div class="sc-filter-item sc-filter-button">
+      <input
+        type="submit"
+        value="Filter"
+        class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-mr-10"
+        @click="filterData"
+      />
+    </div>
+  </div>
+
+  <div class="loader" v-if="is_loading">
+    <ball-pulse-loader color="#000000" size="20px"></ball-pulse-loader>
+  </div>
+  <div class="sc-table-responsive">
+    <table class="sc-table">
+      <thead>
+        <tr>
+          <th>
+            Name
+            <sortField v-show="!is_loading" field="name" :sort="sortParam" @sort="sort" />
+          </th>
+          <th>
+            Username
+            <sortField v-show="!is_loading" field="user_name" :sort="sortParam" @sort="sort" />
+          </th>
+          <th>
+            Email
+            <sortField v-show="!is_loading" field="email" :sort="sortParam" @sort="sort" />
+          </th>
+          <th>
+            Register
+            <sortField v-show="!is_loading" field="created_at" :sort="sortParam" @sort="sort" />
+          </th>
+          <th>
+            Phone Number
+            <sortField v-show="!is_loading" field="phone_no" :sort="sortParam" @sort="sort" />
+          </th>
+          <th>
+            Country
+            <sortField v-show="!is_loading" field="country" :sort="sortParam" @sort="sort" />
+          </th>
+          <th>
+            Source
+            <sortField v-show="!is_loading" field="source" :sort="sortParam" @sort="sort" />
+          </th>
+          <th>
+            Registered From
+            <sortField v-show="!is_loading" field="registered_from" :sort="sortParam" @sort="sort" />
+          </th>
+          <th>
+            Last Activity
+            <sortField v-show="!is_loading" field="last_activity" :sort="sortParam" @sort="sort" />
+          </th>
+          <th>
+            Total Order Delivered
+            <sortField v-show="!is_loading" field="total_order_delivered" :sort="sortParam" @sort="sort" />
+          </th>
+          <th>
+            Total Order
+            <sortField v-show="!is_loading" field="total_order" :sort="sortParam" @sort="sort" />
+          </th>
+          <th>User Role</th>
+          <th>Detail</th>
+        </tr>
+      </thead>
+      <tbody>
+        <TableEmpty :cols="12" v-if="!is_loading && !(users && users.length)" />
+
+        <tr v-for="user in users">
+          <td>
+            <i
+              v-if="!isDashboard"
+              class="fa fa-check-circle-o font-weight-bold"
+              :class="{'text-success':user.is_verified_phone}"
+            ></i>
+            {{user.name}}
+          </td>
+          <td>{{user.user_name}}</td>
+          <td>{{maskEmail(user.email)}}</td>
+          <td>
+            <span v-if="user.created_at">{{user.created_at.substring(0,10)}} </span>
+          </td>
+          <td>
+            <span v-if="user.phone_no">{{ (user.phone_code || '+62') + maskPhoneSimple(user.phone_no) }}</span>
+          </td>
+          <td>
+            <span v-if="user.country">{{user.country.name}} </span>
+            <span v-else-if="user.address && user.address.length">{{user.address[0].country.name}} </span>
+          </td>
+          <td>
+            <span v-if="user.acquisition_source">{{user.acquisition_source}} </span>
+          </td>
+          <td>
+            <span v-if="user.registered_from">{{user.registered_from}} </span>
+          </td>
+          <td>
+            <span
+              v-if="user.lastActivity && user.lastActivity.length && user.lastActivityDate"
+              @click="showUserActivity(user.lastActivity)"
+              style="cursor: pointer"
+              >{{user.lastActivityDate}}
+              <i class="fa fa-eye icon-left input-icon search-icon"></i>
+            </span>
+          </td>
+          <td>
+            <span v-if="isLoadingOrders">
+              <i class="fa fa-spinner fa-spin"></i>
+            </span>
+            <span v-else> {{ orderCounts[user._id] || 0 }} </span>
+          </td>
+          <td>
+            <span v-if="isLoadingOrders">
+              <i class="fa fa-spinner fa-spin"></i>
+            </span>
+            <span v-else> {{ totalOrderCounts[user._id] || 0 }} </span>
+          </td>
+
+          <td :title="socoUserRoles(user.role)">
+            <span class="ellipsis" v-text="socoUserRoles(user.role)"></span>
+            <a
+              style="color: #225d42"
+              @click.prevent="openPopupRoles(user)"
+              v-text="socoUserRoles(user.role) ? 'Edit Role': 'Set Role'"
+            ></a>
+          </td>
+          <td>
+            <a>
+              <router-link :to="`/users/detail/${user._id}`" style="color: #225d42"> View Detail </router-link>
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div
+    v-if="showUserActivityModal"
+    class="modal"
+    style="top: 25%; width: 500px; height: 500px; left: 40%; border-radius: 5px; display: block"
+  >
+    <!-- Modal content -->
+    <div class="modal-content">
+      <span v-on:click="showUserActivityModal=false" class="close" style="position: absolute; right: 10px"
+        >&times;</span
+      >
+      <div style="font-size: 20px; font-weight: bolder; padding: 20px; text-align: center">Activity History</div>
+      <div style="padding: 20px">
+        <div style="display: flex; justify-content: flex-start">
+          <div style="width: 150px; font-size: 18px; font-weight: bolder">Date</div>
+          <div style="display: flex; flex-grow: 1; font-size: 18px; font-weight: bolder">Activity</div>
+        </div>
+        <div style="max-height: 300px; overflow: scroll">
+          <div
+            v-for="activity in currentUserActivity"
+            style="display: flex; justify-content: flex-start; line-height: 24px"
+          >
+            <div style="width: 150px">{{activity.date}}</div>
+            <div style="display: flex; flex-grow: 1">{{activity.name}}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sc-pagination-page">
+    <div class="sc-pagination-content">
+      <div class="sc-pagination-text-container">
+        <div class="sc-pagination-text">Page: {{ currentPage }} out of {{ totalPage }}</div>
+        <div class="sc-pagination-text">Total Record: {{ currentTotalRecord }}</div>
+      </div>
+      <div class="table-pagination">
+        <DisplayPerPage :all="all" @display="display"></DisplayPerPage>
+        <Pagination :limit="limit" :skip="skip" :total="totalPage" @page="setSkip" />
+      </div>
+    </div>
+  </div>
+
+  <div id="undertone-modal" class="custom-modal modal-roles" v-if="showModalRoles">
+    <div class="overlay" @click.prevent="showModalRoles = ''"></div>
+    <div slot="body">
+      <div class="modal-body">
+        <div class="modal-header">
+          <h4 class="modal__heading">Choose The Role</h4>
+          <span class="link modal-dismiss" @click.prevent="showModalRoles = ''">&times;</span>
+        </div>
+        <div class="roles-content">
+          <div class="form-field form-required">
+            <multiselect
+              :multiple="true"
+              :options="roles"
+              v-model="new_role"
+              label="name"
+              trackBy="name"
+              placeholder="-- Select Role --"
+            ></multiselect>
+          </div>
+          <button
+            class="sc-btn sc-btn-primary sc-btn-md sc-btn-rounded sc-uppercase"
+            @click.prevent="saveRoles"
+            v-text="new_role.length ? 'Update Role': 'Grant Access'"
+          ></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

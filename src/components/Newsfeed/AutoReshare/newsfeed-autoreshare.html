@@ -1,0 +1,72 @@
+<div>
+  <router-link :to="{ name: 'add-auto-reshare'}" class="sc-btn sc-btn-primary sc-btn-rounded sc-btn-lg"
+    >+ ADD</router-link
+  >
+  <div class="sc-pagination">
+    <h1 class="sc-pagination-label">Pagination</h1>
+    <div class="sc-pagination-form">
+      <input
+        class="sc-btn sc-btn-secondary sc-pagination-btn"
+        v-if="currentPage > 1"
+        type="submit"
+        value="Prev"
+        v-on:click="gotoPage(currentPage - 1)"
+      />
+      <input
+        class="sc-pagination-input"
+        type="number"
+        min="1"
+        :max="totalPage"
+        name=""
+        v-model="currentPage"
+        @keyup.enter.prevent="gotoPage(currentPage)"
+      />
+      <input
+        class="sc-btn sc-btn-secondary sc-pagination-btn"
+        v-if="totalPage > currentPage"
+        type="submit"
+        value="Next"
+        v-on:click="gotoPage(currentPage+1)"
+      />
+    </div>
+  </div>
+
+  <div class="sc-filter">
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Search Editor: </label>
+      <input class="sc-filter-input" type="input" v-model="search" @keyup="searchQuery" />
+    </div>
+  </div>
+
+  <div class="sc-table-responsive">
+    <table class="sc-table">
+      <thead>
+        <tr class="row200 head">
+          <th class="cell10 column1" style="font-size: 15px; width: 50%">#ID</th>
+          <th class="cell50 column2" style="font-size: 15px; width: 50%">EDITOR</th>
+          <th class="cell50 column3" style="font-size: 15px; width: 50%">ACTION</th>
+        </tr>
+      </thead>
+      <tbody>
+        <TableEmpty :cols="9" v-if="!is_loading && !(newsfeedautoreshare && newsfeedautoreshare.length)" />
+
+        <tr class="row100 body" v-for="autoreshare in newsfeedautoreshare">
+          <td class="cell50 column1" style="font-size: 15px; width: 50%">
+            {{autoreshare._id}}
+            <hr />
+          </td>
+          <td class="cell50 column2" style="font-size: 15px; width: 50%">
+            {{autoreshare.user.name}}
+            <hr />
+          </td>
+          <td class="cell50 column3" style="font-size: 15px; width: 50%">
+            <div>
+              <a style="color: #225d42" v-on:click="trash(autoreshare._id)">DELETE</a>
+            </div>
+            <hr />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

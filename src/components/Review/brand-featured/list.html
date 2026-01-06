@@ -1,0 +1,78 @@
+<div>
+  <div class="sc-table-title">Set Highlight for: Featured Brands</div>
+  <div class="sc-filter">
+    <div class="sc-filter-item">
+      <!-- Platform -->
+      <div class="sc-form-group">
+        <label for="is_enable" class="sc-filter-label">Platform</label>
+        <div class="sc-filter sc-form-input sc-form-radio" style="gap: 16px">
+          <div v-for="(option, index) in platform.options" :key="index">
+            <input :id="option" v-model="platform.selected" type="radio" name="platform" :value="option" />
+            <label :for="option">{{ startCase(option) }}</label>
+          </div>
+        </div>
+      </div>
+      <!-- Category -->
+      <div class="sc-mt-10">
+        <label for="category" class="sc-filter-label">Category</label>
+        <Multiselect
+          :disabled="!platform.selected"
+          id="category"
+          v-model="category.selected"
+          name="category"
+          :options="category.options"
+          open-direction="bottom"
+          :show-labels="false"
+          track-by="_id"
+          label="name"
+          placeholder="Select category"
+          internal-search
+        >
+          <template slot="noOptions">
+            <div v-if="category.loading" class="loaderspin"></div>
+            <span v-else>List is empty</span>
+          </template>
+          <template slot="noResult">
+            <div v-if="category.loading" class="loaderspin"></div>
+            <span v-else>No result</span>
+          </template>
+        </Multiselect>
+      </div>
+    </div>
+  </div>
+  <div class="sc-table-responsive">
+    <table class="sc-table">
+      <thead>
+        <tr>
+          <th width="30px">No</th>
+          <th width="200px">Image</th>
+          <th width="200px">Name</th>
+          <th width="100px">Total Review</th>
+          <th width="300px">URL</th>
+          <th width="70px;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <div v-if="is_loading" class="loader" style="text-align: center">
+          <ball-pulse-loader color="#000000" size="20px"></ball-pulse-loader>
+        </div>
+
+        <TableEmpty :cols="6" v-if="!is_loading && !(featuredBrands && featuredBrands.length)" />
+
+        <template v-else v-for="(brand, index) in featuredBrands">
+          <featuredRow
+            :data="brand"
+            :position="index"
+            :key="index"
+            :category="category.selected"
+            :platform="platform.selected"
+            :featured-brands="featuredBrands"
+            @deleteAction="getFeaturedBrands"
+            @createAction="getFeaturedBrands"
+          >
+          </featuredRow>
+        </template>
+      </tbody>
+    </table>
+  </div>
+</div>

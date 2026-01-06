@@ -1,0 +1,107 @@
+.d-flex {
+    align-items: flex-start;
+}
+
+.table {
+    font-size: 14px;
+    font-family: lato-regular;
+    background: white;
+
+    td,
+    th,
+    thead th,
+    thead td {
+        font-size: 100%;
+        text-align: center;
+        line-height: 30px;
+        border: 1px solid #e5e5e5;
+    }
+}
+
+.btn-absolute.nbtn {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    padding: 0 30px;
+}
+
+.btn-wrap .nbtn {
+    padding: 0 30px;
+}
+
+.btn-wrap {
+    width: 340px;
+    display: flex;
+    justify-content: space-between;
+}
+
+h3 {
+    border-radius: 5px;
+    box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.5);
+    background-color: #fff4f7;
+    padding: 16px;
+    font-family: "Lato-bold";
+    font-size: 16px;
+    font-weight: normal;
+    margin-bottom: 12px;
+}
+
+.container.container-form {
+    padding: 0;
+    margin: 0;
+}
+
+.container {
+    //   .row {
+    //     // margin-left: 8px !important;
+    //   }
+}
+
+.container-form {
+    .field {
+
+        // margin-top: 20px;
+        // margin-bottom: 20px;
+        label {
+            width: 120px;
+            padding-left: 10px;
+        }
+        label.change-title{
+
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #da709e;
+    color: white;
+    padding: 0;
+    height: 30px;
+    text-transform: capitalize;
+    margin: 0;
+        }
+
+        input[type="text"],
+        textarea,
+        .multiselect,
+        select {
+            border: none;
+            margin-left: 10px;
+            //   width: 60%;
+            flex: 1;
+            margin-bottom: 12px;
+        }
+
+        select, input {
+            padding: 5px;
+        }
+    }
+}
+
+textarea {
+    height: 124px;
+    padding: 8px;
+}
+
+h1 strong {
+    text-transform: uppercase;
+}

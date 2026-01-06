@@ -1,0 +1,95 @@
+<template>
+    <aside class="vuestic-sidebar">
+        <vuestic-scrollbar speed="100">
+            <ul class="sidebar-menu">
+                <slot name="menu"></slot>
+            </ul>
+        </vuestic-scrollbar>
+    </aside>
+</template>
+
+<script>
+    import Expanding from 'vue-bulma-expanding/src/Expanding'
+
+    export default {
+        name: 'vuestic-sidebar',
+        components: {
+            Expanding,
+        },
+        props: {
+            hidden: {
+                type: Boolean,
+                required: true,
+            }
+        }
+    }
+</script>
+
+<style lang="scss">
+    .vuestic-sidebar {
+        @include media-breakpoint-down(md) {
+            top: $sidebar-mobile-top;
+            left: $sidebar-mobile-left;
+            width: $sidebar-mobile-width;
+            z-index: $sidebar-mobile-z-index;
+        }
+
+        height: $sidebar-viewport-height;
+        position: absolute;
+        width: $sidebar-width;
+        /*top: $sidebar-top;*/
+        left: 0;
+        transition: all 0.2s ease;
+        opacity: 1;
+        /*top:45px;*/
+        top: auto;
+
+        .vuestic-scrollbar {
+            //height: 100%;
+
+            .sidebar-menu {
+                max-height: 100%;
+                list-style: none;
+                padding-left: 0;
+                margin: 0;
+
+                li {
+                    display: block;
+                    padding-left: 0;
+                }
+            }
+
+            .scrollbar-wrapper {
+                box-shadow: $sidebar-box-shadow;
+            }
+
+            .scrollbar-content {
+                // background: $sidebar-bg;
+                background: #4a4a4a; // Sidebar color
+            }
+
+            .sidebar-menu span {
+                font-size: 13px !important;
+            }
+        }
+
+        &.sidebar-hidden {
+            @include media-breakpoint-down(md) {
+                top: $sidebar-hidden-top-mobile;
+                // opacity: 0;
+                z-index: $sidebar-mobile-z-index;
+                height: $sidebar-hidden-height-mobile;
+            }
+            top: $sidebar-hidden-top;
+            opacity: 0;
+            z-index: $min-z-index;
+        }
+
+        &.sidebar-hidden + .content-wrap {
+            @include media-breakpoint-down(md) {
+                margin-left: 0;
+            }
+            margin-left: $sidebar-left;
+        }
+    }
+</style>

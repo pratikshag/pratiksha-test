@@ -1,0 +1,41 @@
+@import '~@/sass/partial/help-reset';
+
+.help-content-form {
+
+    h3 {
+        display: inline-block;
+        font-size: 30px;
+        margin-top: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    hr {
+        border-color: $pinkalt2;
+        border-width: 2px
+    }
+
+    ::v-deep {
+        .form-editor {
+            > .list-inline {
+                > .list-inline-item {
+                    & + .list-inline-item:before {
+                        content: '|';
+                        padding-right: .5rem
+                    }
+                    &.active {
+                        > a {
+                            color: initial;
+                        }
+                    }
+                    > a {
+                        color: $grey;
+                        transition: initial;
+                    }
+                }
+            }
+        }
+        .quillWrapper {
+            background-color: $white;
+        }
+    }
+}

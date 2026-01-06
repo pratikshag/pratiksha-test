@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: DEPLOYMENT_NAME_TO_BE_REPLACED-soco-admin
+spec:
+  replicas: 2
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: DEPLOYMENT_NAME_TO_BE_REPLACED-soco-admin
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 10%
+      maxUnavailable: 25%
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        app: DEPLOYMENT_NAME_TO_BE_REPLACED-soco-admin
+    spec:
+      containers:
+      - name: DEPLOYMENT_NAME_TO_BE_REPLACED-soco-admin
+        image: IMAGE_NAME_TO_BE_REPLACED
+        ports:
+        - name: soco-admin-port
+          containerPort: 80
+        livenessProbe:
+          httpGet:
+            path: /
+            port: soco-admin-port
+          initialDelaySeconds: 15
+          timeoutSeconds: 30
+        resources:
+          requests:
+            memory: "8Mi"
+            cpu: "8m"
+          limits:
+            # Keep same values for memory as requests and set no CPU limits
+            memory: "8Mi"
+      - name: DEPLOYMENT_NAME_TO_BE_REPLACED-soco-admin-exporter
+        image: nginx/nginx-prometheus-exporter:0.6.0
+        env:
+        - name: SCRAPE_URI
+          value: http://localhost:8080/stub_status
+        ports:
+        - name: exporter-port
+          containerPort: 9113
+        resources:
+          requests:
+            memory: "8Mi"
+            cpu: "8m"
+          limits:
+            # Keep same values for memory as requests and set no CPU limits
+            memory: "8Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: DEPLOYMENT_NAME_TO_BE_REPLACED-soco-admin-service
+  labels:
+    scrape: "nginx"
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: soco-admin-port
+  - name: https
+    port: 443
+    targetPort: soco-admin-port
+  selector:
+    app: DEPLOYMENT_NAME_TO_BE_REPLACED-soco-admin
+  type: ClusterIP  # Required for ALB ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: DEPLOYMENT_NAME_TO_BE_REPLACED-soco-admin-ingress
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/subnets: subnet-0c4ae9aa9c53d967f,subnet-0140cd6c77b54526d    
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-southeast-1:516604026188:certificate/eb66c39b-a105-45b6-8b1e-be17b82d7297
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS13-1-2-2021-06
+    alb.ingress.kubernetes.io/group.name: public-alb-2  # Shared ALB group name 
+spec:
+  ingressClassName: alb
+  rules:
+    - host: DEPLOYMENT_NAME_TO_BE_REPLACED-soco-admin.sociolabs.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: DEPLOYMENT_NAME_TO_BE_REPLACED-soco-admin-service
+                port:
+                  number: 80

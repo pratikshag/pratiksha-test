@@ -1,0 +1,260 @@
+<div>
+  <div class="sc-filter">
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Select Type: </label>
+      <select class="sc-filter-input" name="cat" v-model="filter.object_type">
+        <option value="" selected>-- Select type --</option>
+        <option value="add-review">Review</option>
+        <option value="video">Video</option>
+        <option value="article">Article</option>
+        <option value="collection">Collection</option>
+        <option value="glossary">Glossary</option>
+        <option value="horoscope">Horoscope</option>
+        <option value="photo-tagging">Photo Tagging</option>
+        <option value="image/text-polling">Image/Text Polling</option>
+        <option value="product-polling">Product Polling</option>
+      </select>
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Username: </label>
+      <input class="sc-filter-input" type="input" v-model="filter.username" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Select Status: </label>
+      <select class="sc-filter-input" name="cat" v-model="filter.verb">
+        <option value="" selected>-- Select Status --</option>
+        <option value="add">Original</option>
+        <option value="reshare">Reshare</option>
+      </select>
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">From: </label>
+      <input class="sc-filter-input" type="date" v-model="filter.date_begin" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">To: </label>
+      <input class="sc-filter-input" type="date" v-model="filter.date_end" />
+    </div>
+    <div class="sc-filter-item" v-if="['video','article','glossary','horoscope'].indexOf(filter.object_type) < 0">
+      <label class="sc-filter-label">Product Name: </label>
+      <input class="sc-filter-input" type="text" v-model="filter.product" />
+    </div>
+    <div class="sc-filter-item" v-if="['video','article','glossary','horoscope'].indexOf(filter.object_type) < 0">
+      <label class="sc-filter-label">Brand Name: </label>
+      <!-- <input class="sc-filter-input" type="text" v-model="filter.brand_name"> -->
+      <multiselect
+        class="sc-form-input"
+        id="brands"
+        v-model="filter.brand"
+        placeholder=""
+        open-direction="bottom"
+        :options="options.brands.data"
+        :searchable="true"
+        :loading="options.brands.is_loading"
+        :internal-search="false"
+        :disabled="options.brands.disabled"
+        :clear-on-select="true"
+        :close-on-select="true"
+        :show-no-results="true"
+        :hide-selected="true"
+        @search-change="findBrands"
+        :show-labels="false"
+        track-by="_id"
+        :custom-label="sourcename"
+      >
+        <span slot="noResult">Oops! No brands found. Consider changing your query.</span>
+        <span slot="caret" style="display: none !important"></span>
+      </multiselect>
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Source: </label>
+      <select class="sc-filter-input" name="cat" v-model="filter.acquisition_source">
+        <option value="" selected>-- Select Source --</option>
+        <option value="review-web-desktop">Review Web Desktop</option>
+        <option value="review-web-mobile">Review Web Mobile</option>
+        <option value="sociolla-web-desktop">Sociolla Desktop</option>
+        <option value="sociolla-web-mobile">Sociolla Mobile</option>
+        <option value="soco-web-desktop">Soco Desktop</option>
+        <option value="soco-web-mobile">Soco Mobile</option>
+        <option value="bj-web-desktop">Beauty Journal Desktop</option>
+        <option value="bj-web-mobile">Beauty Journal Mobile</option>
+        <option value="android">Android</option>
+        <option value="ios">iOS</option>
+      </select>
+    </div>
+    <div class="sc-filter-item" v-if="filter.object_type == 'add-review' || filter.object_type == ''">
+      <label class="sc-filter-label">Country: </label>
+      <select class="sc-filter-input" name="country" v-model="filter.country_source">
+        <option value="" selected>-- Select Country --</option>
+        <option :value="source_id">ID</option>
+        <option :value="source_vn">VN</option>
+      </select>
+    </div>
+    <div class="sc-filter-item sc-filter-button">
+      <input
+        type="submit"
+        :value="is_loading ? 'Loading...':'Filter'"
+        class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-mr-10"
+        @click="filterData"
+      />
+      <input
+        type="submit"
+        value="Reset"
+        class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-mr-10"
+        @click="resetFilter"
+      />
+    </div>
+    <div v-if="checkedIds.length" class="sc-filter-item sc-filter-button">
+      <div style="margin-right: 10px">
+        <label class="sc-filter-label">Action: </label>
+      </div>
+      <input
+        type="submit"
+        value="Delete"
+        class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-mr-10"
+        @click="bulkDelete"
+      />
+    </div>
+  </div>
+  <div class="sc-table-responsive">
+    <table class="sc-table">
+      <thead>
+        <tr style="height: 25px">
+          <th class="newsfeed-th">
+            {{checkedIds.length >= 5 ? 'Remove All' : 'Select All'}}
+            <input type="checkbox" :value="checkedIds.length >= 5 ?  true :false" @change="selectAll" />
+          </th>
+          <th style="width: 80px"># ID</th>
+          <th style="width: 100px">CONTENT OWNER</th>
+          <th style="width: 250px">NEWSFEED</th>
+          <th style="width: 100px">
+            TYPE
+            <sortField v-show="!is_loading" field="object_type" :sort="sortParam" @sort="sort" />
+          </th>
+          <!-- <th>REASON</th> -->
+          <th style="width: 130px">
+            STATUS
+            <sortField v-show="!is_loading" field="verb" :sort="sortParam" @sort="sort" />
+          </th>
+          <th style="width: 130px">VIEW STATS</th>
+          <th style="width: 130px">INTERACTION STATS</th>
+          <th style="width: 130px">
+            CREATED
+            <sortField v-show="!is_loading" field="created_at" :sort="sortParam" @sort="sort" />
+          </th>
+          <th style="width: 200px">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <div class="loader" v-if="is_loading" style="width: 100%; text-align: center">
+          <ball-pulse-loader color="#000000" size="20px"></ball-pulse-loader>
+        </div>
+
+        <TableEmpty :cols="10" v-if="!is_loading && !(data && data.length)" />
+        <template v-for="(newsfeed, key) in data">
+          <tr :key="key">
+            <td>
+              <input type="checkbox" :id="newsfeed._id" :value="newsfeed._id" v-model="checkedIds" />
+            </td>
+            <td><a target="_BLANK" :href="`${SOCO_WEB_URL}/s/${newsfeed._id}`">{{newsfeed._id.substring(10)}}</a></td>
+            <td v-if="typeof newsfeed.actor !== 'undefined'">{{ newsfeed.actor.name }}</td>
+            <td v-else>-</td>
+            <td v-if="newsfeed && newsfeed.object_type == 'vote' &&  newsfeed.vote">{{ newsfeed.vote.question }}</td>
+            <td v-else-if="newsfeed && newsfeed.object_type == 'add-review' && newsfeed['review']">
+              Review Product:<br />
+              <p v-if="newsfeed.review.product && newsfeed.review.product.name">
+                <b>{{ newsfeed.review.product.name }}</b> <br />
+                <b class="combination-name">{{ productCombinationName(newsfeed.review.product) }}</b>
+              </p>
+              <p v-if="newsfeed.review.details">{{ newsfeed.review.details.substring(0, 200) }}</p>
+            </td>
+            <td v-else-if="newsfeed && newsfeed.object_type == 'video' &&  newsfeed.video">
+              {{ newsfeed.video.post_title }}
+            </td>
+            <td v-else-if="newsfeed && newsfeed.object_type == 'article' &&  newsfeed.article">
+              {{ newsfeed.article.post_title }}
+            </td>
+            <td v-else-if="newsfeed && newsfeed.object_type == 'photo-tagging' &&  newsfeed['photo-tagging']">
+              <div class="wrap-text">
+                {{ String(newsfeed['photo-tagging'].caption).substring(0, 200) }}
+                <span v-if="String(newsfeed['photo-tagging'].caption).length > 200">...</span>
+              </div>
+            </td>
+            <td v-else-if="newsfeed && newsfeed.object_type == 'collection' &&  newsfeed.collection">
+              {{ newsfeed.collection.title }}
+            </td>
+            <td v-else-if="newsfeed && newsfeed.object_type == 'horoscope' &&  newsfeed.horoscope">
+              {{ newsfeed.horoscope.title || newsfeed.horoscope.summary }}
+            </td>
+            <td v-else></td>
+
+            <td>{{newsfeed.object_type}}</td>
+            <td v-if="newsfeed.verb == 'add'">Original</td>
+            <td v-else-if="newsfeed.verb == 'reshare'">Reshare</td>
+            <td>{{newsfeed.total_views}}</td>
+            <!-- <td>{{newsfeed.deleted_reason}}</td> -->
+
+            <td>
+              <p>Reshare: {{ newsfeed.total_reshares }}</p>
+              <p>Comment: {{ newsfeed.total_comments }}</p>
+              <p>Report: {{ newsfeed.total_reports }}</p>
+              <p>Bookmark: {{ newsfeed.total_bookmarks }}</p>
+              <p>Like: {{ newsfeed.total_likes }}</p>
+              <p>Dislike: {{ newsfeed.total_dislikes }}</p>
+            </td>
+            <td>
+              {{ newsfeed.created_at }}
+              <template v-if="newsfeed.review && newsfeed.review.source"
+                >({{ newsfeed.review.source.includes("vn") ? "Vietnam" : "Indonesia" }})</template
+              >
+            </td>
+
+            <td>
+              <div>
+                <span
+                  title="Undo"
+                  aria-hidden="true"
+                  class="fa fa fa-undo btn_group"
+                  @click="undo(newsfeed._id)"
+                ></span>
+                <template
+                  v-if="newsfeed && newsfeed.object_type == 'add-review' &&  newsfeed.review && !newsfeed.is_deleted"
+                >
+                  <span
+                    title="Preview"
+                    aria-hidden="true"
+                    class="fa fa-eye btn_group"
+                    @click.prevent="showModalDetail(newsfeed)"
+                  ></span>
+                </template>
+                <span
+                  title="Trash"
+                  aria-hidden="true"
+                  class="fa fa-trash btn-delete"
+                  @click="trash(newsfeed._id)"
+                ></span>
+              </div>
+            </td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+  </div>
+  <div class="sc-pagination-page">
+    <div class="sc-pagination-content">
+      <div class="sc-pagination-text-container">
+        <div class="sc-pagination-text">Page: {{ pagination.currentPage }} out of {{ pagination.totalPage}}</div>
+        <div class="sc-pagination-text">
+          Total Record: {{ is_loading_count ? 'Counting...' : pagination.currentTotalRecord }}
+        </div>
+      </div>
+      <div class="table-pagination">
+        <DisplayPerPage :all="all" @display="display"></DisplayPerPage>
+        <Pagination :limit="pagination.limit" :skip="pagination.skip" :total="pagination.totalPage" @page="setSkip" />
+      </div>
+    </div>
+  </div>
+  <ModalDetailReview v-if="showModalDetailReview" />
+  <ModalRelocate v-if="showModalRelocate" />
+  <ModalConfirmation v-if="showModalConfirmation" @reloadTable="fetchData" />
+</div>

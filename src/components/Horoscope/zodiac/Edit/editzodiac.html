@@ -1,0 +1,38 @@
+<div class="sc-form">
+  <div class="sc-form-container">
+    <div class="sc-form-title">EDIT ZODIAC</div>
+
+    <div class="sc-form-group">
+      <label for="brand_name" class="sc-form-label">NAME</label>
+      <div class="sc-form-child-group">
+        <input class="sc-form-input" id="name" name="name" type="text" v-model="name" />
+      </div>
+    </div>
+
+    <div class="sc-form-group">
+      <label for="brand_name" class="sc-form-label">START DATE</label>
+      <div class="sc-form-child-group">
+        <input class="sc-form-input" id="name" name="name" type="Date" v-model="startdate" />
+      </div>
+    </div>
+
+    <div class="sc-form-group">
+      <label for="brand_name" class="sc-form-label">END DATE</label>
+      <div class="sc-form-child-group">
+        <input class="sc-form-input" id="name" name="name" type="Date" v-model="enddate" />
+      </div>
+    </div>
+
+    <div class="sc-form-group">
+      <div>
+        <input
+          type="Submit"
+          v-on:click="editzodiac()"
+          value="Submit"
+          id="form_submit_btn"
+          class="sc-btn sc-btn-rounded sc-btn-md sc-btn-primary sc-uppercase"
+        />
+      </div>
+    </div>
+  </div>
+</div>

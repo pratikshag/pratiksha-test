@@ -1,0 +1,150 @@
+<div>
+  <div class="sc-form">
+    <div class="sc-form-title">Recommendation Quiz</div>
+    <form id="form_recomendationQuiz" data-vv-scope="form_recomendationQuiz" class="sc-form-container">
+      <div class="loader">
+        <ball-pulse-loader v-if="is_loading" color="#000000" size="20px"></ball-pulse-loader>
+      </div>
+      <div class="sc-form-group" :class="{'has-error': errors.has('form_recomendationQuiz.question') }">
+        <label class="sc-form-label" for="brand_name">Question</label>
+        <div class="col-sm-8">
+          <input
+            class="sc-form-input"
+            id="question"
+            name="question"
+            type="text"
+            v-model="data.question"
+            v-validate="'required'"
+          />
+          <p v-show="errors.has('form_recomendationQuiz.question')" class="alert">
+            {{ errors.first('form_recomendationQuiz.question') }}
+          </p>
+        </div>
+      </div>
+
+      <div class="sc-form-group" :class="{'has-error': errors.has('form_recomendationQuiz.status') }">
+        <label class="sc-form-label" for="brand_name">Status</label>
+        <div class="col-sm-8">
+          <select class="sc-form-input" id="status" name="status" v-model="data.is_active" v-validate="'required'">
+            <option value="true">Active</option>
+            <option value="false">Not Active</option>
+          </select>
+          <p v-show="errors.has('form_recomendationQuiz.status')" class="alert">
+            {{ errors.first('form_recomendationQuiz.status') }}
+          </p>
+        </div>
+      </div>
+
+      <div class="sc-form-group">
+        <table class="table-post" style="width: 100%">
+          <thead>
+            <tr>
+              <td style="width: 200px">Option</td>
+              <td style="width: 150px">Tags</td>
+              <td>Image</td>
+              <td tyle="width: 150px;">
+                Action
+                <button v-if="data.options.length < 4" @click.prevent="addOption">
+                  <i class="fa fa-plus" style="color: orange"></i>
+                </button>
+              </td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(option, key) in data.options">
+              <td>
+                <input type="text" v-model="data.options[key].option" style="width: 100%" />
+              </td>
+              <td>
+                <selectTags
+                  :indexOption="key"
+                  :selectedText="option.tags"
+                  :tags="tags"
+                  @tagsChange="changeTags"
+                ></selectTags>
+              </td>
+              <td>
+                <ball-pulse-loader
+                  v-if="option.image && option.image == 'uploading' && state.isProcess"
+                  color="#000000"
+                  size="20px"
+                ></ball-pulse-loader>
+                <img
+                  v-else-if="option.image"
+                  :src="option.image"
+                  style="max-width: 100px; max-height: 100px; margin-bottom: 5px"
+                />
+              </td>
+              <td>
+                <button title="Change Image" @click.prevent="triggerUpload(key)" style="margin-right: 10px">
+                  <i class="fa fa-image"></i>
+                </button>
+                <!-- <button @click.prevent="delOption(key)"><i class="fa fa-trash"></i></button> -->
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="sc-form-group">
+          <div>
+            <button
+              @click.prevent="saveData('form_recomendationQuiz')"
+              class="sc-btn sc-btn-md sc-btn-rounded sc-uppercase sc-btn-primary"
+            >
+              Simpan
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div id="undertone-modal" class="custom-modal modal-mask modal--upload-picture" v-if="showModal">
+    <div slot="body">
+      <div class="modal-body">
+        <div class="modal-header">
+          <h4 class="modal__heading">PILIH COVER IMAGE KAMU</h4>
+          <span class="link modal-dismiss" @click="showModal = false, isFileChoose = false, fileSizeExceed = false"
+            >&times;</span
+          >
+        </div>
+        <div class="croppa-wrapper">
+          <croppa
+            v-model="croppa"
+            :height="460.8"
+            :width="768"
+            :prevent-white-space="false"
+            initial-size="contain"
+            :file-size-limit="5242880"
+            :accept="'image/jpg,image/jpeg,image/png'"
+            :placeholder="'Click here to upload an image'"
+            @file-size-exceed="onFileSizeExceed"
+            @file-choose="onFileChoose"
+            @image-remove="isFileChoose = false, fileSizeExceed = false"
+          >
+          </croppa>
+        </div>
+        <div class="field" v-if="fileSizeExceed">
+          <div class="fieldarea">
+            <p class="alert">Ukuran maksimum 5MB</p>
+          </div>
+        </div>
+        <a
+          href="#"
+          class="close button button-trans modal-upload-foto-save"
+          @click.prevent="saveCrop"
+          v-show="isFileChoose"
+          v-if="!isSaveCrop"
+          >SAVE</a
+        >
+        <!-- <loaderspin v-else /> -->
+
+        <div class="field fieldinfo" v-show="isFileChoose">
+          <div class="fieldarea">
+            <p><i class="icon_lightbulb"></i> Atur foto kamu dengan scroll</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

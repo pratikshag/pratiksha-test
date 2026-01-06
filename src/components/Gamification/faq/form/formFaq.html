@@ -1,0 +1,73 @@
+<div>
+  <div class="sc-form">
+    <div class="loader">
+      <ball-pulse-loader v-if="is_loading" color="#000000" size="20px"></ball-pulse-loader>
+    </div>
+    <div class="sc-form-title">FAQ</div>
+
+    <form id="formFaq" data-vv-scope="formFaq" class="sc-form-container">
+      <div class="sc-form-group" :class="{'has-error': errors.has('formFaq.version') }">
+        <label for="brand_name" class="sc-form-label">Version</label>
+        <div class="sc-form-child-group">
+          <select class="sc-form-input" id="version" v-model="faq.version" required name="version">
+            <option value="id">ID</option>
+            <option value="vn">VN</option>
+          </select>
+
+          <p v-show="errors.has('formFaq.version')" class="alert">{{ errors.first('formFaq.version') }}</p>
+        </div>
+      </div>
+
+      <div class="sc-form-group" :class="{'has-error': errors.has('formFaq.position') }">
+        <label for="urutan" class="sc-form-label">Display Order</label>
+        <div class="sc-form-child-group">
+          <select class="sc-form-input" id="position" name="position" required v-model="faq.position">
+            <option value="">Choose Order</option>
+            <option value="null">0</option>
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+          </select>
+        </div>
+        <p v-show="errors.has('formFaq.version')" class="alert">{{ errors.first('formFaq.position') }}</p>
+      </div>
+
+      <TextEditor
+        id="title"
+        v-model="faq.title"
+        label="Question"
+        class="sc-form-group sc-form-group-full"
+        v-validate="'required'"
+      />
+
+      <TextEditor
+        id="description"
+        v-model="faq.description"
+        label="Answer"
+        class="sc-form-group sc-form-group-full"
+        v-validate="'required'"
+      />
+    </form>
+
+    <div class="sc-form-group sc-mt-15">
+      <input
+        type="Submit"
+        v-on:click="saveFaq('formFaq')"
+        value="SAVE"
+        id="form_submit_btn"
+        class="sc-btn sc-btn-lg sc-btn-rounded sc-btn-primary sc-uppercase"
+        :disabled="disabledButton"
+      />
+    </div>
+  </div>
+</div>

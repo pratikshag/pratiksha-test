@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="90px" height="90px" viewBox="0 0 90 90" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 48.2 (47327) - http://www.bohemiancoding.com/sketch -->
+    <title>Group 4</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <radialGradient cx="29.9614583%" cy="-16.0645833%" fx="29.9614583%" fy="-16.0645833%" r="117.835215%" id="radialGradient-1">
+            <stop stop-color="#F8C3D7" offset="0%"></stop>
+            <stop stop-color="#B22655" offset="100%"></stop>
+        </radialGradient>
+        <rect id="path-2" x="0" y="0" width="90" height="90"></rect>
+    </defs>
+    <g id="User-profile---pop-up" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(-238.000000, -227.000000)">
+        <g id="Group-3" transform="translate(-1.000000, 0.000000)">
+            <rect id="background" fill="#F8F8F8" x="1" y="0" width="360" height="1777"></rect>
+            <g id="PROFILE" transform="translate(1.000000, 109.000000)">
+                <rect id="box" fill="#FFFFFF" x="0" y="0" width="360" height="251"></rect>
+                <g id="profile-content" transform="translate(16.000000, 16.000000)" fill="#231F20" font-family="BrandonText-Regular, Brandon Text" font-size="14" font-weight="normal" line-spacing="19">
+                    <text id="Tanri-Abeng-Universi">
+                        <tspan x="0" y="79">Tanri Abeng University, Corporate Communication, Faculty Member</tspan>
+                    </text>
+                </g>
+            </g>
+        </g>
+        <rect id="overlay" fill-opacity="0.482110507" fill="#000000" x="0" y="0" width="360" height="1201"></rect>
+        <g id="Pop-up" transform="translate(16.000000, 95.000000)">
+            <rect id="Rectangle" fill="#FFFFFF" x="0" y="0" width="328" height="515" rx="2"></rect>
+            <g id="Square" transform="translate(15.000000, 100.000000)">
+                <g id="Profile-share-3" transform="translate(207.000000, 32.000000)">
+                    <g id="Group-4">
+                        <mask id="mask-3" fill="white">
+                            <use xlink:href="#path-2"></use>
+                        </mask>
+                        <use id="Mask" fill="url(#radialGradient-1)" xlink:href="#path-2"></use>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

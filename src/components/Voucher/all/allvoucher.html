@@ -1,0 +1,114 @@
+<div>
+  <div class="sc-pagination">
+    <h1 class="sc-pagination-label">Pagination</h1>
+    <div class="sc-pagination-form">
+      <input
+        class="sc-btn sc-btn-secondary sc-pagination-btn"
+        v-if="currentPage > 1"
+        type="submit"
+        value="Prev"
+        v-on:click="gotoPage(currentPage - 1)"
+      />
+      <input
+        class="sc-pagination-input"
+        type="number"
+        min="1"
+        :max="totalPage"
+        name=""
+        v-model="currentPage"
+        @keyup.enter.prevent="gotoPage(currentPage)"
+      />
+      <input
+        class="sc-btn sc-btn-secondary sc-pagination-btn"
+        v-if="totalPage > currentPage"
+        type="submit"
+        value="Next"
+        v-on:click="gotoPage(currentPage+1)"
+      />
+    </div>
+  </div>
+
+  <div class="sc-filter">
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Search Voucher: </label>
+      <input class="sc-filter-input" type="input" v-model="search" @keyup="searchQuery" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Select Status: </label>
+      <select name="cat" class="sc-filter-input" v-model="status">
+        <option value="" selected>-- Select Status --</option>
+        <option value="true">Active</option>
+        <option value="false">Not Active</option>
+      </select>
+    </div>
+    <div class="sc-filter-item sc-filter-button">
+      <input
+        type="submit"
+        value="Filter"
+        class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-mr-10"
+        @click="filterBystatus(status)"
+      />
+    </div>
+  </div>
+
+  <div class="sc-table-responsive">
+    <table class="sc-table">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Banner</th>
+          <th style="min-width: 140px">Loyalty Points</th>
+          <th style="min-width: 140px">Expired By</th>
+          <th style="min-width: 140px">Users Redeemed</th>
+          <th width="140px">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <TableEmpty :cols="6" v-if="!is_loading && !(allVoucher && allVoucher.length)" />
+
+        <tr v-for="voucher in allVoucher">
+          <td>{{voucher.title}}</td>
+          <td>
+            <img v-if="voucher.thumbnail" :src="voucher.thumbnail" style="width: 100px; height: 100px" />
+          </td>
+          <td>{{voucher.points_value}}</td>
+
+          <td>{{ new Date(voucher.end_date).toDateString() }}</td>
+          <td>{{voucher.total_redeem_voucher}}</td>
+          <td>
+            <div>
+              <router-link :to="`/voucher/edit/${voucher._id}`">
+                <span title="Edit" aria-hidden="true" class="fa fa-pencil btn_edit"></span>
+              </router-link>
+              <span
+                title="Delete"
+                aria-hidden="true"
+                class="fa fa-trash btn_delete"
+                v-on:click="deleteVoucher(voucher._id)"
+              ></span>
+              <span
+                title="Export"
+                aria-hidden="true"
+                class="fa fa-arrow-up btn_delete"
+                v-on:click="showModal=true;voucher_id=voucher._id;voucherInfo=voucher"
+              ></span>
+            </div>
+            <div id="myModal" class="modal" v-if="showModal">
+              <!-- Modal content -->
+              <div class="modal-content">
+                <span v-on:click="showModal=false" class="close">&times;</span>
+                <p style="padding: 5px 10px">From:</p>
+                <input type="date" v-model="from" />
+                <p style="padding: 5px 10px">To:</p>
+                <input type="date" v-model="to" />
+                <downloadexcel class="button" style="width: 200px" :fetch="exportdata" :fields="json_fields" type="csv">
+                  Download Excel
+                </downloadexcel>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

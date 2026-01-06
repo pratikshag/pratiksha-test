@@ -1,0 +1,65 @@
+<div>
+  <div class="sc-table-title">Level Rewards</div>
+  <!-- <router-link :to="{ name: 'add-level-content'}" class="sc-btn sc-btn-lg sc-btn-primary sc-btn-rounded"> + ADD </router-link> -->
+  <div class="sc-filter">
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Search: </label>
+      <input class="sc-filter-input" type="input" v-model="filter.name" @keyup="searchQuery" />
+    </div>
+  </div>
+
+  <div class="loader" v-if="is_loading">
+    <ball-pulse-loader color="#000000" size="20px"></ball-pulse-loader>
+  </div>
+
+  <div class="sc-table-responsive">
+  <table class="sc-table">
+    <thead>
+      <tr>
+        <th style="width: 100px">ID</th>
+        <th>Reward Name</th>
+        <th>Cover Image</th>
+        <th>Description</th>
+        <th>Status</th>
+        <th style="width: 100px">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <TableEmpty :cols="6" v-if="!is_loading && !(data && data.length)" />
+
+      <tr v-for="level in data">
+        <td>{{ level._id.substring(18) }}</td>
+        <td>{{ level.name }}</td>
+        <td>
+          <img v-if="level.cover_image" :src="level.cover_image" style="height: 100px; margin-bottom: 5px" />
+        </td>
+        <td>{{ level.description }}</td>
+        <td>{{ level.status }}</td>
+        <td>
+          <div>
+            <a style="color: #225d42"
+              ><router-link :to="`content/${level._id}`" style="color: #225d42">Content</router-link></a
+            >
+            <br />
+            <a style="color: #225d42"
+              ><router-link :to="`${level._id}/benefits`" style="color: #225d42">Benefit</router-link></a
+            >
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="sc-pagination-page">
+    <div class="sc-pagination-content">
+      <div class="sc-pagination-text-container">
+        <div class="sc-pagination-text">Page: {{ pagination.currentPage }} out of {{ pagination.totalPage}}</div>
+        <div class="sc-pagination-text">Total Record: {{ pagination.currentTotalRecord }}</div>
+      </div>
+      <div class="table-pagination">
+        <DisplayPerPage :all="all" @display="display"></DisplayPerPage>
+        <Pagination :limit="pagination.limit" :skip="pagination.skip" :total="pagination.totalPage" @page="setSkip" />
+      </div>
+    </div>
+  </div>
+</div>

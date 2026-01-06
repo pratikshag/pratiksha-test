@@ -1,0 +1,78 @@
+.toasted-container .toasted .action.ripple{
+	font-size: 30px;
+	color: #8c8582;
+	right: 10px;
+	position: absolute;
+	top: 4px;
+	font-weight: 300;
+	text-decoration: none !important;
+}
+.toasted-container .toasted.toasted-primary, .toasted.primary {
+	display: flex;
+	background: white !important;
+	color: black;
+	align-items: center;
+	justify-content: flex-start;
+	padding: 0;
+	border-radius: 4px;
+	font-family: 'lato-regular', sans-serif;
+	font-size: 15px;
+	box-shadow: 0 3px 7px 0 rgba(158, 158, 158, 0.5);
+	background-color: #ffffff;
+	margin: 6px auto;
+	max-width: 100%;
+	height: auto;
+	overflow: hidden;
+	width: 430px;
+	&.info{
+		background-color: white;
+		padding: 12px;
+		color: black;
+		.toast-icon {
+			border-radius: 4px;
+		}
+	}
+	.toast-message {
+    	line-height: 20px;
+		padding-right: 16px;
+		flex:1;
+		font-size: 14px;
+	}
+	.toast-icon {
+		background-color: #f083a6;
+		background-size: contain;
+		background-position: bottom;
+        background-repeat: no-repeat;
+		background-image: url('/assets/img/bg-toasted.svg');
+		width: 55px;
+		height: 50px;
+		font-size: 33px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: white;
+		margin-right: 23px;
+		&.error{
+			background-color: #d0021b;
+		}
+	}
+}
+
+@media (max-width: 767px) {
+	.toasted-container .toasted.toasted-primary {
+		.toast-message.duplicate-card {
+			font-size: 13px;
+		}
+	}
+}
+
+@media (max-width: 440px) {
+	.toasted-container {
+		.toasted.toasted-primary {
+			width: 310px;
+			.toast-message {
+				padding-right: 22px;
+			}
+		}
+	}
+}

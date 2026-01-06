@@ -1,0 +1,204 @@
+<div>
+  <div>
+    <!-- <a style="color:#225d42"><router-link :to="{ name: 'add-banners'}" style="color:#225d42" class="btn btn-success"> + ADD </router-link></a> -->
+    <router-link :to="{ name: 'add-banners'}" class="sc-btn sc-btn-rounded sc-btn-lg sc-btn-primary">
+      + ADD
+    </router-link>
+  </div>
+
+  <div class="sc-filter">
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Search: </label>
+      <input class="sc-filter-input" type="text" placeholder="Search Name" v-model="filter.name" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Locale: </label>
+      <select class="sc-filter-input" name="cat" v-model="filter.created_from">
+        <option value="" selected>All</option>
+        <option value="sociolla">ID</option>
+        <option value="sociolla_vn">VN</option>
+      </select>
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Mobile Location: </label>
+      <select
+        class="sc-filter-input"
+        name="mobile-location"
+        value="filter['mobile_locations']"
+        @change="(e) => filter['mobile_locations'] = e.target.value"
+      >
+        <option value="" selected>All</option>
+        <option value="ios-home">ios-home</option>
+        <option value="ios-aboutpnr">ios-aboutpnr</option>
+        <option value="ios-aboutpnr-main">ios-aboutpnr-main</option>
+        <option value="ios-aboutpnr-howtoearn">ios-aboutpnr-howtoearn</option>
+        <option value="ios-aboutpnr-rewardsbenefits">ios-aboutpnr-rewardsbenefits</option>
+        <option value="ios-aboutpnr-rewardsjourney">ios-aboutpnr-rewardsjourney</option>
+        <option value="ios-shop">ios-shop</option>
+        <option value="ios-reviews">ios-reviews</option>
+        <option value="ios-newsfeed">ios-newsfeed</option>
+        <option value="android-home">android-home</option>
+        <option value="android-aboutpnr">android-aboutpnr</option>
+        <option value="android-aboutpnr-main">android-aboutpnr-main</option>
+        <option value="android-aboutpnr-howtoearn">android-aboutpnr-howtoearn</option>
+        <option value="android-aboutpnr-rewardsbenefits">android-aboutpnr-rewardsbenefits</option>
+        <option value="android-aboutpnr-rewardsjourney">android-aboutpnr-rewardsjourney</option>
+        <option value="android-shop">android-shop</option>
+        <option value="android-reviews">android-reviews</option>
+        <option value="android-newfeed">android-newfeed</option>
+        <option value="ios-my-profile">ios-my-profile</option>
+        <option value="android-my-profile">android-my-profile</option>
+        <option value="ios-review-reminder">ios-review-reminder</option>
+        <option value="android-review-reminder">android-review-reminder</option>
+        <option value="ios-what-do-you-love-about-this">ios-what-do-you-love-about-this</option>
+        <option value="android-what-do-you-love-about-this">android-what-do-you-love-about-this</option>
+      </select>
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Location </label>
+      <select class="sc-filter-input" name="cat" v-model="filter.location">
+        <option value="" selected>All</option>
+        <option value="loyalty-point">Loyalty Point</option>
+        <option value="home">Home Soco</option>
+        <option value="homepage-review">Homepage Review</option>
+        <option value="home-right-panel">Home Right Panel - SBN</option>
+        <option value="apps-mgm">Apps MGM</option>
+        <option value="soco-pnr">SOCO About PNR</option>
+        <option value="soco-pnr-main">SOCO About PNR - AboutSP - Main</option>
+        <option value="soco-pnr-howtoearn">SOCO About PNR - AboutSP - HowToEarn</option>
+        <option value="soco-pnr-rewardsbenefits">SOCO About PNR - Rewards - Benefit</option>
+        <option value="soco-beauty-star-benefit-voucher">SOCO Beauty Star - Beauty Star Benefit - Voucher</option>
+        <option value="soco-pnr-rewardsjourney">SOCO About PNR - Rewards - Journey</option>
+        <option value="expert-choice-banner">Expert Homepage Review</option>
+        <option value="expert-review-page">Expert Review Page</option>
+        <option value="soco-non-login-other-user-banner">SOCO - Non Login Other User Banner</option>
+      </select>
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Status: </label>
+      <select class="sc-filter-input" name="cat" v-model="filter.status">
+        <option value="" selected>All</option>
+        <option value="active">Active</option>
+        <option value="inactive">Non Active</option>
+      </select>
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Created by (email): </label>
+      <input class="sc-filter-input" type="text" placeholder="Search Name" v-model="filter.created_by" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Created At </label>
+      <div class="sc-filter-item sc-filter-item-row">
+        <div>
+          <span>From </span>
+          <input class="sc-filter-input m-r-10" type="date" v-model="filter.created_date_begin" />
+        </div>
+        <div>
+          <span>To</span>
+          <input class="sc-filter-input" type="date" v-model="filter.created_date_end" />
+        </div>
+      </div>
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Updated At </label>
+      <div class="sc-filter-item sc-filter-item-row">
+        <div>
+          <span>From </span>
+          <input class="sc-filter-input m-r-10" type="date" v-model="filter.updated_date_begin" />
+        </div>
+        <div>
+          <span>To</span>
+          <input class="sc-filter-input" type="date" v-model="filter.updated_date_end" />
+        </div>
+      </div>
+    </div>
+    <div class="sc-filter-item sc-filter-button">
+      <input
+        type="submit"
+        value="Filter"
+        class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded"
+        @click="fetchData()"
+      />
+    </div>
+  </div>
+
+  <div class="loader" v-if="is_loading">
+    <ball-pulse-loader color="#000000" size="20px"></ball-pulse-loader>
+  </div>
+  <div class="sc-table-responsive">
+    <table class="sc-table">
+      <thead>
+        <tr>
+          <th style="width: 100px">ID</th>
+          <th>NAME</th>
+          <th>IMAGE</th>
+          <th>STATUS</th>
+          <th>ORDER</th>
+          <th>TYPE</th>
+          <th>LOCALE</th>
+          <th>LOCATION</th>
+          <th>CREATED BY</th>
+          <th>CREATED AT</th>
+          <th>UPDATED AT</th>
+          <th style="width: 100px">ACTION</th>
+        </tr>
+      </thead>
+      <tbody>
+        <TableEmpty :cols="11" v-if="!is_loading && !(data && data.length)" />
+
+        <tr v-for="banner in data" :key="banner._id">
+          <td>{{ banner._id.substring(18) }}</td>
+          <td>{{ banner.name }}</td>
+          <td>
+            <img v-if="banner.image" :src="banner.image" style="height: 100px; margin-bottom: 5px" />
+          </td>
+          <td>
+            <a
+              class="sc-btn sc-btn-md sc-btn-rounded"
+              :class="{
+                'sc-btn-primary': banner.status === 'active',
+                'sc-btn-danger': banner.status !== 'active',
+              }"
+              @click="toggleStatus(banner)"
+            >
+              <i :class="`fa fa-${banner.status === 'active' ? 'check' : 'times'}`"></i>
+              <span style="margin-left: 8px">{{ banner.status === 'active' ? 'Active' : 'Non Active' }}</span>
+            </a>
+          </td>
+          <td>{{ !banner.order ? 0 : banner.order }}</td>
+          <td>{{ banner.screen_type }}</td>
+          <td>{{ banner.locale }}</td>
+          <td>{{ banner.location }}</td>
+          <td>{{ banner.created_by && banner.created_by.email || '' }}</td>
+          <td>{{ (banner.created_at)? dateFormat(banner.created_at) : '' }}</td>
+          <td>{{ (banner.updated_at)? dateFormat(banner.updated_at) : '' }}</td>
+          <td>
+            <div class="sc-table-btn column-btn">
+              <router-link
+                class="sc-table-btn-item sc-btn sc-btn-primary sc-btn-rounded sc-btn-sm"
+                :to="`/banners/edit/${banner._id}`"
+                >Edit</router-link
+              >
+              <a class="sc-table-btn-item sc-btn sc-btn-primary sc-btn-rounded sc-btn-sm" v-on:click="trash(banner._id)"
+                >DELETE</a
+              >
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sc-pagination-page">
+    <div class="sc-pagination-content">
+      <div class="sc-pagination-text-container">
+        <div class="sc-pagination-text">Page: {{ pagination.currentPage }} out of {{ totalPage }}</div>
+        <div class="sc-pagination-text">Total Record: {{ pagination.currentTotalRecord }}</div>
+      </div>
+      <div class="table-pagination">
+        <DisplayPerPage :all="all" @display="display"></DisplayPerPage>
+        <Pagination :limit="pagination.limit" :skip="pagination.skip" :total="pagination.totalPage" @page="setSkip" />
+      </div>
+    </div>
+  </div>
+</div>

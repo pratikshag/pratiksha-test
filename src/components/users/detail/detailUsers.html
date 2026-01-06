@@ -1,0 +1,1355 @@
+<div>
+  <div class="sc-table-title">Detail User</div>
+  <div class="sc-table-responsive">
+    <table class="sc-table sc-table-detail" v-if="Object.keys(user).length">
+      <tr>
+        <td>Username</td>
+        <td>
+          <template v-if="formUserName">
+            <form id="formUser" data-vv-scope="formUser" @submit.prevent="submitForm">
+              <div class="sc-form-table">
+                <div class="sc-form-input-addon">
+                  <div class="sc-area-addon">
+                    <span class="addon username">
+                      <span>@</span>
+                    </span>
+                    <input
+                      class="sc-form-table-input username"
+                      type="text"
+                      id="username"
+                      name="username"
+                      v-model="user_name"
+                      v-validate="'required|alpha_dash|min:4|max:16'"
+                    />
+                  </div>
+                  <span v-show="errors.has('formUser.username')" class="alert">
+                    {{ errors.first('formUser.username') }}
+                  </span>
+                </div>
+                <button
+                  @click="modalOpen = true"
+                  :disabled="errors.has('formUser.username') || !user_name"
+                  class="sc-btn sc-btn-height-new sc-btn-red sc-btn-rounded sc-btn-xs sc-uppercase"
+                >
+                  submit
+                </button>
+                <button @click="showFormUser" class="sc-btn sc-btn-height-new sc-btn-rounded sc-btn-xs sc-uppercase">
+                  cancel
+                </button>
+              </div>
+            </form>
+          </template>
+          <template v-else>
+            {{ user.user_name}}
+            <button
+              v-if="hasActions(userRole)"
+              @click="showFormUser"
+              class="sc-btn sc-btn-red sc-btn-rounded sc-btn-xs sc-uppercase"
+            >
+              Edit
+            </button>
+          </template>
+        </td>
+      </tr>
+
+      <tr>
+        <td>Email Address</td>
+        <td>
+          <template v-if="formEmail">
+            <form id="formEmailUser" data-vv-scope="formEmailUser" @submit.prevent="submitForm">
+              <div class="sc-form-table">
+                <div class="sc-form-input-addon">
+                  <div class="sc-area-addon">
+                    <input
+                      class="sc-form-table-input"
+                      id="email"
+                      name="email"
+                      type="text"
+                      v-validate
+                      v-model="email"
+                      data-vv-rules="required|email"
+                      @blur="verifyEmail(email)"
+                    />
+                  </div>
+                  <template v-if="!emailCheck.loading && emailCheck.error">
+                    <p class="alert" style="font-size: inherit">{{ emailCheck.error }}</p>
+                  </template>
+                  <template v-else>
+                    <span v-show="errors.has('formEmailUser.email')" class="alert">
+                      {{ errors.first('formEmailUser.email') }}
+                    </span>
+                  </template>
+                </div>
+                <button
+                  @click="modalOpen = true"
+                  :disabled="errors.has('formEmail.email') || !email || !isEmailAvailable"
+                  class="sc-btn sc-btn-height-new sc-btn-red sc-btn-rounded sc-btn-xs sc-uppercase"
+                >
+                  submit
+                </button>
+                <button @click="showFormEmail" class="sc-btn sc-btn-height-new sc-btn-rounded sc-btn-xs sc-uppercase">
+                  cancel
+                </button>
+              </div>
+            </form>
+          </template>
+          <template v-else>
+            <div style="display: flex; align-items: center">
+              <img v-if="user.is_google" src="@/img/google.svg" height="16" width="16" style="margin-right: 8px" />
+              <span style="vertical-align: middle">{{ user.email }}</span>
+            </div>
+            <button
+              v-if="hasActions(userRole) && !user.is_google"
+              @click="showFormEmail"
+              class="sc-btn sc-btn-red sc-btn-rounded sc-btn-xs sc-uppercase"
+            >
+              Edit
+            </button>
+          </template>
+        </td>
+      </tr>
+
+      <tr>
+        <td>Full Name</td>
+        <td>{{ user.first_name }} {{ user.last_name }}</td>
+      </tr>
+
+      <tr>
+        <td>Date of birth</td>
+        <td>
+          {{ showFullBirthday ? formattedBirthday : maskedBirthday }}
+
+          <template v-if="(user.birthday_date || user.date_of_birth) && !showFullBirthday">
+            <button
+              @click.prevent="showFullBirthday = true"
+              class="sc-btn sc-btn-blue sc-btn-rounded sc-btn-xs sc-uppercase"
+            >
+              Show
+            </button>
+          </template>
+
+          <template v-else>
+            <button
+              @click.prevent="openModalBirthDate()"
+              class="sc-btn sc-btn-red sc-btn-rounded sc-btn-xs sc-uppercase"
+            >
+              Change Date
+            </button>
+          </template>
+
+          <Datetime
+            v-model="selectBirthDate"
+            type="date"
+            v-show="modalBirthDate"
+            ref="datetimePicker"
+            :format="'YYYY-MM-DD'"
+          />
+          <span v-if="selectBirthDate" class="selected-datebirth-container">
+            <p class="selected-datebirth">{{ selectBirthDate | formatDate }}</p>
+            <button @click="modalOpen = true" class="sc-btn sc-btn-red sc-btn-rounded sc-btn-xs sc-uppercase">
+              Submit Change
+            </button>
+          </span>
+        </td>
+      </tr>
+
+      <tr>
+        <td>Phone Number</td>
+        <td>
+          <template v-if="formPhone">
+            <form id="formPhoneUser" data-vv-scope="formPhoneUser" @submit.prevent="submitForm">
+              <div class="sc-form-table">
+                <div class="sc-form-input-addon">
+                  <div class="sc-area-addon" style="position: relative">
+                    <span
+                      class="addon phone"
+                      @click="countryDropdownOpen = !countryDropdownOpen"
+                      style="cursor: pointer"
+                    >
+                      <img :src="selectedCountry.flag" class="sc__icon-flag" />
+                      {{ selectedCountry.phone_code }}
+                      <img src="/assets/img/triangle-down.svg" class="sc__icon-triangle" />
+                    </span>
+                    <div v-if="countryDropdownOpen" class="popup-container">
+                      <div class="popup-content">
+                        <multiselect
+                          v-model="selectedCountry"
+                          :options="countries"
+                          :searchable="true"
+                          :close-on-select="true"
+                          track-by="_id"
+                          label="name"
+                          placeholder="Search for a country"
+                          @select="selectCountry"
+                        >
+                          <template #singleLabel="{ option }">
+                            <div class="option-content">
+                              <img :src="option.flag" class="country-flag" />
+                              <span>{{ option.phone_code }} {{ option.name }}</span>
+                            </div>
+                          </template>
+                          <template #option="{ option }">
+                            <div class="option-content">
+                              <img :src="option.flag" class="country-flag" />
+                              <span>{{ option.phone_code }} {{ option.name }}</span>
+                            </div>
+                          </template>
+                        </multiselect>
+                      </div>
+                    </div>
+                    <input
+                      class="sc-form-table-input phone"
+                      type="text"
+                      id="phone_no"
+                      name="phone_no"
+                      v-model="phone_no"
+                      v-validate="'required|numeric|min:4|max:14'"
+                      @blur="onBlurInInputPhone($event.target.value)"
+                    />
+                  </div>
+                  <template v-if="!phoneCheck.loading && phoneCheck.error">
+                    <p class="alert" style="font-size: inherit">{{ phoneCheck.error }}</p>
+                  </template>
+                  <template v-else>
+                    <span v-show="errors.has('formPhoneUser.phone_no')" class="alert">
+                      {{ errors.first('formPhoneUser.phone_no') }}
+                    </span>
+                  </template>
+                </div>
+                <button
+                  @click="modalOpen = true"
+                  :disabled="errors.has('formPhoneUser.phone_no') || phoneCheck.error !== ''"
+                  class="sc-btn sc-btn-height-new sc-btn-red sc-btn-rounded sc-btn-xs sc-uppercase"
+                >
+                  submit
+                </button>
+                <button @click="showFormPhone" class="sc-btn sc-btn-height-new sc-btn-rounded sc-btn-xs sc-uppercase">
+                  cancel
+                </button>
+              </div>
+            </form>
+          </template>
+          <template v-else>
+            {{ user.phone_no }}
+            <button
+              v-if="hasActions(userRole)"
+              @click="showFormPhone"
+              class="sc-btn sc-btn-red sc-btn-rounded sc-btn-xs sc-uppercase"
+            >
+              Edit
+            </button>
+          </template>
+        </td>
+      </tr>
+
+      <tr>
+        <td>Country</td>
+        <td v-if="user && user.country">{{ user.country.name }}</td>
+        <td v-else-if="user && user.address && user.address.length">{{user.address[0].country.name}}</td>
+      </tr>
+
+      <tr>
+        <td>Province</td>
+        <td v-if="user.province">{{ user.province.name }}</td>
+        <td v-else></td>
+      </tr>
+
+      <tr>
+        <td>City</td>
+        <td v-if="user.city">{{ user.city.name }}</td>
+        <td v-else></td>
+      </tr>
+
+      <tr v-bind:style="styleLinePink">
+        <td>
+          User Level
+          <span v-if="user.level && user.level.current" class="sc__total_paid_text"
+            >| Total paid in sociolla over the past year from the reevaluation date.</span
+          >
+        </td>
+        <td v-if="user.level">
+          <template v-if="user.country && user.country.name === 'Indonesia'">
+            <template v-if="user.level && user.level.current">
+              {{ user.level.current.stage }}
+              <template v-if="hasActions(userRole)">
+                <button
+                  @click="syncLevel.confirmationModal = true"
+                  class="sc-btn sc-btn-red sc-btn-rounded sc-btn-sm sc-uppercase"
+                >
+                  Sync level
+                </button>
+              </template>
+              <span class="sc__total_paid_text"> | {{user.level.current.total_shopping}} </span>
+              <template v-if="hasActions(userRole)">
+                <button
+                  @click="syncTotalShoppingModalOpen = true"
+                  class="sc-btn sc-btn-red sc-btn-rounded sc-btn-sm sc-uppercase"
+                >
+                  Recalculate
+                </button>
+              </template>
+            </template>
+          </template>
+          <template v-else>
+            <template v-if="user.level && user.level.current">
+              {{ user.level.current.stage }}
+              <span class="sc__total_paid_text">| {{user.level.current.total_shopping}}</span>
+              <template v-if="hasActions(userRole)">
+                <button
+                  @click="syncTotalShoppingModalOpen = true"
+                  class="sc-btn sc-btn-red sc-btn-rounded sc-btn-sm sc-uppercase"
+                >
+                  Recalculate
+                </button>
+              </template>
+            </template>
+          </template>
+        </td>
+        <td v-else>SOCO MEMBER</td>
+      </tr>
+
+      <tr>
+        <td>Total SOCO point</td>
+        <td style="display: flex; align-items: center; gap: 8px">
+          {{ user.points ? user.points.count : 0}}
+          <button
+            @click="totalPoints.confirmationModal = true"
+            class="sc-btn sc-btn-red sc-btn-rounded sc-btn-sm sc-uppercase"
+          >
+            Sync Points
+          </button>
+        </td>
+      </tr>
+
+      <tr>
+        <td>Summary Point History</td>
+        <td style="display: flex; align-items: center; gap: 8px">
+          {{ Math.max(0, pointSummary.data) }}
+          <div
+            v-if="pointSummary.loading"
+            class="loaderspin"
+            style="margin: 0; height: 12px; width: 12px; display: inline-block"
+          ></div>
+          <button
+            v-else
+            @click="recalculatePointBalance"
+            class="sc-btn sc-btn-red sc-btn-rounded sc-btn-sm sc-uppercase"
+          >
+            Recalculate
+          </button>
+        </td>
+      </tr>
+
+      <tr class="row100 head">
+        <td>Point Earned From Shopping</td>
+        <td v-if="user.level">{{ userActivity.shopping_point }}</td>
+        <td v-else>0</td>
+      </tr>
+
+      <tr>
+        <td>Point Earned From Contributing in SOCO</td>
+        <td>{{ userActivity.contribution_point }}</td>
+      </tr>
+      <tr class="row100 head">
+        <td>Redeemed Point</td>
+        <td>{{ userActivity.redeem_point }}</td>
+      </tr>
+      <tr>
+        <td>Point Expired Date</td>
+        <td v-if="user.points && user.points.expiring_at">
+          {{ new Date(user.points.expiring_at).toLocaleDateString() }}
+        </td>
+        <td v-else>--</td>
+      </tr>
+      <tr>
+        <td>Follower</td>
+        <td>{{user.follower_count}}</td>
+      </tr>
+      <tr>
+        <td>Following</td>
+        <td>{{user.followee_count}}</td>
+      </tr>
+      <tr>
+        <td>Gender</td>
+        <td>{{ user.gender }}</td>
+      </tr>
+      <tr>
+        <td>Status Admin</td>
+        <td>{{user.is_admin_soco}}</td>
+      </tr>
+      <tr>
+        <td>Referral Code</td>
+        <td v-text="referral_code"></td>
+      </tr>
+      <tr>
+        <td>Email Verified Date</td>
+        <td>{{formatDate(user.is_verified_email_at)}}</td>
+      </tr>
+      <tr>
+        <td>First Phone Verified Date</td>
+        <td>{{formatDate(user.is_verified_phone_at)}}</td>
+      </tr>
+      <tr>
+        <td>
+          Quick Register Link
+          <template v-if="checkRegistrationHash">
+            <button
+              @click="resendQuickRegistration('whatsapp')"
+              class="sc-btn sc-btn-red sc-btn-rounded sc-btn-sm sc-uppercase"
+            >
+              Resend via Whatsapp
+            </button>
+            <button
+              @click="resendQuickRegistration('sms')"
+              class="sc-btn sc-btn-red sc-btn-rounded sc-btn-sm sc-uppercase sc-ml-10"
+            >
+              Resend via SMS
+            </button>
+          </template>
+        </td>
+        <td>{{user.registrationHash}}</td>
+      </tr>
+      <tr>
+        <td>Complete quick register date | date range from created from POS side to completed by user</td>
+        <td>{{user.created_at}} | {{ calculateDiff(user.created_at, user.username_password_completed_at) }} days</td>
+      </tr>
+      <tr>
+        <td>Level Re-evaluate</td>
+        <td>{{formatDate(user.level.re_evaluate_at)}}</td>
+      </tr>
+      <tr>
+        <td>Spam review violation counter</td>
+        <td>{{user.violation_counter}}</td>
+      </tr>
+      <tr>
+        <td>Last spam review date</td>
+        <td>{{filterDate(user.last_spam_review_date)}}</td>
+      </tr>
+      <tr>
+        <td>Deleted Status</td>
+        <td>{{user.is_deleted}}</td>
+      </tr>
+      <tr>
+        <td>BP completed date | day between register and complete BP</td>
+        <td>
+          {{ formatDate(user.beauty_created_at) }} | {{ calculateDiff(user.created_at, user.beauty_created_at) }} days
+        </td>
+      </tr>
+      <tr>
+        <td>OTP Daily Counter</td>
+        <td>
+          <div class="otp-counter-container">
+            {{ otpCount }}
+            <button
+              type="button"
+              class="sc-btn sc-btn-red sc-btn-rounded sc-btn-xs sc-uppercase"
+              :disabled="otpCount == 0"
+              @click="decreaseOtpCounter()"
+            >
+              OTP reset daily counter -1
+            </button>
+          </div>
+        </td>
+      </tr>
+    </table>
+    <table v-else>
+      <TableEmpty :cols="2" v-if="!Object.keys(user).length" />
+    </table>
+    <div class="m-bottom-15">
+      <button
+        v-if="!is_loading_update_logs"
+        @click="exportDataUserDetailCSV"
+        class="sc-btn sc-btn-red sc-btn-rounded sc-btn-md sc-uppercase"
+      >
+        Export User Changes
+      </button>
+      <button v-else @click.prevent="" class="btn-white nbtn">loading ...</button>
+    </div>
+  </div>
+  <div>
+    <div class="sc-table-title">Beauty Profile</div>
+    <div class="sc-table-responsive">
+      <table class="sc-table sc-table-detail">
+        <thead>
+          <tr>
+            <th>Profile</th>
+            <th>Name Beauty</th>
+          </tr>
+        </thead>
+        <tbody>
+          <TableEmpty :cols="2" v-if="!(user && user.beauty && user.beauty.length)" />
+
+          <tr v-for="data in user.beauty">
+            <td>{{data.name}}</td>
+            <td>
+              <p v-for="subtags in data.subtags">{{subtags.name}}</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div>
+    <div class="sc-table-title">Lilla User Profile</div>
+    <div class="sc-table-responsive">
+      <table class="sc-table sc-table-detail">
+        <thead>
+          <tr>
+            <th style="width: 300px">Question</th>
+            <th>Answer</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Lilla Membership Level</td>
+            <td v-if="user.lilla_level && user.lilla_level.current.stage">{{user.lilla_level.current.stage}}</td>
+            <td v-else>-</td>
+          </tr>
+
+          <tr>
+            <td>Total Lilla Points</td>
+            <td v-if="user.lilla_points && user.lilla_points.count">{{user.lilla_points.count}}</td>
+            <td v-else>No</td>
+          </tr>
+
+          <tr>
+            <td>Lilla points earned from shopping</td>
+            <td v-if="userLillaStats && userLillaStats.shopping_point">{{userLillaStats.shopping_point}}</td>
+            <td v-else>0</td>
+          </tr>
+
+          <tr>
+            <td>Lilla points earned from contributing in soco</td>
+            <td v-if="userLillaStats && userLillaStats.contribution_point">{{userLillaStats.contribution_point}}</td>
+            <td v-else>0</td>
+          </tr>
+
+          <tr>
+            <td>Redeemed lilla points</td>
+            <td v-if="userLillaStats && userLillaStats.redeem_point">{{userLillaStats.redeem_point}}</td>
+            <td v-else>0</td>
+          </tr>
+
+          <tr>
+            <td>Expecting a kid</td>
+            <td v-if="userLillaProfile && userLillaProfile.current_mother_status === 'expecting'">Yes</td>
+            <td v-else>No</td>
+          </tr>
+
+          <tr>
+            <td>Breastfeeding</td>
+            <td v-if="userLillaProfile && userLillaProfile.current_mother_status === 'breastfeeding'">Yes</td>
+            <td v-else>No</td>
+          </tr>
+
+          <tr>
+            <td>Have a toddler</td>
+            <td v-if="userLillaProfile && userLillaProfile.current_mother_status === 'toddler'">Yes</td>
+            <td v-else>No</td>
+          </tr>
+
+          <tr>
+            <td>Have 3+ years old kid</td>
+            <td v-if="userLillaProfile && userLillaProfile.children && userLillaProfile.children.length">
+              {{childYears(userLillaProfile.children)}}
+            </td>
+            <td v-else>No</td>
+          </tr>
+
+          <tr>
+            <td>Children profile</td>
+            <td>
+              <template v-for="child in userLillaProfile.children">
+                <span v-if="child.name">{{ child.name ? `${child.name} - ` : '' }}</span>
+                <span v-if="child.date_of_birth">{{ child.date_of_birth | formatDate }}</span>
+              </template>
+            </td>
+          </tr>
+
+          <tr>
+            <td>Spending amount</td>
+            <td v-if="user.lilla_level">{{user.lilla_level.current.total_shopping | currencyRp}}</td>
+            <td v-else>-</td>
+          </tr>
+
+          <tr>
+            <td>Completing lilla profile</td>
+            <td v-if="userLillaProfile && userLillaProfile.is_lilla_profiling_completed">
+              {{userLillaProfile.is_lilla_profiling_completed}}
+            </td>
+            <td v-else>No</td>
+          </tr>
+
+          <tr>
+            <td>Liked content in lilla</td>
+            <td v-if="userActionLilla">{{userActionLilla.soco_new.like}}</td>
+            <td v-else>0</td>
+          </tr>
+
+          <tr>
+            <td>Review created in lilla</td>
+            <td v-if="userActionLilla">{{userActionLilla.soco_new.add_review}}</td>
+            <td v-else>0</td>
+          </tr>
+
+          <tr>
+            <td>Trusted review created in lilla</td>
+            <td v-if="userActionLilla">{{userActionLilla.soco_new.add_review_trusted}}</td>
+            <td v-else>0</td>
+          </tr>
+
+          <tr>
+            <td>Lilla membership evaluation date</td>
+            <td v-if="user.lilla_level">{{user.lilla_level.re_evaluate_at | formatDate}}</td>
+            <td v-else>-</td>
+          </tr>
+
+          <!-- <tr>
+            <td>Is Mom Pregnant</td>
+            <td v-if="is_mom_pregnant">Yes</td>
+            <td v-else>No</td>
+          </tr> -->
+
+          <!-- <tr>
+            <td>How Many children (all pregnant / non pregnant)</td>
+            <td v-if="user.total_children">{{user.total_children}}</td>
+            <td v-else>--</td>
+          </tr>
+          <tr v-if="user.children">
+            <td>Baby's Profile</td>
+            <td>
+              <p v-for="child in user.children">{{child.name}} & Year of Birth {{child.year_of_birth}}</p>
+            </td>
+          </tr> -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div>
+    <div class="sc-table-title">SOCO All Time Contribution</div>
+    <div class="sc-table-responsive">
+      <table class="sc-table sc-table-detail">
+        <tr>
+          <td style="width: 150px">Campaign Joined</td>
+          <td>{{ userAction.soco_all_time.campaign_join}}</td>
+        </tr>
+
+        <tr>
+          <td>Winning Campaign</td>
+          <td>{{ userAction.soco_all_time.campaign_win }}</td>
+        </tr>
+
+        <tr>
+          <td>Add Review</td>
+          <td>{{ userAction.soco_all_time.add_review }}</td>
+        </tr>
+
+        <tr>
+          <td>Add Trusted Review</td>
+          <td>{{ userAction.soco_all_time.add_review_trusted }}</td>
+        </tr>
+
+        <tr>
+          <td>Article Published</td>
+          <td>{{ userAction.soco_all_time.article_published }}</td>
+        </tr>
+
+        <tr>
+          <td>Video Uploaded</td>
+          <td>{{ userAction.soco_all_time.video_published }}</td>
+        </tr>
+
+        <tr>
+          <td>Photos Created</td>
+          <td>{{ userAction.soco_all_time.photo_created }}</td>
+        </tr>
+
+        <tr>
+          <td>Collection Created</td>
+          <td>{{ userAction.soco_all_time.collection_created }}</td>
+        </tr>
+
+        <tr>
+          <td>Referral Number</td>
+          <td>{{ user.total_referrals }}</td>
+        </tr>
+
+        <tr>
+          <td>Referral Complete Profile</td>
+          <td>{{ user.total_points_by_referrals }}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <div v-if="userReferrals && userReferrals.length" class="m-bottom-15">
+    <div class="sc-table-title">Get Member Invitee via Email (Registered)</div>
+    <div class="sc-table-responsive">
+      <div class="sc-table sc-table-detail sc-table-scroll-new">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 150px">Referral Invitee</th>
+              <th>Registered</th>
+              <th>Verified</th>
+              <th>Beauty Profile</th>
+              <th>Referral Points</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(user, index) in userReferrals">
+              <td>{{ user.email }}</td>
+              <td>{{user.is_registered}}</td>
+              <td>{{user.is_verified_phone}}</td>
+              <td>{{ user.beauty_profile_created }}</td>
+              <td>{{ user.referral_point_referrer_received}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <template v-if="isShowButtonLoadMore">
+      <infinite-loading @infinite="getInviteeDetails" v-if="!isProcessingLoadMore" spinner="spiral"></infinite-loading>
+    </template>
+  </div>
+  <div v-if="userReferralsNotRegistered && userReferralsNotRegistered.length" class="m-bottom-15">
+    <div class="sc-table-title">Get Member Invitee via Email (Unregistered)</div>
+    <div class="sc-table-responsive">
+      <div class="sc-table sc-table-detail sc-table-scroll-new">
+        <table>
+          <thead>
+            <tr>
+              <th>Referral Invitee</th>
+              <th>Registered</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(user, index) in userReferralsNotRegistered">
+              <td>{{ user.email }}</td>
+              <td>{{user.is_registered}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <template v-if="isShowButtonLoadMoreEmail">
+      <infinite-loading
+        @infinite="getInviteeEmail"
+        v-if="!isProcessingLoadMoreEmail"
+        spinner="spiral"
+      ></infinite-loading>
+    </template>
+  </div>
+  <div v-if="userInvitePhoneBook && userInvitePhoneBook.length" class="m-bottom-15">
+    <div class="sc-table-title">Get Member Invitee via Phonebook</div>
+    <div class="sc-table-responsive">
+      <div class="sc-table sc-table-detail sc-table-scroll-new">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 150px">Invitee phone number</th>
+              <th>Verified</th>
+              <th>Beauty Profile</th>
+              <th>Referral Points</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(user, index) in userInvitePhoneBook">
+              <td>{{ user.phone }}</td>
+              <td>{{ user.is_verified_phone }}</td>
+              <td>{{ user.beauty_profile_created }}</td>
+              <td>{{ user.referral_point_referrer_received}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <template v-if="isShowButtonLoadMorePhone">
+      <infinite-loading
+        @infinite="getInviteePhonebook"
+        v-if="!isProcessingLoadMorePhone"
+        spinner="spiral"
+      ></infinite-loading>
+    </template>
+  </div>
+  <div>
+    <div class="sc-table-title">SOCO All Time Activity</div>
+    <div class="sc-table-responsive">
+      <table class="sc-table sc-table-detail">
+        <tr>
+          <td style="width: 150px">Following</td>
+          <td>{{ userAction.soco_all_time.following }}</td>
+        </tr>
+
+        <tr>
+          <td>Like</td>
+          <td>{{ userAction.soco_all_time.like }}</td>
+        </tr>
+
+        <tr>
+          <td>Comment</td>
+          <td>{{ userAction.soco_all_time.comment }}</td>
+        </tr>
+
+        <tr>
+          <td>Reshare Article</td>
+          <td>{{ userAction.soco_all_time.article_reshare }}</td>
+        </tr>
+
+        <tr>
+          <td>Reshare Video</td>
+          <td>{{ userAction.soco_all_time.video_reshare }}</td>
+        </tr>
+
+        <tr>
+          <td>Reshare Collection</td>
+          <td>{{ userAction.soco_all_time.collection_reshare }}</td>
+        </tr>
+
+        <tr>
+          <td>Reshare Photos</td>
+          <td>{{ userAction.soco_all_time.photos_reshare }}</td>
+        </tr>
+
+        <tr>
+          <td>Reshare Polling</td>
+          <td>{{ userAction.soco_all_time.polling_reshare }}</td>
+        </tr>
+
+        <tr>
+          <td>Bookmark Content</td>
+          <td>{{ userAction.soco_all_time.bookmark }}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div>
+    <div class="sc-table-title">SOCO New Point and Reward Activity</div>
+    <div class="sc-table-responsive">
+      <table class="sc-table sc-table-detail">
+        <tr>
+          <td style="width: 200px">Completing Beauty Profile</td>
+          <td v-if="hasFilledBeautyProfile">Yes</td>
+          <td v-else>No</td>
+        </tr>
+        <tr>
+          <td>Completing Lilla Profile</td>
+          <td v-if="user.is_mother">Yes</td>
+          <td v-else>No</td>
+        </tr>
+
+        <tr>
+          <td>Like</td>
+          <td>{{ userAction.soco_new.like }}</td>
+        </tr>
+
+        <tr>
+          <td>Comment</td>
+          <td>{{ userAction.soco_new.comment }}</td>
+        </tr>
+
+        <tr>
+          <td>Reshare Article</td>
+          <td>{{ userAction.soco_new.article_reshare }}</td>
+        </tr>
+
+        <tr>
+          <td>Reshare Video</td>
+          <td>{{ userAction.soco_new.video_reshare }}</td>
+        </tr>
+
+        <tr>
+          <td>Bookmark Content</td>
+          <td>{{ userAction.soco_new.bookmark }}</td>
+        </tr>
+
+        <tr>
+          <td>Review Created</td>
+          <td>{{ userAction.soco_new.add_review }}</td>
+        </tr>
+
+        <tr>
+          <td>Trusted Review Created</td>
+          <td>{{ userAction.soco_new.add_review_trusted }}</td>
+        </tr>
+
+        <tr>
+          <td>Photo Tagging Created</td>
+          <td>{{ userAction.soco_new.photo_created }}</td>
+        </tr>
+
+        <tr>
+          <td>Collection Created</td>
+          <td>{{ userAction.soco_new.collection_created }}</td>
+        </tr>
+
+        <tr>
+          <td>Polling Created</td>
+          <td>{{ userAction.soco_new.polling_created }}</td>
+        </tr>
+
+        <tr>
+          <td>Article Published</td>
+          <td>{{ userAction.soco_new.article_published }}</td>
+        </tr>
+
+        <tr>
+          <td>Video Uploaded</td>
+          <td>{{ userAction.soco_new.video_published }}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div>
+    <div class="sc-mini-title">User Point Transaction History:</div>
+    <div class="d-flex justify-content-start">
+      <div class="mr-2">
+        <button
+          v-if="!is_loading_export_data_old"
+          @click="exportDataToCSV('old')"
+          class="sc-btn sc-btn-red sc-btn-rounded sc-btn-md sc-uppercase"
+        >
+          Export Old Format
+        </button>
+        <button v-else @click.prevent="" class="btn-white nbtn">loading ...</button>
+      </div>
+      <div>
+        <button
+          v-if="!is_loading_export_data_new"
+          @click="exportDataToCSV('new')"
+          class="sc-btn sc-btn-red sc-btn-rounded sc-btn-md sc-uppercase"
+        >
+          Export New Format
+        </button>
+        <button v-else @click.prevent="" class="btn-white nbtn">loading ...</button>
+      </div>
+    </div>
+  </div>
+
+  <ul v-if="hasActions(userRole)" class="list-actions">
+    <li v-for="(item, index) in actions" :key="index">
+      <button
+        class="sc-btn sc-btn-red sc-btn-rounded sc-btn-md sc-uppercase"
+        @click="handleActionClick(item)"
+        v-text="item.text"
+      ></button>
+    </li>
+  </ul>
+
+  <div>
+    <div class="sc-table-title">User Transaction History</div>
+    <div class="sc-table-responsive">
+      <div class="sc-table sc-table-mb sc-table-scroll-new">
+        <table>
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Points</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Expired Date</th>
+              <th>Transaction Type</th>
+              <th>Source</th>
+              <th>Order ID</th>
+            </tr>
+          </thead>
+          <tbody>
+            <TableEmpty :cols="7" v-if="!(userTransactionHistory.data && userTransactionHistory.data.length)" />
+            <template v-else>
+              <tr v-for="(transaction, index) in userTransactionHistory.data" :key="index">
+                <td>
+                  <template v-if="transaction.transaction_type === 'expired'">
+                    <template v-if="transaction.object && transaction.object.transaction && transaction.object.transaction.transaction_type === 'order'">
+                      <a :href="getTransactionLink(transaction)" target="_blank">{{ transaction.title }}</a>
+                    </template>
+                    <template v-else>
+                      {{ getExpiredTitle(transaction) }}
+                    </template>
+                  </template>
+                  <template v-else-if="transaction.points === 30 && transaction.object?.is_early_reviewer">
+                    Get points from top-ten shopper review {{ transaction.object.product_name }}
+                  </template>
+                  <template v-else-if="transaction.transaction_type === 'order'">
+                    <a :href="getTransactionLink(transaction)" target="_blank">{{ transaction.title }}</a>
+                  </template>
+                  <template v-else-if="transaction.transaction_type === 'manual_commission'">
+                    {{ transaction.title + ' from this id ' + transaction.object?.name }}
+                  </template>
+                  <template v-else-if="transaction.object?.type === 'partner_voucher'">
+                    {{ `${transaction.title} from program voucher ${transaction.object.redeem_code}` }}
+                  </template>
+                  <template v-else-if="transaction.transaction_type === 'redeem'">
+                    <a :href="getTransactionLink(transaction)" target="_blank">{{ transaction.title }}</a>
+                  </template>
+                  <template v-else>
+                    {{ transaction.title }}
+                  </template>
+                </td>
+                <td>{{ transaction.points > 0 ? `+${transaction.points}` : transaction.points }}</td>
+                <td>{{ convertDateUtc(new Date(transaction.created_at)) }}</td>
+                <td>{{ transaction.status }}</td>
+                <td>{{ convertDateUtc(new Date(transaction.expires_at)) }}</td>
+                <td>{{ transaction.transaction_type }}</td>
+                <td>{{ transaction.object.source || transaction.object.type }}</td>
+                <td>
+                  <span v-if="transaction.transaction_type === 'expired'"> {{ transaction.object.id }} </span>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="sc-pagination-page">
+      <div class="sc-pagination-content">
+        <div class="sc-pagination-text-container">
+          <div class="sc-pagination-text">
+            Page: {{ userTransactionHistory.currentPage }} out of {{ userTransactionHistory.totalPage }}
+          </div>
+          <div class="sc-pagination-text">Total Record: {{ userTransactionHistory.totalData }}</div>
+        </div>
+        <div class="table-pagination">
+          <Pagination
+            :limit="userTransactionHistory.limit"
+            :skip="userTransactionHistory.skip"
+            :total="userTransactionHistory.totalData"
+            @page="(skip) => userTransactionHistoryPagination(skip)"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="sc-table-title">User's expiring points</div>
+    <div class="form-filter-group">
+      <div class="form-group">
+        <label>Expired Date</label>
+        <div class="form-input">
+          <Datetime
+            name="form_start_date"
+            type="date"
+            format="D"
+            v-model="filter.date_start"
+            input-style="display: block;
+            width: 100% !important;
+            font-size: 14px;
+            background-color: transparent !important;"
+            class="input-date-wrapper"
+          ></Datetime>
+          <i class="fa fa-calendar"></i>
+        </div>
+      </div>
+      <div class="form-group" style="align-self: end">
+        <label style="margin: 0 12px 0 12px">To:</label>
+      </div>
+      <div class="form-group" style="align-self: end">
+        <div class="form-input">
+          <Datetime
+            name="form_end_date"
+            type="date"
+            format="D"
+            v-model="filter.date_end"
+            input-style="display: block;
+            width: 100% !important;
+            font-size: 14px;
+            background-color: transparent !important;"
+            class="input-date-wrapper"
+          ></Datetime>
+          <i class="fa fa-calendar"></i>
+        </div>
+      </div>
+      <div class="form-group" style="align-self: end">
+        <input type="submit" value="FILTER" class="filter-btn" @click="filterExpiringPoint()" />
+      </div>
+    </div>
+    <div class="sc-table-responsive">
+      <div class="sc-table sc-table-mb sc-table-scroll-new">
+        <table>
+          <thead>
+            <tr>
+              <th>Expired at</th>
+              <th>Expiring Points</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <TableEmpty :cols="3" v-if="!userExpiringPoints" />
+            <tr v-else>
+              <td>{{ `${filterNewDate(filter.date_start)} - ${filterNewDate(filter.date_end)}` }}</td>
+              <td>{{ userExpiringPoints }}</td>
+              <td>
+                <input
+                  @click="exportExpiringPointtoCsv()"
+                  type="submit"
+                  class="sc-btn sc-btn-primary sc-btn-rounded sc-btn-lg"
+                  value="Download CSV"
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- modal delete -->
+  <vuestic-modal
+    ref="modal-delete"
+    cancel-class="btn btn-outline"
+    ok-class="btn btn-danger"
+    ok-text="Proceed"
+    small
+    @ok="onDelete"
+    @cancel="onCancel"
+  >
+    <template #title>Delete User</template>
+
+    <div v-for="item in optionsDelete" :key="item.value" class="form-check">
+      <input v-model="picked" :value="item.value" name="delete" class="form-check-input" type="radio" />
+      <label :for="item.value" class="form-check-label" v-text="item.text"></label>
+    </div>
+  </vuestic-modal>
+
+  <modalv2 class="custom-modal modal-mask modal--confirmation" v-if="modalOpen">
+    <div slot="body">
+      <div class="product-preview">
+        <div class="confirmation-content">
+          <p class="head-text">Warning : Data Changes Confirmation</p>
+          <p class="main-text">Are you sure you want to changes data for this user?</p>
+          <p class="main-text">
+            From this
+            <template v-if="formUserName"><strong>{{user.user_name}} to {{user_name}}</strong></template>
+            <template v-else-if="formEmail"><strong>{{user.email}} to {{email}}</strong></template>
+            <template v-else><strong>{{user.phone_no}} to {{phone_no}}</strong></template>
+          </p>
+          <div class="sc-form-group">
+            <label class="sc-form-label" for="evidence">Evidence / Reason for changing</label>
+            <textarea
+              class="sc-form-input"
+              name="evidence"
+              id="evidence"
+              type="text"
+              v-model="evidence"
+              size="100"
+              aria-required="true"
+            ></textarea>
+          </div>
+        </div>
+        <p class="sub-text">
+          Notes : we will send this changes to soco.notification@sociolla.com to track and avoid data changes abuse
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-white" @click.prevent="modalOpen = false">CANCEL</button>
+        <button type="button" class="btn btn-red" @click.prevent="submitEdit()" :disabled="!evidence">SUBMIT</button>
+      </div>
+    </div>
+  </modalv2>
+
+  <modalv2 class="custom-modal modal-mask modal--confirmation" v-if="syncTotalShoppingModalOpen">
+    <div slot="body">
+      <div class="product-preview">
+        <div class="confirmation-content">
+          <p class="head-text">Confirmation!</p>
+          <p class="main-text">Are you sure you want to recalculate the user total paid in sociolla?</p>
+
+          <div :style="{ display: 'flex', gap: '0.75rem', flexDirection: 'column'}">
+            <p class="main-text">Data Changes</p>
+            <p>
+              Membership Period = from <strong>{{ membershipPeriod.startDate }}</strong> to
+              <strong>{{ membershipPeriod.endDate }}</strong>
+            </p>
+            <p>Today = <strong>{{ formatDateLong(new Date()) }}</strong></p>
+
+            <div :style="{ paddingTop: '0.75rem' }">
+              <p>Preview after Recalculate</p>
+            </div>
+
+            <p>
+              Total paid = from
+              <strong>
+                {{ user[designatedUserLevel].current.total_shopping ? new Intl.NumberFormat('en-US', { style:
+                'currency', currency: userCurrency, }).format(user[designatedUserLevel].current.total_shopping) : '0' }}
+              </strong>
+              to
+              <strong>
+                {{ userTotalOrderPrice === null ? 'loading...' : new Intl.NumberFormat('en-US', { style: 'currency',
+                currency: userCurrency, }).format(userTotalOrderPrice) }}
+              </strong>
+            </p>
+
+            <template
+              v-if="!hasFilledBeautyProfile || user[designatedUserLevel].current.total_verified_reviews < user[designatedUserLevel].next.verified_reviews_needed"
+            >
+              <p class="sc__total_paid_text">Inform user to complete Beauty profile and create 1 shopper review</p>
+            </template>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-white" @click.prevent="syncTotalShoppingModalOpen = false">CANCEL</button>
+        <button
+          type="button"
+          class="btn btn-red"
+          :disabled="totalShoppingLoading"
+          @click.prevent="recalculateTotalPaid"
+        >
+          <template v-if="totalShoppingLoading"> LOADING... </template>
+          <template v-else> SUBMIT </template>
+        </button>
+      </div>
+    </div>
+  </modalv2>
+
+  <modalv2 v-if="totalPoints.confirmationModal" class="custom-modal modal-mask modal--sync-point-confirmation">
+    <div slot="body">
+      <h3 class="modal-header">Are you sure to sync the points?</h3>
+      <div class="modal-content" style="padding: 0 16px; text-align: left">
+        <div>Current Total SOCO Points: <strong>{{ user.points ? user.points.count : 0 }}</strong></div>
+        <div>Current Summary Points History: <strong>{{ pointSummary.data }}</strong></div>
+        <span style="margin-top: 16px">
+          <strong>NOTE:</strong>
+          If the current summary points history is negative, it will be set to 0
+        </span>
+      </div>
+      <hr />
+      <h3 class="modal-header" style="padding: 0 16px">Preview</h3>
+      <div class="modal-content" style="padding: 16px; text-align: left">
+        <span>After synced, total SOCO Points will be <strong>{{ Math.max(pointSummary.data, 0) }}</strong></span>
+      </div>
+      <div class="modal-footer">
+        <div v-if="totalPoints.loading" class="loaderspin" style="margin-top: 0"></div>
+        <template v-else>
+          <button type="button" class="btn btn-red" @click.prevent="syncTotalPoints()">Proceed</button>
+          <button type="button" class="btn btn-white" @click.prevent="totalPoints.confirmationModal = false">
+            Cancel
+          </button>
+        </template>
+      </div>
+    </div>
+  </modalv2>
+  <modalv2 v-if="syncLevel.confirmationModal" class="custom-modal modal-mask modal--confirmation">
+    <div slot="body">
+      <div v-if="syncLevel.loading" class="loaderspin" style="margin-top: 0"></div>
+      <template v-else>
+        <h3 class="modal-header">Are you sure to sync the level?</h3>
+        <div class="modal-content" style="padding: 0 16px; text-align: left">
+          <div>
+            Current Level: <strong>{{ user.level && user.level.current ? user.level.current.stage : '-' }}</strong>
+          </div>
+        </div>
+        <hr />
+        <div class="modal-content" style="padding: 0 16px; text-align: left">
+          <span
+            >After synced, the level will be
+            <strong
+              >{{ syncLevel.data && syncLevel.data.level && syncLevel.data.level.current ?
+              syncLevel.data.level.current.stage : '-' }}</strong
+            ></span
+          >
+        </div>
+        <div class="modal-footer">
+          <div v-if="syncLevel.loadingButton" class="loaderspin" style="margin-top: 0"></div>
+          <template v-else>
+            <button type="button" class="btn btn-red" @click.prevent="syncUserLevel()">Proceed</button>
+            <button type="button" class="btn btn-white" @click.prevent="syncLevel.confirmationModal = false">
+              Cancel
+            </button>
+          </template>
+        </div>
+      </template>
+    </div>
+  </modalv2>
+  <modalv2 v-if="syncPoint.confirmationModal" class="custom-modal modal-mask modal--confirmation" @close="closeModal">
+    <div slot="body">
+      <div v-if="syncPoint.loading" class="loaderspin" style="margin-top: 0"></div>
+      <template v-else>
+        <h3 class="modal-header">Sync DB Point</h3>
+        <hr />
+        <div class="date-container">
+          <div class="date-wrapper">
+            <div class="date-item">
+              <label class="date-label">From Date: </label>
+              <input class="date-input" :formatter="formatDate" type="date" v-model="syncPoint.from_date" />
+            </div>
+            <div class="date-item">
+              <label class="date-label">To Date: </label>
+              <input class="date-input" :formatter="formatDate" type="date" v-model="syncPoint.to_date" />
+            </div>
+          </div>
+        </div>
+        <div v-if="dateError" class="text-danger mt-2">{{ dateError }}</div>
+        <div v-if="syncPoint.previewResults" class="preview-results mt-4">
+          <h4>Preview Results:</h4>
+          <div v-for="(result, index) in syncPoint.previewResults" :key="index" class="preview-item">
+            <strong>{{ result.type }}:</strong>
+            <div>Points to be updated: {{ result.points }}</div>
+          </div>
+          <div class="total-points mt-4"><strong>Total Points:</strong> {{ syncPoint.totalPoints }}</div>
+        </div>
+
+        <div class="modal-footer mt-4">
+          <button class="sc-btn sc-btn-gray sc-btn-md" @click="closeModal" :disabled="syncPoint.loadingButton">
+            Cancel
+          </button>
+          <button
+            class="sc-btn sc-btn-blue sc-btn-md"
+            @click="handlePreviewCalculate"
+            :disabled="!isValidDateRange || syncPoint.loadingButton"
+          >
+            <span v-if="syncPoint.loadingButton"> Processing... </span>
+            <span v-else>Calculate Preview</span>
+          </button>
+          <button
+            v-if="syncPoint.previewResults"
+            class="sc-btn sc-btn-red sc-btn-md"
+            @click="handleSync"
+            :disabled="!isValidDateRange || syncPoint.loadingButton"
+          >
+            <span v-if="syncPoint.loadingButton">
+              <i class="fas fa-spinner fa-spin mr-2"></i>
+              Processing...
+            </span>
+            <span v-else>Sync Points</span>
+          </button>
+        </div>
+      </template>
+    </div>
+  </modalv2>
+  <modalv2 class="custom-modal modal-mask modal--confirmation" v-if="verifyModalOpen">
+    <div slot="body">
+      <div class="product-preview">
+        <div class="confirmation-content">
+          <p class="head-text">Warning: Verification Confirmation</p>
+          <p class="main-text">
+            Are you sure you want to
+            <strong>{{ currentStatus ? 'verify' : 'unverify' }}</strong>
+            this phone number?
+          </p>
+          <p class="main-text"><strong>{{ user.phone_no }}</strong></p>
+
+          <div class="sc-form-group">
+            <label class="sc-form-label" for="reason">Reason (required)</label>
+            <textarea
+              class="sc-form-input"
+              id="reason"
+              v-model="verifyReason"
+              placeholder="Enter your reason here"
+              aria-required="true"
+            ></textarea>
+          </div>
+        </div>
+
+        <p class="sub-text">Notes: this action will be tracked to prevent unauthorized verification changes.</p>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-white" @click.prevent="closeVerifyModal">Cancel</button>
+        <button type="button" class="btn btn-red" @click.prevent="confirmVerifyAction" :disabled="!verifyReason.trim()">
+          Proceed
+        </button>
+      </div>
+    </div>
+  </modalv2>
+</div>

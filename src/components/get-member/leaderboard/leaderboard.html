@@ -1,0 +1,90 @@
+<div>
+  <div class="sc-filter">
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Username/Email: </label>
+      <input class="sc-filter-input" type="input" v-model="filter.keywords" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Month: </label>
+      <select class="sc-filter-input" v-model="filter.month">
+        <option :value="months[i - 1]" v-for="i in 12">{{ months[i - 1] }}</option>
+      </select>
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Year: </label>
+      <select class="sc-filter-input" v-model="filter.year">
+        <option :value="start_year" selected>{{ start_year }}</option>
+        <option :value="start_year + i" v-for="i in 25">{{ start_year + i }}</option>
+      </select>
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Country: </label>
+      <select class="sc-filter-input" v-model="filter.country">
+        <option value="" selected></option>
+        <option value="id">Indonesia</option>
+        <option value="vi">Vietnam</option>
+      </select>
+    </div>
+    <div class="sc-filter-item sc-filter-button">
+      <input
+        type="submit"
+        value="Filter"
+        class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-mr-10"
+        @click="getLeaderboard"
+      />
+      <input
+        type="submit"
+        value="Export"
+        class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded"
+        @click="exportData"
+      />
+    </div>
+  </div>
+
+  <div class="sc-table-responsive">
+    <table class="sc-table">
+      <thead>
+        <tr>
+          <th>No.</th>
+          <th>
+            Email
+            <sortField v-show="!loading" field="user.email" :sort="sortParam" @sort="sort" />
+          </th>
+          <th>
+            Username
+            <sortField v-show="!loading" field="user.user_name_lower" :sort="sortParam" @sort="sort" />
+          </th>
+          <th>
+            Friends Invited
+            <sortField v-show="!loading" field="referrals_count" :sort="sortParam" @sort="sort" />
+          </th>
+          <th>
+            Default Address
+            <sortField v-show="!loading" field="deafult_address" :sort="sortParam" @sort="sort" />
+          </th>
+          <th>
+            Win Count
+            <sortField v-show="!loading" field="referrals_win_count" :sort="sortParam" @sort="sort" />
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <TableEmpty :cols="6" v-if="!loading && !(leaderboard && leaderboard.length)" />
+
+        <tr v-for="(item, index) in leaderboard">
+          <td>{{index + 1}}</td>
+          <td>{{ maskEmail(item.user.email) }}</td>
+          <td>{{ item.user.user_name_lower }}</td>
+          <td>{{ item.referrals_count }}</td>
+          <td>{{ item.deafult_address ? getDefaultAddress(item.deafult_address) : '' }}</td>
+          <td>{{ item.referrals_win_count }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sc-pagination-page">
+    <!-- <div class="sc-pagination-text">Page: {{ currentPage }} out of {{ totalPage}}</div> -->
+    <div class="sc-pagination-text">Total Record: {{ currentTotalRecord }}</div>
+  </div>
+</div>

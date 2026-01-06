@@ -1,0 +1,139 @@
+<div>
+  <div class="sc-form">
+    <div class="loader">
+      <ball-pulse-loader v-if="is_loading" color="#000000" size="20px"></ball-pulse-loader>
+    </div>
+    <div class="sc-form-title">Benefit for {{name}}</div>
+    <hr />
+
+    <form id="formBenefit" data-vv-scope="formBenefit" class="sc-form-container">
+      <div class="sc-form-group" :class="{'has-error': errors.has('formBenefit.title') }">
+        <label for="brand_name" class="sc-form-label">Title</label>
+        <div class="sc-form-child-group">
+          <input
+            class="sc-form-input"
+            id="title"
+            name="title"
+            type="text"
+            v-model="benefit.title"
+            v-validate="'required'"
+          />
+          <p v-show="errors.has('formBenefit.title')" class="alert">{{ errors.first('formBenefit.title') }}</p>
+        </div>
+      </div>
+      <div class="sc-form-group" :class="{'has-error': errors.has('formBenefit.url') }">
+        <label for="brand_name" class="sc-form-label">Url</label>
+        <div class="sc-form-child-group">
+          <input class="sc-form-input" id="url" name="url" type="text" v-model="benefit.url" v-validate="'required'" />
+          <p v-show="errors.has('formBenefit.title')" class="alert">{{ errors.first('formBenefit.title') }}</p>
+        </div>
+      </div>
+
+      <div class="sc-form-group" :class="{'has-error': errors.has('formBenefit.description') }">
+        <label class="sc-form-label">Description</label>
+        <div class="sc-form-child-group">
+          <textarea
+            v-model="benefit.description"
+            class="sc-form-input"
+            v-validate="'required'"
+            autocomplete="off"
+          ></textarea>
+          <p v-show="errors.has('formBenefit.description')" class="alert">
+            {{ errors.first('formBenefit.description') }}
+          </p>
+        </div>
+      </div>
+
+      <div class="block-upload-cover-image">
+        <p class="title">
+          <span class="wrapper">
+            <span class="label">UPLOAD AN IMAGE</span>
+          </span>
+        </p>
+        <div class="layer" v-show="benefit.image">
+          <img class="result-cover" :src="benefit.image" />
+        </div>
+        <p v-if="benefit.image" v-show="benefit.image">
+          <a style="color: blue" @click.prevent="triggerUpload">Click here to change cover image</a>
+        </p>
+        <div class="layer border-cover" @click.prevent="triggerUpload" v-show="!benefit.image">
+          <ball-pulse-loader v-if="state.isProcess" color="#000000" size="20px"></ball-pulse-loader>
+          <div class="inner">
+            <img :src="require(`@/img/icon-upload-cover-image.png`)" />
+            <p>Upload ad image <span class="required">*</span> Recommended size 1280 x 768 px (max. 5MB)</p>
+            <input
+              type="hidden"
+              name="image"
+              class="hidden input-desktop"
+              v-model="benefit.image"
+              v-validate="'required'"
+            />
+            <br />
+            <p v-show="errors.has('formBenefit.image')" class="alert">{{ errors.first('formBenefit.image') }}</p>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <div class="sc-form-group sc-mt-15">
+      <div>
+        <input
+          type="Submit"
+          v-on:click="saveBenefit('formBenefit')"
+          value="Submit"
+          id="form_submit_btn"
+          class="sc-btn sc-btn-primary sc-btn-rounded sc-btn-md sc-uppercase"
+        />
+      </div>
+    </div>
+
+    <div id="undertone-modal" class="custom-modal modal-mask modal--upload-picture" v-if="showModal">
+      <div slot="body">
+        <div class="modal-body">
+          <div class="modal-header">
+            <h4 class="modal__heading">PILIH COVER IMAGE KAMU</h4>
+            <span class="link modal-dismiss" @click="showModal = false, isFileChoose = false, fileSizeExceed = false"
+              >&times;</span
+            >
+          </div>
+          <div class="croppa-wrapper">
+            <croppa
+              v-model="croppa"
+              :height="460.8"
+              :width="768"
+              :prevent-white-space="false"
+              initial-size="contain"
+              :file-size-limit="5242880"
+              :accept="'image/jpg,image/jpeg,image/png,image/gif'"
+              :placeholder="'Click here to upload an image'"
+              @file-size-exceed="onFileSizeExceed"
+              @file-choose="onFileChoose"
+              @image-remove="isFileChoose = false, fileSizeExceed = false"
+            >
+            </croppa>
+          </div>
+          <div class="field" v-if="fileSizeExceed">
+            <div class="fieldarea">
+              <p class="alert">Ukuran maksimum 5MB</p>
+            </div>
+          </div>
+          <a
+            href="#"
+            class="close button button-trans modal-upload-foto-save"
+            @click.prevent="saveCrop"
+            v-show="isFileChoose"
+            v-if="!isSaveCrop"
+            >SAVE</a
+          >
+          <!-- <loaderspin v-else /> -->
+
+          <div class="field fieldinfo" v-show="isFileChoose">
+            <div class="fieldarea">
+              <p><i class="icon_lightbulb"></i> Atur foto kamu dengan scroll</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

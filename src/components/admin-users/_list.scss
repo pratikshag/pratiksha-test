@@ -1,0 +1,58 @@
+.ellipsis {
+    display: block;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-width: 200px;
+}
+/deep/ .modal-roles {
+    .modal-body {
+        position: fixed;
+        top: 25%;
+        left: 0;
+        right: 0;
+        margin: 0 auto;
+        background-color: #fff;
+        width: 400px;
+        max-width: 400px;
+        padding: 0;
+        .modal-header {
+            position: relative;
+            text-align: center;
+            display: block;
+            .modal__heading {
+                font-weight: bold;
+                letter-spacing: .5px;
+            }
+            .modal-dismiss {
+                font-size: 45px;
+                top: calc(1rem - 4px);
+                right: 1rem;
+                cursor: pointer;
+            }
+        }
+        .roles-content {
+            text-align: center;
+            padding: 0 15px 15px;
+            .form-control {
+                &:focus {
+                    box-shadow: none;
+                }
+                &.granted {
+                    width: 100%;
+                    margin-bottom: 15px;
+                    border: 1px solid #ccc;
+                }
+            }
+            button {
+                margin-top: 15px;
+                padding: 8px 15px;
+                border-radius: 5px;
+                border: 1px solid #f97ea7;
+                background-color: #f97ea7;
+                color: #fff;
+                letter-spacing: .5px;
+            }
+        }
+    }
+}

@@ -1,0 +1,129 @@
+<div>
+  <div class="sc-pagination">
+    <h1 class="sc-pagination-label">Pagination</h1>
+    <div class="sc-pagination-form">
+      <input
+        class="sc-btn sc-btn-secondary sc-pagination-btn"
+        v-if="pagination.currentPage > 1"
+        type="submit"
+        value="Prev"
+        v-on:click="gotoPage(pagination.currentPage - 1)"
+      />
+      <input
+        class="sc-pagination-input"
+        type="number"
+        min="1"
+        :max="pagination.totalPage"
+        name=""
+        v-model="pagination.currentPage"
+        @keyup.enter.prevent="gotoPage(pagination.currentPage)"
+      />
+      <input
+        class="sc-btn sc-btn-secondary sc-pagination-btn"
+        v-if="pagination.totalPage > pagination.currentPage"
+        type="submit"
+        value="Next"
+        v-on:click="gotoPage(pagination.currentPage+1)"
+      />
+    </div>
+  </div>
+
+  <router-link :to="`/horoscope/add`" class="sc-btn sc-btn-lg sc-btn-rounded sc-btn-primary sc-mb-15"
+    >+ ADD</router-link
+  >
+
+  <div class="sc-filter">
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Select Zodiac: </label>
+      <select class="sc-filter-input" name="cat" v-model="filter.zodiac">
+        <option value="" selected>-- Select zodiac --</option>
+        <option v-for="zodiac in dataZodiac">{{ zodiac.name }}</option>
+      </select>
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Select Status: </label>
+      <select class="sc-filter-input" name="cat" v-model="filter.status">
+        <option value="" selected>-- Select Status --</option>
+        <option value="draft">Draft</option>
+        <option value="scheduled">Scheduled</option>
+        <option value="published">Published</option>
+      </select>
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">From: </label>
+      <input class="sc-filter-input" type="date" v-model="filter.date_begin" />
+    </div>
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">To: </label>
+      <input class="sc-filter-input" type="date" v-model="filter.date_end" />
+    </div>
+    <div class="sc-filter-item sc-filter-button">
+      <input
+        type="submit"
+        value="Filter"
+        class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-mr-10"
+        @click="filterData"
+      />
+    </div>
+  </div>
+
+  <div class="sc-table-responsive">
+  <table class="sc-table">
+    <thead>
+      <tr>
+        <th width="130px">
+          DATE CREATED
+          <sortField v-show="!is_loading" field="created_at" :sort="sortParam" @sort="sort" />
+        </th>
+        <th width="170px">ZODIAC</th>
+        <th>SUMMARY</th>
+        <th style="min-width: 140px">
+          STATUS
+          <sortField v-show="!is_loading" field="publish_at" :sort="sortParam" @sort="sort" />
+        </th>
+        <th width="120px">
+          DATE PUBLISH
+          <sortField v-show="!is_loading" field="publish_at" :sort="sortParam" @sort="sort" />
+        </th>
+        <th width="80px">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <div v-if="is_loading" class="loader" style="text-align: center">
+        <ball-pulse-loader color="#000000" size="20px"></ball-pulse-loader>
+      </div>
+
+      <TableEmpty :cols="6" v-if="!is_loading && !(data && data.length)" />
+
+      <tr v-for="horoscopes in data">
+        <td>{{ dateFormat_Ymd(horoscopes.created_at, '-') }}</td>
+        <td>{{ (horoscopes.horoscope && horoscopes.horoscope.name) ? horoscopes.horoscope.name : '' }}</td>
+        <td>{{ horoscopes.summary }}</td>
+
+        <td v-if="horoscopes.status && (new Date()) >= (new Date(horoscopes.publish_at))">published</td>
+        <td v-else-if="horoscopes.status && date_today != dateFormat_Ymd(horoscopes.publish_at, '-')">scheduled</td>
+        <td v-else>draft</td>
+
+        <td>{{ (horoscopes.publish_at)?dateFormat_Ymd(horoscopes.publish_at, '-'):'' }}</td>
+        <td>
+          <router-link :to="`/horoscope/edit/${horoscopes._id}`">
+            <span title="Edit" aria-hidden="true" class="fa fa-pencil btn_edit"></span>
+          </router-link>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="sc-pagination-page">
+    <div class="sc-pagination-content">
+      <div class="sc-pagination-text-container">
+        <div class="sc-pagination-text">Page: {{ pagination.currentPage }} out of {{ pagination.totalPage}}</div>
+        <div class="sc-pagination-text">Total Record: {{ pagination.currentTotalRecord }}</div>
+      </div>
+      <div class="table-pagination">
+        <DisplayPerPage :all="all" @display="display"></DisplayPerPage>
+        <Pagination :limit="pagination.limit" :skip="pagination.skip" :total="pagination.totalPage" @page="setSkip" />
+      </div>
+    </div>
+  </div>
+</div>

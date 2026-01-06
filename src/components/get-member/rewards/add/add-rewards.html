@@ -1,0 +1,247 @@
+<div>
+    <div class="sc-form">
+      <div class="loader">
+        <ball-pulse-loader v-if="is_loading" color="#000" size="20px"></ball-pulse-loader>
+      </div>
+      <div class="sc-form-title">Add Rewards MGM</div>
+      <form id="formRewards" data-vv-scope="formRewards" class="sc-form-container">
+        <div class="sc-form-group sc-form-group-half" :class="{'has-error': errors.has('formRewards.rewards.name') }">
+            <label class="sc-form-label" for="brand_name">Name<sup>*</sup></label>
+            <div class="sc-form-child-group">
+              <input
+                class="sc-form-input"
+                style="width: 100%"
+                id="title"
+                name="title"
+                type="text"
+                v-model="rewards.name"
+                v-validate="'required'"
+              />
+              <p v-show="errors.has('formRewards.rewards.name')" class="alert">{{ errors.first('formRewards.rewards.name') }}</p>
+            </div>
+        </div>
+        <div
+          class="sc-form-group sc-form-group-half"
+          :class="{'has-error': errors.has('formRewards.rewards.available_quota') }"
+        >
+          <label class="sc-form-label" for="brand_name">Total Available Reward <sup>*</sup></label>
+          <div class="sc-form-child-group">
+            <input
+              class="sc-form-input"
+              style="width: 100%"
+              id="url"
+              name="url"
+              type="number"
+              v-model="rewards.available_quota"
+            />
+            <p v-show="errors.has('formRewards.rewards.available_quota')" class="alert">
+              {{ errors.first('formRewards.rewards.available_quota') }}
+            </p>
+          </div>
+        </div>
+        <div class="sc-form-group sc-form-group-half">
+            <label class="sc-form-label" for="urutan">Reward For</label>
+            <div class="sc-form-child-group">
+              <select
+                class="sc-form-input"
+                style="width: 100%"
+                id="order"
+                name="status"
+                v-model="rewards.apply_discount_for"
+              >
+                <option value="">-</option>
+                <option v-for="rewardss in reward_for" :value="rewardss.value">{{rewardss.name}}</option>
+              </select>
+            </div>
+        </div>
+        <div class="sc-form-group sc-form-group-half">
+            <label class="sc-form-label" for="urutan">Reward Type</label>
+            <div class="sc-form-child-group">
+              <select
+                class="sc-form-input"
+                style="width: 100%"
+                id="order"
+                name="status"
+                v-model="rewards.type"
+              >
+                <option value="">-</option>
+                <option v-for="types in reward_type" :value="types.value">{{types.name}}</option>
+              </select>
+            </div>
+        </div>
+        <div
+          class="sc-form-group sc-form-group-half"
+        >
+          <label class="sc-form-label" for="brand_name">Soco Point </label>
+          <div class="sc-form-child-group">
+            <input
+              class="sc-form-input"
+              style="width: 100%"
+              id="url"
+              name="url"
+              type="number"
+              v-model="rewards.soco_points"
+            />
+          </div>
+        </div>
+        <div class="sc-form-group sc-form-group-half">
+          <label class="sc-form-label" for="brand_name">Voucher Title</label>
+          <div class="sc-form-child-group">
+            <input
+              class="sc-form-input"
+              style="width: 100%"
+              id="title"
+              name="title"
+              type="text"
+              v-model="rewards.voucher.name"
+            />
+          </div>
+        </div>
+        <div class="sc-form-group sc-form-group-half">
+          <label class="sc-form-label" for="brand_name">Per User Limit</label>
+          <div class="sc-form-child-group">
+            <input
+              class="sc-form-input"
+              style="width: 100%"
+              id="title"
+              name="title"
+              type="number"
+              v-model="rewards.voucher.quota_per_user"
+            />
+          </div>
+        </div>
+        <div class="sc-form-group sc-form-group-half">
+          <label class="sc-form-label" for="brand_name">Minimum Requirement</label>
+          <div class="sc-form-child-group">
+            <input
+              class="sc-form-input"
+              style="width: 100%"
+              id="title"
+              name="title"
+              type="number"
+              v-model="rewards.voucher.rules.order.min_amount"
+            />
+          </div>
+        </div>
+        <div class="sc-form-group sc-form-group-half">
+          <label class="sc-form-label" for="urutan">Voucher Type</label>
+          <div class="sc-form-child-group">
+            <select
+              class="sc-form-input"
+              style="width: 100%"
+              id="order"
+              name="status"
+              v-model="rewards.voucher.discount_type"
+            >
+              <option value="">-</option>
+              <option v-for="voucherss in discount_type" :value="voucherss.value">{{voucherss.name}}</option>
+            </select>
+          </div>
+        </div>
+        <div class="sc-form-group sc-form-group-half" v-if="rewards.voucher.discount_type === 'percentage'">
+          <label class="sc-form-label" for="brand_name">Deduction Percentage</label>
+          <div class="sc-form-child-group">
+            <input
+              class="sc-form-input"
+              style="width: 100%"
+              id="title"
+              name="title"
+              type="number"
+              v-model="rewards.voucher.discount_info.deduction_percentage"
+            />
+          </div>
+        </div>
+        <div class="sc-form-group sc-form-group-half" v-if="rewards.voucher.discount_type === 'amount'">
+          <label class="sc-form-label" for="brand_name">Deduction Amount</label>
+          <div class="sc-form-child-group">
+            <input
+              class="sc-form-input"
+              style="width: 100%"
+              id="title"
+              name="title"
+              type="number"
+              v-model="rewards.voucher.discount_info.deduction_amount"
+            />
+          </div>
+        </div>
+        <div class="sc-form-group sc-form-group-half">
+          <label class="sc-form-label" for="brand_name">Maximum Amount</label>
+          <div class="sc-form-child-group">
+            <input
+              class="sc-form-input"
+              style="width: 100%"
+              id="title"
+              name="title"
+              type="number"
+              v-model="rewards.voucher.rules.order.max_amount"
+            />
+          </div>
+        </div>
+        <div class="sc-form-group sc-form-group-half">
+          <label class="sc-form-label" for="urutan">Voucher End Date</label>
+          <Datetime
+            name="to_date_voucher"
+            type="datetime"
+            input-style="display: block; width: 100%;"
+            v-model="rewards.voucher.to_date"
+            input-class="sc-form-input"
+          ></Datetime>
+        </div>
+        <div class="sc-form-group sc-form-group-half">
+          <label class="sc-form-label" for="urutan">Start Date<sup>*</sup></label>
+          <Datetime
+            name="from_date"
+            type="datetime"
+            input-style="display: block; width: 100%;"
+            v-model="rewards.from_date"
+            input-class="sc-form-input"
+          ></Datetime>
+        </div>
+        <div class="sc-form-group sc-form-group-half">
+          <label class="sc-form-label" for="urutan">End Date<sup>*</sup></label>
+          <Datetime
+            name="to_date"
+            type="datetime"
+            input-style="display: block; width: 100%;"
+            v-model="rewards.to_date"
+            input-class="sc-form-input"
+          ></Datetime>
+        </div>
+  
+        <div class="sc-form-group sc-form-group-half">
+          <label class="sc-form-label" for="urutan">Status<sup>*</sup></label>
+          <div class="sc-form-child-group">
+            <select class="sc-form-input" style="width: 100%" id="order" name="status" v-model="rewards.is_active">
+              <option value="">Choose Status</option>
+              <option v-for="status in reward_status" :value="status.value">{{status.name}}</option>
+            </select>
+          </div>
+        </div>
+  
+        <!-- ..................Terms & Condition.......... -->
+  
+        <div class="form-field term-parent-wrap add col-6 mb-5" id="editorVue">
+          <label class="sc-form-label" for="tag-name">Terms & Condition <sup>*</sup></label>
+          <vue-editor
+            id="editor"
+            v-model="rewards.description"
+            :editorToolbar="customToolbar"
+          >
+          </vue-editor>
+          <input type="hidden" v-model="rewards.description" name="articleText" v-validate="'required'" />
+        </div>
+        <div class="sc-form-group sc-form-group-half">
+          <div>
+            <input
+              type="Submit"
+              value="Submit"
+              id="form_submit_btn"
+              class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded"
+              @click.prevent="save('formRewards')"
+            />
+          </div>
+        </div>
+      </form>
+    </div>
+</div>
+  

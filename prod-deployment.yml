@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: soco-admin-GREEN_VERSION
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: soco-admin
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 10%
+      maxUnavailable: 25%
+  minReadySeconds: 5
+  revisionHistoryLimit: 10
+  template:
+    metadata:
+      labels:
+        app: soco-admin
+        version: GREEN_VERSION
+    spec:
+      containers:
+      - name: soco-admin
+        image: IMAGE_NAME_TO_BE_REPLACED
+        ports:
+        - name: soco-admin-port
+          containerPort: 80
+        livenessProbe:
+          httpGet:
+            path: /
+            port: soco-admin-port
+          initialDelaySeconds: 15
+          timeoutSeconds: 30
+        resources:
+          requests:
+            memory: "10Mi"
+            cpu: "8m"
+          limits:
+            # Keep same values for memory as requests and set no CPU limits
+            memory: "10Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: soco-admin-service
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: soco-admin-port
+  - name: https
+    port: 443
+    targetPort: soco-admin-port
+  selector:
+    app: soco-admin
+    version: BLUE_VERSION
+  type: ClusterIP  # Required for ALB ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: soco-admin-ingress
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internal
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/subnets: subnet-0a7f3fbc34833aa10,subnet-0ba3f36882d533c3a
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-southeast-1:244177188771:certificate/1266b3f7-c817-4b81-a596-44069f3b11bb
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS13-1-2-2021-06
+    alb.ingress.kubernetes.io/group.name: info-private-alb-big  # Shared ALB group name 
+spec:
+  ingressClassName: alb
+  rules:
+    - host: socoguru.sociolla.info
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: soco-admin-service
+                port:
+                  number: 80

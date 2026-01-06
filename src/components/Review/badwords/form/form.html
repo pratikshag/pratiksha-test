@@ -1,0 +1,35 @@
+<div>
+  <div class="sc-form">
+    <div class="sc-form-title">BAD WORD</div>
+    <form data-vv-scope="form" class="sc-form-container">
+      <div class="sc-form-group" :class="{'has-error': errors.has('form.name') }">
+        <label class="sc-form-label">Bad Word</label>
+        <div class="sc-form-child-group">
+          <input
+            v-model="temp.name"
+            name="name"
+            type="text"
+            class="sc-form-input"
+            v-validate="'required'"
+            autocomplete="off"
+          />
+          <p v-show="errors.has('form.name')" class="alert">{{ errors.first('form.name') }}</p>
+        </div>
+      </div>
+
+      <div v-if="is_loading" class="loader" style="text-align: center">
+        <ball-pulse-loader color="#000000" size="20px"></ball-pulse-loader>
+      </div>
+      <div v-else class="sc-form-group">
+        <div>
+          <input
+            @click.prevent="saveForm()"
+            value="Submit"
+            type="Submit"
+            class="sc-btn sc-btn-primary sc-btn-md sc-btn-rounded sc-uppercase"
+          />
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

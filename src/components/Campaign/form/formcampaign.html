@@ -1,0 +1,157 @@
+<div>
+  <div>
+    <div class="sc-form">
+      <div class="sc-form-title" v-if="campaign_id && campaign_id != ''">Edit Campaign</div>
+      <div class="sc-form-title" v-else>Add Campaign</div>
+
+      <form id="form_category" class="sc-form-container" @submit.prevent="saveCampaign('form-category')">
+        <div class="sc-form-group">
+          <label class="sc-form-label" for="tag-name">Name </label>
+          <input
+            class="sc-form-input"
+            name="tag-name"
+            id="tag-name"
+            type="text"
+            v-model="data.title"
+            size="40"
+            aria-required="true"
+          />
+        </div>
+        <div class="sc-form-group">
+          <label class="sc-form-label" for="tag-name">Banner URL </label>
+          <input
+            class="sc-form-input"
+            name="tag-name"
+            id="tag-name"
+            type="text"
+            v-model="data.banner"
+            size="40"
+            aria-required="true"
+          />
+          <p style="color: #666"><i>Banner url for details page</i></p>
+        </div>
+        <div class="sc-form-group">
+          <label class="sc-form-label" for="tag-name">Prize Detail</label>
+          <textarea class="sc-form-input" name="description" id="description" v-model="data.prize_details"></textarea>
+        </div>
+        <div class="sc-form-group" id="editorVue">
+          <label class="sc-form-label" for="tag-name">Campaign Description </label>
+          <vue-editor
+            id="editor"
+            useCustomImageHandler
+            v-model="data.description"
+            :editorToolbar="customToolbar"
+            :customModules="customModulesForEditor"
+            :editorOptions="editorSettings"
+          >
+          </vue-editor>
+          <input
+            class="sc-form-input"
+            type="hidden"
+            v-model="data.description"
+            name="articleText"
+            v-validate="'required'"
+          />
+        </div>
+        <div class="sc-form-group" v-if="!subcat_id">
+          <label class="sc-form-label" for="tag-category">Expired By</label>
+          <input class="sc-form-input" type="date" name="title" value="" maxlength="140" v-model="data.end_date" />
+        </div>
+        <div class="sc-form-group">
+          <label class="sc-form-label" for="parent">Status</label>
+          <select class="sc-form-input" v-model="data.is_active">
+            <option :value="true" selected>Active</option>
+            <option :value="false" selected>Not Active</option>
+          </select>
+        </div>
+        <div class="block-upload-cover-image" :class="{'has-error': errors.has('form-article.image') }">
+          <p class="title">
+            <span class="wrapper">
+              <span class="label">UPLOAD BANNER/IMAGE</span>
+            </span>
+          </p>
+          <div class="layer">
+            <img v-if="data.thumbnail" :src="data.thumbnail" width="100%" />
+            <p v-if="data.thumbnail">
+              <a style="color: black" @click.prevent="triggerUpload">Click here to change cover image</a>
+            </p>
+          </div>
+          <div class="layer border-cover" @click.prevent="triggerUpload" v-show="!data.thumbnail">
+            <div class="inner">
+              <img :src="require(`@/img/icon-upload-cover-image.png`)" />
+              <p>
+                Upload your cover image <span class="required">*</span><br />
+                Recommended size 1280 x 768 px (max. 5MB)
+              </p>
+              <input type="hidden" name="image" class="hidden input-desktop" v-model="data.thumbnail" />
+            </div>
+          </div>
+          <p v-show="errors.has('form-article.image')" class="alert">{{ errors.first('form-article.image') }}</p>
+        </div>
+        <div class="sc-form-group sc-mt-15">
+          <div>
+            <input
+              type="submit"
+              v-on:click="clicked=true"
+              name="submit"
+              id="submit"
+              value="Save Campaign"
+              class="sc-btn sc-btn-rounded sc-btn-primary sc-btn-md sc-uppercase"
+            />
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div id="undertone-modal" class="custom-modal modal-mask modal--upload-picture" v-if="showModal">
+      <div slot="body">
+        <div class="modal-body">
+          <div class="modal-header">
+            <h4 class="modal__heading">PILIH COVER IMAGE KAMU</h4>
+            <span class="link modal-dismiss" @click="showModal = false, isFileChoose = false, fileSizeExceed = false"
+              >&times;</span
+            >
+          </div>
+
+          <div class="croppa-wrapper">
+            <croppa
+              v-model="croppa"
+              :height="460.8"
+              :width="768"
+              :prevent-white-space="false"
+              initial-size="contain"
+              :file-size-limit="5242880"
+              :accept="'image/jpg,image/jpeg,image/png'"
+              :placeholder="'Click here to upload an image'"
+              @file-size-exceed="onFileSizeExceed"
+              @file-choose="onFileChoose"
+              @image-remove="isFileChoose = false, fileSizeExceed = false"
+            >
+            </croppa>
+          </div>
+
+          <div class="field" v-if="fileSizeExceed">
+            <div class="fieldarea">
+              <p class="alert">Ukuran maksimum 5MB</p>
+            </div>
+          </div>
+          <a
+            href="#"
+            class="close button button-trans modal-upload-foto-save"
+            @click.prevent="saveCrop"
+            v-show="isFileChoose"
+            v-if="!isSaveCrop"
+            >SAVE</a
+          >
+          <br />
+
+          <div class="field fieldinfo" v-show="isFileChoose">
+            <div class="fieldarea">
+              <p><i class="icon_lightbulb"></i> Atur foto kamu dengan scroll</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

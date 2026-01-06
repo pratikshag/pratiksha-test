@@ -1,0 +1,57 @@
+<div class="login bj">
+  <div class="wrapper">
+    <div v-if="$store.state.modal.showMessageLimit" class="information-slow-down">
+      <img src="/assets/img/exclamation-mark.svg" alt="icon-close-modal" class="img-svg" />
+      <div class="desc" v-if="$store.state.modal.messageLimitCount > 3">
+        <template v-if="$store.state.modal.messageLimitCount === 4"
+          >Please <strong>Reset Your Password</strong> before the account is blocked</template
+        >
+        <template v-else-if="$store.state.modal.messageLimitCount === 5"
+          >Your account is blocked because 5 times you failed to login. Please <strong>Reset Your Password</strong> to
+          access the account</template
+        >
+      </div>
+    </div>
+    <div class="login-wrapper">
+      <h2>{{'auth.welcome' | translate}}</h2>
+
+      <div class="form-group">
+        <div class="input-group">
+          <input
+            type="text"
+            id="email"
+            v-model="loginData.username"
+            style="width: 100%"
+            @keyup.enter="login()"
+            required="required"
+          />
+          <label class="control-label" for="email">{{'auth.email' | translate}}</label><i class="bar"></i>
+        </div>
+      </div>
+
+      <div class="form-group with-icon-right">
+        <div class="input-group">
+          <input
+            type="password"
+            id="password"
+            v-model="loginData.password"
+            style="width: 100%"
+            @keyup.enter="login()"
+            required="required"
+          />
+          <i></i>
+          <label class="control-label" for="password">{{'auth.password' | translate}}</label><i class="bar"></i>
+        </div>
+      </div>
+
+      <div class="flex-lg-row down-container">
+        <template v-if="showLoader">
+          <ball-pulse-loader color="#000000" size="20px"></ball-pulse-loader>
+        </template>
+        <template v-else>
+          <button class="form-control btn btn-primary" @click.prevent="login()">LOGIN</button>
+        </template>
+      </div>
+    </div>
+  </div>
+</div>

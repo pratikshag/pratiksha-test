@@ -1,0 +1,31 @@
+@import '~@/sass/partial/help-reset';
+@import '~@/sass/partial/help-mixin';
+
+.help-categories {
+    table {
+        > tbody {
+            ::v-deep {
+                > tr {
+                    > td {
+                        &.category-icon {
+                            padding: 0 8px;
+                            vertical-align: middle;
+                            > img {
+                                object-fit: cover;
+                            }
+                        }
+                        &:nth-child(3) {
+                            text-align: right;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+::v-deep {
+    ul.actions {
+        @include actions
+    }
+}

@@ -1,0 +1,23 @@
+<div class="sc-form">
+  <div class="sc-form-container">
+    <div class="sc-form-title">Add New Banned Username</div>
+    <div class="sc-form-group">
+      <label for="brand_name" class="sc-form-label">Username</label>
+      <div class="sc-form-child-group">
+        <input class="sc-form-input" id="username" name="username" type="text" v-model="username" />
+      </div>
+    </div>
+
+    <div class="sc-form-group">
+      <div>
+        <input
+          type="Submit"
+          value="Submit"
+          id="form_submit_btn"
+          @click.prevent="addBanneduser()"
+          class="sc-btn sc-btn-rounded sc-btn-md sc-btn-primary sc-uppercase"
+        />
+      </div>
+    </div>
+  </div>
+</div>

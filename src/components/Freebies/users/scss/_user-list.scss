@@ -1,0 +1,116 @@
+@import '~@/sass/partial/help-reset';
+@import '~@/sass/partial/help-mixin';
+
+.user-list {
+
+    .action-buttons {
+        display: flex;
+        justify-content: flex-end;
+        margin: 0 0 15px;
+        padding-left: 0;
+
+        > li {
+            margin-left:5px;
+            .btn {
+                text-transform: uppercase;
+            }
+        }
+    }
+
+    table {
+        > thead {
+            > tr {
+                > th {
+                    &.is-sort {
+                        &:focus,
+                        &:hover {
+                            background-color: $pink;
+                            cursor: pointer;
+                        }
+                    }
+                }
+            }
+        }
+        > tbody::v-deep {
+            > tr {
+                > td {
+                    &.state {
+                        text-align: right;
+                        padding: 0 .5rem;
+                        .btn,
+                        .badge {
+                            text-transform: uppercase;
+                            font-size: .7rem
+                        }
+                    }
+                    ul.missions {
+                        padding-left: 0;
+                        list-style: none;
+                        > li {
+                            white-space: nowrap;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    ::v-deep {
+        .vuestic-modal {
+            > .modal-container {
+                > .modal {
+                    > .modal-dialog {
+                        > .modal-content {
+                            // > .modal-header {}
+                            > .modal-body {
+                                ul {
+                                    margin: 0;
+                                    padding-left: 0;
+
+                                    > li {
+                                        &.csv-form {
+                                            width:100%;
+                                            margin-bottom:10px;
+                                            h5 {
+                                                font-weight:bold;
+                                                margin-bottom:10px;
+                                            }
+                                        }
+                                        &:nth-of-type(even) {
+                                            background-color: $greylight;
+                                        }
+                                        > a {
+                                            color: #000;
+                                            display: block;
+                                            padding: 10px 15px;
+
+                                            > .number {
+                                                margin-right: 10px;
+                                            }
+                                            > .email {
+                                                float: right;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            > .modal-footer {
+                                flex-direction: row-reverse;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+::v-deep {
+    ul.actions {
+        @include actions
+    }
+}
+
+.is-tooltip-danger i {
+	color: #ffffff;
+}

@@ -1,0 +1,43 @@
+@import '~@/sass/partial/help-reset';
+@import '~@/sass/partial/help-mixin';
+
+.sbn-jobs {
+    table {
+        > tbody {
+            ::v-deep {
+                > tr {
+                    > td {
+                        &.banner {
+                            padding: 0 8px;
+                            vertical-align: middle;
+                            > img {
+                                object-fit: cover;
+                            }
+                        }
+                        &.job-title,
+                        &.job-type {
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap
+                        }
+                        &.job-title {
+                            max-width: 170px
+                        }
+                        &.job-type {
+                            max-width: 130px
+                        }
+                        &.is-job-over {
+                            color: $red
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+::v-deep {
+    ul.actions {
+        @include actions
+    }
+}

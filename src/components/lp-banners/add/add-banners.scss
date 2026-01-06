@@ -1,0 +1,102 @@
+$submit-button-background-color: #000;
+$submit-button-text-color: #fff;
+
+$is-background: #fff;
+$is-trigger-text-color: #dc6e9e;
+$is-placeholder-background: #d5d5d5;
+$is-placeholder-text-color: #999;
+
+.image-selector {
+  background: $is-background;
+  padding: 1rem;
+  width: 100%;
+
+  &__title {
+    font-weight: bold;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+  }
+
+  &_selected &__image {
+    img {
+      max-width: 100%;
+      max-height: 100%;
+    }
+  }
+
+  &__image {
+    cursor: pointer;
+
+    &_placeholder {
+      align-items: center;
+      border: 1px dashed $is-placeholder-background;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 7.875rem;
+
+      p {
+        color: $is-placeholder-text-color;
+        font: 0.8125rem 'lato-regular', sans-serif;
+        line-height: 1.0625rem;
+        text-align: center;
+      }
+    }
+  }
+
+  &__trigger {
+    color: $is-trigger-text-color !important;
+    margin-top: 1rem;
+  }
+}
+
+.banner-form {
+  label {
+    margin: 0;
+    padding: 0.5rem;
+    text-align: right;
+    width: 10rem;
+  }
+
+  input,
+  select {
+    flex: 1;
+    width: 100% !important;
+    font-size: 1rem;
+    height: 2.25rem;
+    padding: 0.5rem 1rem;
+  }
+
+  &__loader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+  }
+
+  &__title {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  &__group {
+    align-items: center;
+    display: flex;
+    margin-bottom: 1.5rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  &__file-input {
+    display: none;
+  }
+
+  &__submit {
+    background: $submit-button-background-color;
+    color: $submit-button-text-color;
+    font-size: 1rem;
+    margin-left: auto;
+    padding: 0.75rem 1.5rem;
+  }
+}

@@ -1,0 +1,31 @@
+<div class="sc-form">
+  <div class="sc-form-title">Add New Auto Reshare</div>
+  <div class="container-fluid container-fixed-lg">
+    <div class="sc-form-group">
+      <label for="brand_name" class="sc-form-label">EDITOR/CONTRIBUTOR</label>
+      <div class="col-sm-4">
+        <input
+          class="sc-form-input"
+          style="margin-left: 200px; width: 100%"
+          id="editor"
+          name="editor"
+          type="text"
+          v-model="editor"
+        />
+      </div>
+    </div>
+    <hr />
+
+    <div class="sc-form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <input
+          type="submit"
+          value="Submit"
+          v-on:click="addautoreshare"
+          id="form_submit_btn"
+          class="sc-btn sc-btn-primary sc-btn-rounded sc-btn-md sc-uppercase"
+        />
+      </div>
+    </div>
+  </div>
+</div>

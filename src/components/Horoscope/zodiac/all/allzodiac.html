@@ -1,0 +1,32 @@
+<div>
+  <div class="sc-table-responsive">
+    <table class="sc-table">
+      <thead>
+        <tr>
+          <th width="300px">ID</th>
+          <th>Name</th>
+          <th>Date Start</th>
+          <th style="min-width: 140px">Date End</th>
+          <th width="140px">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <TableEmpty :cols="5" v-if="!is_loading && !(allzodiac && allzodiac.length)" />
+
+        <tr v-for="horoscopes in allzodiac">
+          <td>{{horoscopes._id.substring(21,24)}}</td>
+          <td>{{horoscopes.name}}</td>
+          <td>{{horoscopes.start_date.substring(0,10)}}</td>
+          <td>{{horoscopes.end_date.substring(0,10)}}</td>
+          <td>
+            <div>
+              <router-link :to="`/horoscope/zodiac/edit/${horoscopes._id}`">
+                <span title="Edit" aria-hidden="true" class="fa fa-pencil btn_edit"></span>
+              </router-link>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

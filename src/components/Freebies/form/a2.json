@@ -1,0 +1,47 @@
+{
+	"title": "thrid freebies",
+	"banner": "https://sooc-uat-uploads.s3.amazonaws.com/47694768_220118045531636_8856230059722858311_n.jpg",
+	"terms_condition": "tos term and cond",
+	"quota": 10,
+	"name": "name of freebies",
+	"type": "direct",
+	"user_rule": {
+		"level": "SOCO MEMBER",
+		"age": {
+			"ulimit": 40,
+			"llimit": 10
+		},
+		"tags": [
+			{
+				"id": 123213,
+				"name": "Kulit Sawo Matang",
+				"image": "https://s3-ap-southeast-1.amazonaws.com/soc-uploader/assets/2018/Skin+Colors/sawo-matang.svg"
+			}
+		]
+	},
+	"start_date": "2019-07-10 00:00:00",
+	"end_date": "2019-07-30 00:00:00",
+	"is_active": false,
+	"related_content": [
+		{
+			"post_id": "5cc0a0ccf9e70c1fb46c2a15",
+			"newsfeed_id": "5c1bc2143ad3fa7d5e607e22"
+		},
+		{
+			"post_id": "5cc06eb30299f80b7744ac91",
+			"newsfeed_id": "5c4592337ea1bf0007b9a7e0"
+		}
+	],
+	"products": [
+		{
+			"id": 6383,
+			"name": "Advance Snail 92 All in One Cream",
+			"image": "https://s3-ap-southeast-1.amazonaws.com/soc-uploader/images/IPteU1y9GbNvJbmH2LoExB8jZjgLpQ_1499140427.jpg"
+		},
+		{
+			"id": 6,
+			"name": "Matte Lipstick",
+			"image": "https://s3-ap-southeast-1.amazonaws.com/img-sociolla/img/p/1/2/6/0/7/12607-large_default.jpg"
+		}
+	]
+}

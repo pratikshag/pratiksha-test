@@ -1,0 +1,85 @@
+<div>
+  <div class="sc-table-title">Set Highlight for: <a href="#"> {{currentLocation.label}}</a></div>
+  <div class="sc-filter">
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Location</label>
+      <select ref="selectDropdown" name="location" class="sc-filter-input" v-model="selectedLocation">
+        <option :selected="loc.default" v-for="loc in type" :value="loc">{{ loc.label }}</option>
+      </select>
+
+      <!-- <button
+        v-if="showCustomButton"
+        type="button"
+        class="sc-btn sc-btn-rounded sc-btn-md sc-btn-secondary sc-mt-10 sc-mb-10"
+        @click="showCustomForm = ! showCustomForm"
+      >
+        <i class="fa fa-cog"></i> {{ textCustom }}
+      </button> -->
+
+      <template v-if="selectedLocation.name == 'popular-category'">
+        <label class="sc-filter-label">Category</label>
+        <select name="category" class="sc-filter-input" v-model="selectedCategory">
+          <option v-for="cat in categories" :value="cat">{{cat.name}}</option>
+        </select>
+      </template>
+
+      <input
+        v-if="showSubmit"
+        type="submit"
+        name="filter_action"
+        id="post-query-submit"
+        class="sc-btn sc-btn-rounded sc-btn-md sc-btn-secondary"
+        @click="submitLocation"
+      />
+
+      <template v-if="currentLocation && Object.keys(currentLocation).length && !showSubmit">
+        <label class="sc-filter-label sc-mt-10">Title</label>
+        <input type="text" v-model="currentLocation.title" class="sc-filter-input">
+        <input
+          type="submit"
+          value="Save"
+          class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded"
+          @click="onSaveTitle"
+        />
+      </template>
+    </div>
+  </div>
+
+  <CustomForm v-if="showCustomForm" @submit="onSubmitCustom" />
+
+  <div class="sc-table-responsive" v-if="currentLimit && !showSubmit">
+    <table class="sc-table">
+      <thead>
+        <tr>
+          <th width="30px">No</th>
+          <th width="200px">Name</th>
+          <th width="130px">Brand</th>
+          <th width="70px">Rating</th>
+          <th width="70px">Review</th>
+          <th width="400px">Date</th>
+          <th width="70px;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <div v-if="is_loading" class="loader" style="text-align: center">
+          <ball-pulse-loader color="#000000" size="20px"></ball-pulse-loader>
+        </div>
+
+        <TableEmpty :cols="7" v-if="!is_loading && !(featuredProducts && featuredProducts.length)" />
+
+        <template v-else v-for="(product, index) in featuredProducts">
+          <featuredRow
+            :data="product"
+            :position="index"
+            :selectedLocation="selectedLocation"
+            :selectedCategory="selectedCategory"
+            :key="index"
+            @deleteAction="getFeaturedProducts"
+            @createAction="getFeaturedProducts"
+          >
+          </featuredRow>
+        </template>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,41 @@
+@import '~@/sass/partial/help-reset';
+@import '~@/sass/partial/help-mixin';
+
+.help-content {
+    > table {
+        > thead {
+            > tr {
+                > th {
+                    &.is-sort {
+                        &:focus,
+                        &:hover {
+                            background-color: $pink;
+                            cursor: pointer;
+                        }
+                    }
+                }
+            }
+        }
+        > tbody::v-deep {
+            > tr {
+                > td {
+                    &:first-child {
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                        max-width: 0;
+                    }
+                    &:nth-child(7) {
+                        text-align: right;
+                    }
+                }
+            }
+        }
+    }
+}
+
+::v-deep {
+    ul.actions {
+        @include actions
+    }
+}

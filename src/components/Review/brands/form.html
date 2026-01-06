@@ -1,0 +1,194 @@
+<div class="sc-form">
+  <div class="sc-form-breadcrumb">BRAND / {{ temp.name }}</div>
+
+  <div class="sc-form-title">Brand Informations</div>
+
+  <div class="sc-form-container">
+    <div class="sc-form-group sc-form-group-full sc-row">
+      <div class="sc-row-item">
+        <div class="sc-form-group sc-form-group-full">
+          <label class="sc-form-label" for="name">Name</label>
+          <input
+            name="name"
+            id="name"
+            type="text"
+            aria-required="true"
+            v-model="temp.name"
+            class="sc-form-input"
+            @click.enter="showMsg = false"
+          />
+        </div>
+        <div class="sc-form-group sc-form-group-full">
+          <label class="sc-form-label" for="description">Description</label>
+          <textarea
+            name="description"
+            id="description"
+            type="text"
+            aria-required="true"
+            v-model="temp.description"
+            class="sc-form-input"
+            @click.enter="showMsg = false"
+          ></textarea>
+        </div>
+      </div>
+      <div class="sc-row-item">
+        <div class="sc-form-group sc-form-group-full">
+          <label class="sc-form-label" for="description">Banner Image</label>
+          <img :src="temp.banner" aria-required="true" alt="soco banner" />
+        </div>
+        <div class="sc-form-group sc-form-group-full">
+          <input
+            type="file"
+            name="thisFile"
+            id="thisFile"
+            class="sc-form-input"
+            accept="image/jpg,image/jpeg,image/png,image/gif"
+            @change="uploadImage"
+          />
+        </div>
+        <div class="sc-form-group sc-form-group-full">
+          <!-- <label class="sc-form-label" for="logo">Logo</label> -->
+          <!-- <img :src="temp.logo" style="width: 150px;"><hr> -->
+          <div class="label" style="width: 120px">
+            <p @click.prevent="" v-if="uploadisProcess" class="change-title">Uploading...</p>
+            <label v-else-if="!temp.logo && !uploadisProcess" class="change-title" for="thisFile">Choose a file</label>
+            <label v-else-if="temp.logo && !uploadisProcess" class="change-title" for="thisFile">Change logo</label>
+          </div>
+          <div class="" style="border: none; margin-left: 10px; flex: 1; margin-bottom: 12px">
+            <img v-if="temp.logo" :src="temp.logo" alt="soco" />
+            <img v-else src="/assets/img/dummy_product.svg" alt="soco" />
+          </div>
+          <!-- <button @click.prevent="showModalLogo = true;">Change Logo</button> -->
+        </div>
+      </div>
+    </div>
+
+    <div class="sc-form-title">Meta Field</div>
+    <div class="sc-form-group sc-form-group-full sc-row">
+      <div class="sc-row-item">
+        <div class="sc-form-group sc-form-group-full">
+          <label class="sc-form-label" for="meta-brand-name">Title</label>
+          <input
+            name="meta-brand-name"
+            id="meta-brand-name"
+            type="text"
+            aria-required="true"
+            v-model="temp.meta_title"
+            class="sc-form-input"
+            @click.enter="showMsg = false"
+          />
+        </div>
+
+        <div class="sc-form-group sc-form-group-full">
+          <label class="sc-form-label" for="meta-description">Description</label>
+          <textarea
+            name="meta-description"
+            id="meta-description"
+            type="text"
+            aria-required="true"
+            v-model="temp.meta_description"
+            class="sc-form-input"
+            @click.enter="showMsg = false"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="sc-row-item">
+        <div class="sc-form-group sc-form-group-full">
+          <label class="sc-form-label" for="meta-keyword">Keyword</label>
+          <input
+            name="meta-keyword"
+            id="meta-keyword"
+            type="text"
+            aria-required="true"
+            v-model="temp.meta_keyword"
+            class="sc-form-input"
+            @click.enter="showMsg = false"
+          />
+        </div>
+        <div class="sc-form-group sc-form-group-full">
+          <label class="sc-form-label" for="meta-keyword">Status</label>
+          <select
+            class="sc-form-input"
+            id="is_active_in_review"
+            required=""
+            name="is_active_in_review"
+            v-model="temp.is_active_in_review"
+          >
+            <option value="true">Active In Review</option>
+            <option value="false">Not Active In Review</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="sc-form-group sc-form-group-full sc-row justify-content-end">
+      <div v-if="is_loading" class="loader" style="text-align: center">
+        <ball-pulse-loader color="#000000" size="20px"></ball-pulse-loader>
+      </div>
+      <div v-else class="btn-wrap" style="max-width: 200px">
+        <button
+          class="sc-btn sc-btn-rounded sc-btn-md sc-btn-white sc-uppercase"
+          @click.prevent="$router.push({name: 'brand-list'})"
+        >
+          Cancel
+        </button>
+        <button class="sc-btn sc-btn-rounded sc-btn-md sc-btn-red sc-uppercase" @click.prevent="save">
+          {{ buttonName }}
+        </button>
+      </div>
+    </div>
+
+    <div id="undertone-modal" class="custom-modal modal-mask modal--upload-picture change-product" v-if="showModalLogo">
+      <div slot="body">
+        <div class="modal-body">
+          <div class="modal-header">
+            <h4 class="modal__heading">PILIH LOGO</h4>
+            <span
+              style="cursor: pointer"
+              class="link modal-dismiss"
+              @click="showModalLogo = false, isFileChoose = false, fileSizeExceed = false"
+              >&times;</span
+            >
+          </div>
+          <div class="croppa-wrapper">
+            <croppa
+              v-model="croppa"
+              :height="460.8"
+              :width="768"
+              :prevent-white-space="false"
+              initial-size="contain"
+              :file-size-limit="5242880"
+              :accept="'image/jpg,image/jpeg,image/png,image/gif'"
+              :placeholder="'Click here to upload an image'"
+              @file-size-exceed="onFileSizeExceed"
+              @file-choose="onFileChoose"
+              @image-remove="isFileChoose = false, fileSizeExceed = false"
+            >
+            </croppa>
+          </div>
+          <div class="field" v-if="fileSizeExceed">
+            <div class="fieldarea">
+              <p class="alert">Ukuran maksimum 5MB</p>
+            </div>
+          </div>
+          <a
+            href="#"
+            class="close button button-trans modal-upload-foto-save"
+            @click.prevent="saveCrop"
+            v-show="isFileChoose"
+            v-if="!isSaveCrop"
+            >SAVE</a
+          >
+          <!-- <loaderspin v-else /> -->
+
+          <div class="field fieldinfo" v-show="isFileChoose">
+            <div class="fieldarea">
+              <p><i class="icon_lightbulb"></i> Atur gambar dengan scroll</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

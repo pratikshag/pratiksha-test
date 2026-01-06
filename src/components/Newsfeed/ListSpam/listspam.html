@@ -1,0 +1,81 @@
+<div>
+  <div class="sc-filter">
+    <div class="sc-filter-item">
+      <label class="sc-filter-label">Date delete & apply spam rules:</label>
+      <div class="sc-filter-item sc-filter-item-row">
+        <div>
+          <span>From </span>
+          <input class="sc-filter-input m-r-10" type="date" v-model="filter.delete_spam_date_begin" />
+        </div>
+        <div>
+          <span>To</span>
+          <input class="sc-filter-input" type="date" v-model="filter.delete_spam_date_end" />
+        </div>
+      </div>
+    </div>
+    <div class="sc-filter-item m-l-128">
+        <label class="sc-filter-label">Executed at:</label>
+        <div class="sc-filter-item sc-filter-item-row">
+          <div>
+            <span>From </span>
+            <input class="sc-filter-input m-r-10" type="date" v-model="filter.executed_date_begin" />
+          </div>
+          <div>
+            <span>To</span>
+            <input class="sc-filter-input" type="date" v-model="filter.executed_date_end" />
+          </div>
+        </div>
+    </div>
+    <div class="sc-filter-item sc-filter-button">
+        <input
+          type="submit"
+          value="Filter"
+          class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-mr-10"
+          @click="filterData"
+        />
+        <input
+          type="submit"
+          value="Reset"
+          class="sc-btn sc-btn-secondary sc-btn-md sc-btn-rounded sc-mr-10"
+          @click="resetFilter"
+        />
+    </div>
+  </div>
+  <div class="sc-table-responsive">
+    <table class="sc-table">
+      <thead>
+        <tr class="head">
+          <th style="width: 40%">Date delete and apply spam rules</th>
+          <th style="width: 40%">Executed at</th>
+          <th style="width: 20%">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <div v-if="is_loading" class="loader" style="text-align: center">
+          <ball-pulse-loader color="#000000" size="20px"></ball-pulse-loader>
+        </div>
+
+        <TableEmpty :cols="6" v-if="!is_loading && !(data && data.length)" />
+
+        <template v-for="(newsfeed, key) in data">
+          <tr :key="key">
+            <td class="cell100 column1">{{ (newsfeed.created_at)? filterDate(newsfeed.created_at) : '' }}</td>
+            <td class="cell100 column2">{{ (newsfeed.executed_date)? filterDate(newsfeed.executed_date) : '' }}</td>
+            <td class="cell100 column3">
+                <div class="sc-table-btn column-btn">
+                    <a class="sc-table-btn-item sc-btn sc-btn-primary sc-btn-rounded sc-btn-sm new_btn" v-on:click="exportDatatoCSV(newsfeed)"
+                      >EXTRACT</a
+                    >
+                </div>
+            </td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- <div class="table-pagination">
+    <p>Page: {{ pagination.currentPage }} out of {{ pagination.totalPage}}</p>
+    <p>Total Record: {{ pagination.currentTotalRecord }}</p>
+  </div> -->
+</div>
